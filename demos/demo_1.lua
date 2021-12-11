@@ -79,4 +79,9 @@ function patch.draw()
 	love.graphics.draw(img,0,20)
 end
 
+
+function patch.update()
+	return
+end
+
 return patch
