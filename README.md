@@ -1,8 +1,8 @@
 # LOVELive2P
-### LÖVE Live-Coding minimal framework 
+### LÖVE minimal Live-Coding collaborative framework 
 
 
-LOVELive2P (not [that kind](https://en.wikipedia.org/wiki/Love_Live!) of Love Live) is a [LÖVE](https://love2d.org/) framework to create, explore, play interactively with the code in order to creat visuals in a live coding setting or during a live music performance.
+LOVELive2P (not [that kind](https://en.wikipedia.org/wiki/Love_Live!) of Love Live) is a minimal [LÖVE](https://love2d.org/) framework to create, explore, play interactively with the code in order to creat visuals in a live coding setting or during a live music performance.
 
 It is flexible enough in order to support:
 - "1 player" scenarios, with the livecoder/artist handling entirely the code and controls of the visuals.
