@@ -1,6 +1,6 @@
 print()
 
-patch = require "patches/patch_1"
+patch = require "demos/demo_1"
 
 lick = require "lib/lick"
 params = require "lib/params"
