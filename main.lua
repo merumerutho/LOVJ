@@ -57,4 +57,6 @@ function love.update()
 		print("FPS:", fps)
 		print("Packets received:", info)
 	end
+	
+	patch.update()
 end
