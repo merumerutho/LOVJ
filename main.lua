@@ -1,7 +1,5 @@
 print()
 
-patch = require "demos/demo_1"
-
 lick = require "lib/lick"
 params = require "lib/params"
 screen = require "lib/screen"
@@ -9,10 +7,13 @@ timer = require "lib/timer"
 controls = require "lib/controls"
 socket = require "lib/socket"
 
+patch = require "demos/demo_1"
+lick.updateCurrentlyLoadedPatch("demos/demo_1.lua")
+
 -- lick reset enable
 lick.reset = true
 
-hot_reload = ""
+--  hot reload
 
 function love.load()
 	
@@ -21,7 +22,7 @@ function love.load()
 	-- Init timer
 	timer.init()
 	-- Init parameters
-	p = params.init({a=0.5, b=1})
+	params.init({a=0.5, b=1})
 	-- Init Patch
 	patch.init()
 	-- Init socket
@@ -46,9 +47,6 @@ function love.update()
 	-- update timer
 	timer.update()
 	
-	-- update parameters by user controls
-	p = controls.updateByKeys(p)
-	
 	-- Get info from socket
 	info = socket.update()
 	
@@ -58,5 +56,9 @@ function love.update()
 		print("Packets received:", info)
 	end
 	
+	-- parse general controls
+	controls.generalControls()
+	
+	-- patch update
 	patch.update()
 end

@@ -6,7 +6,7 @@
 -- added modification to close UDP thread if present
 
 local lick = {}
-lick.file = "main.lua"
+lick.files = {"main.lua", "main.lua"}
 lick.debug = false
 lick.reset = false
 lick.clearFlag = false
@@ -22,16 +22,19 @@ end
 
 -- Initialization
 local function load()
-  last_modified = 0
+  last_modified_main = 0
+  last_modified_patch = 0
 end
 
 local function update(dt)
-    local info = love.filesystem.getInfo(lick.file)
-    if info and last_modified < info.modtime then
-        last_modified = info.modtime
+    local info_main = love.filesystem.getInfo(lick.files[1])
+	local info_patch = love.filesystem.getInfo(lick.files[2])
+    if (info_main and info_patch) and (last_modified_main < info_main.modtime or last_modified_patch < info_patch.modtime) then
+        last_modified_main = info_main.modtime
+		last_modified_patch = info_patch.modtime
 		-- Close UDP socket and thread
 		closeUDPThread()
-        success, chunk = pcall(love.filesystem.load, lick.file)
+        success, chunk = pcall(love.filesystem.load, lick.files[1])
         if not success then
             print(tostring(chunk))
             lick.debugoutput = chunk .. "\n"
@@ -46,7 +49,7 @@ local function update(dt)
                 lick.debugoutput =  err .. "\n" 
             end 
         else
-            print("CHUNK LOADED\n")
+            print("[LICK] - Reloaded\n")
             lick.debugoutput = nil
         end
         if lick.reset then
@@ -151,6 +154,10 @@ function closeUDPThread()
 			print("[LICK] - UDP Thread released.")
 		end
 	end
+end
+
+function lick.updateCurrentlyLoadedPatch(patchPath)
+	lick.files = {"main.lua", patchPath}
 end
 
 return lick

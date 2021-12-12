@@ -36,6 +36,51 @@ function patch.methods.inScreen(x,y)
 end
 
 
+function patch.patchControls()
+	p = params[1]
+	
+	-- INCREASE
+	if love.keyboard.isDown("up") then
+		-- Param "a"
+		if love.keyboard.isDown("a") then
+			p[1] = p[1] + .1
+		end
+		-- Param "b"
+		if love.keyboard.isDown("b") then
+			p[2] = p[2] + .1
+		end
+	end
+	
+	-- DECREASE
+	if love.keyboard.isDown("down") then
+		-- Param "a"
+		if love.keyboard.isDown("a") then
+			p[1] = p[1] - .1 
+		end
+		-- Param "b"
+		if love.keyboard.isDown("b") then
+			p[2] = p[2] - .1
+		end
+	end
+	
+	-- Hanger
+	if love.keyboard.isDown("x") then
+		hang = true
+	else
+		hang = false
+	end
+	
+	-- Reset
+	if love.keyboard.isDown("r") then
+		p[1]=0.5
+		p[2]=1
+		timer.initial_time = love.timer.getTime()
+	end
+	
+	return p
+end
+
+
 function patch.init()
 	patch.hang = false
 	patch.palette = PALETTE
@@ -47,6 +92,8 @@ end
 
 
 function patch.draw()
+	p = params[1]
+
 	-- clear picture
 	if not hang then
 		patch.img_data:mapPixel(patch.methods.fill_bg)
@@ -62,8 +109,9 @@ function patch.draw()
 			local y1 = x*math.sin(timer.t) + y*math.cos(timer.t)
 			-- calculate pixel position to draw
 			local w, h = screen.inner.w, screen.inner.h
-			local px = w/2 + (r-p.b)*x1
-			local py = h/2 + (r-p.a)*y1
+			local px = w/2 + (r-p[2])*x1
+			local py = h/2 + (r-p[1])*y1
+			px = px + 8*math.cos(r)
 			-- calculate color position in lookup table
 			local col = -r*2 + math.atan(x1,y1)
 			col = patch.palette[(math.floor(col) % 16) +1]
@@ -81,6 +129,8 @@ end
 
 
 function patch.update()
+	-- update parameters with patch controls
+	patch.patchControls()
 	return
 end
 
