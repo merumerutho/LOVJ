@@ -8,6 +8,7 @@ function timer.init()
 	timer.deltaT = {}
 	timer.deltaT.console = 0
 	timer.initial_time = love.timer.getTime()
+	timer.t = love.timer.getTime()
 end
 
 
