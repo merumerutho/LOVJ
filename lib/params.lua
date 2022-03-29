@@ -1,3 +1,7 @@
+-- params.lua
+--
+-- Generate and handle parameters table
+
 N_PARAMETERS = 256
 
 params = {}

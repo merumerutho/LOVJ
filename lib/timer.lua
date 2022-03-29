@@ -1,8 +1,11 @@
+-- timer.lua
+--
+-- Internal timer settings
+
 CONSOLE_UPDATE_INTERVAL = 1
 TARGET_FPS = 60
 
 timer = {}
-
 
 function timer.init()
 	timer.deltaT = {}
@@ -24,6 +27,5 @@ function timer.consoleCheck()
 	end
 	return false
 end
-
 
 return timer

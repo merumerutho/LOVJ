@@ -14,7 +14,6 @@ lick.updateCurrentlyLoadedPatch("demos/demo_1.lua")
 lick.reset = true
 
 --  hot reload
-
 function love.load()
 	
 	-- Init screen
@@ -48,12 +47,12 @@ function love.update()
 	timer.update()
 	
 	-- Get info from socket
-	info = socket.update()
+	socket_info = socket.update()
 	
 	-- Console management
 	if timer.consoleCheck() then
 		print("FPS:", fps)
-		print("Packets received:", info)
+		print("Packets received:", socket_info[1])
 	end
 	
 	-- parse general controls

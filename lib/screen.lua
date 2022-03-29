@@ -1,3 +1,7 @@
+-- screen.lua
+--
+-- Graphical settings
+
 INNER_WIDTH = 240
 INNER_RATIO = 16/9
 
