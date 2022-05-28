@@ -3,10 +3,10 @@
 -- Graphical settings
 
 INNER_WIDTH = 240
-INNER_RATIO = 16/9
+INNER_RATIO = 4/3
 
 OUTER_WIDTH = 800
-OUTER_RATIO = 16/9
+OUTER_RATIO = 4/3
 
 screen = {}
 

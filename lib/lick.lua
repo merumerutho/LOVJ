@@ -6,7 +6,7 @@
 -- added modification to close UDP thread if present
 
 local lick = {}
-local socks_cfg = require "lib/cfg/sock_cfg"
+local socks_cfg = require "connection_cfg"
 
 lick.files = {"main.lua", "main.lua"}
 lick.debug = false

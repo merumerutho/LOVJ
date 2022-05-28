@@ -247,4 +247,8 @@ function losc:remove_all()
   end
 end
 
+
+losc.Message = Message 
+
+
 return losc

@@ -1,11 +1,11 @@
 print()
 
 lick = require "lib/lick"
-params = require "lib/params"
+res = require "resources"
 screen = require "lib/screen"
 timer = require "lib/timer"
 controls = require "lib/controls"
-socket = require "lib/socket"
+socket = require "comm"
 
 patch = require "demos/demo_1"
 lick.updateCurrentlyLoadedPatch("demos/demo_1.lua")
@@ -15,18 +15,16 @@ lick.reset = true
 
 --  hot reload
 function love.load()
-	
 	-- Init screen
 	screen.init()
 	-- Init timer
 	timer.init()
-	-- Init parameters
-	params.init({a=0.5, b=1})
+	-- Init resources
+	resources.init()
 	-- Init Patch
 	patch.init()
 	-- Init socket
 	socket.init()
-	
 end
 
 
@@ -43,21 +41,16 @@ end
 
 -- Main update cycle, executed as fast as possible
 function love.update()
-	-- update timer
-	timer.update()
-	
-	-- Get info from socket
-	socket_info = socket.update()
-	
+
+	timer.update()  -- update timer
 	-- Console management
-	if timer.consoleCheck() then
+	if timer.consoleTimer() then
 		print("FPS:", fps)
-		print("Packets received:", socket_info[1])
+		print("Packets received:", sockets[1].info)
 	end
-	
-	-- parse general controls
-	controls.generalControls()
-	
-	-- patch update
-	patch.update()
+
+	controls.generalControls()  -- evaluate general controls
+
+	response_data = comm.request()  -- request data from UDP connections
+	dispatcher.update(response_data)  -- TODO implement this
 end

@@ -5,7 +5,7 @@
 
 controls = {}
 
-function controls.generalControls()
+function controls.generalControls(key, scancode, isrepeat)
 	return
 end
 

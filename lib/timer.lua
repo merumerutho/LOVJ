@@ -2,10 +2,10 @@
 --
 -- Internal timer settings
 
-CONSOLE_UPDATE_INTERVAL = 1
-TARGET_FPS = 60
-
 timer = {}
+
+timer.CONSOLE_UPDATE_INTERVAL = 1
+timer.TARGET_FPS = 60
 
 function timer.init()
 	timer.deltaT = {}
@@ -20,8 +20,8 @@ function timer.update()
 end
 
 
-function timer.consoleCheck()
-	if timer.t - timer.deltaT.console >= CONSOLE_UPDATE_INTERVAL then
+function timer.consoleTimer()
+	if timer.t - timer.deltaT.console >= timer.CONSOLE_UPDATE_INTERVAL then
 		timer.deltaT.console = timer.t
 		return true
 	end
