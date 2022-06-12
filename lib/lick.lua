@@ -15,8 +15,8 @@ lick.clearFlag = false
 lick.sleepTime = love.graphics.newCanvas and 0.001 or 1
 
 local last_modified = 0
-socket = {}
-socket.UDP_thread = nil
+comm = {}
+comm.UDP_thread = nil
 
 local function handle(err)
   return "ERROR: " .. err
@@ -147,12 +147,12 @@ end
 
 function closeUDPThread()
 	-- If there is a "UDP_thread"
-	if socket.UDP_thread then
+	if comm.UDP_thread then
 		print("[LICK] - Closing UDP thread...")
 		assert(love.thread.getChannel("UDP_REQUEST"):push("quit"))
 		resp = love.thread.getChannel("UDP_SYSTEM_INFO"):demand()
 		if resp == "clear" then
-			socket.UDP_thread:release()
+			comm.UDP_thread:release()
 			print("[LICK] - UDP Thread released.")
 		end
 	end

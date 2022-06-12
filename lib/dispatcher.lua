@@ -12,7 +12,7 @@ function dispatcher.update(data)
         for kk,vv in pairs(v) do  -- each entry is a different message
             local msg = losc.Message.unpack(vv)  -- evaluate message
             print(msg)  -- placeholder
-            -- TODO evaluate msg address and redirect to correct section
+            -- TODO evaluate msg address and redirect to correct section (i.e. correct resource)
         end
     end
 end

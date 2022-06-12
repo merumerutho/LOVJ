@@ -2,9 +2,9 @@
 --
 -- palettes inspired or taken by several systems.
 
-palettes = {}
+Palettes = {}
 
-palettes.PICO8 = {
+Palettes.PICO8 = {
 	{0, 0, 0}, -- black
 	{29, 43, 83}, -- blue
 	{126, 37, 83}, -- burgundy
@@ -23,7 +23,7 @@ palettes.PICO8 = {
 	{255, 204, 170} -- cream
 }
 
-palettes.TIC80 =  {
+Palettes.TIC80 =  {
 	{26,28,44}, 	-- black
 	{93,39,93}, 	-- purple
 	{177,62,83},	-- red
@@ -42,4 +42,4 @@ palettes.TIC80 =  {
 	{51,60,87}		-- dark grey
 }
 
-return palettes
+return Palettes

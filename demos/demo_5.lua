@@ -11,8 +11,8 @@ patch.methods = {}
 patch.shaders = { shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror }
 
 --- @private inScreen Check if pixel in screen boundary
-function patch.methods.inScreen(x,y)
-	return (x>0 and x<screen.inner.w and y > 0 and y < screen.inner.h)
+function patch.methods.inScreen(x, y)
+	return (x>0 and x< screen.inner.w and y > 0 and y < screen.inner.h)
 end
 
 --- @private patchCheckControls Checks the input controls locally
@@ -40,7 +40,7 @@ function love.keypressed(key, scancode, isrepeat)
 	end
 
 	-- fallback to general controls callback
-	controls.generalControls()
+	controls.HandleGeneralControls()
 end
 
 
@@ -60,8 +60,8 @@ end
 function patch.updatePoints(l)
 	p = params.elements[1]
 	for k,v in pairs(l) do
-		v.x = v.x + math.random()*math.sin(2*math.pi*(timer.t / (p[1]*3) + v.i/#l)) + v.dx*(math.sin(math.pi*timer.t*2))^3
-		v.y = v.y + math.random()*math.cos(2*math.pi*(timer.t / (p[2]*3) + v.i/#l)) + v.dy*(math.cos(math.pi*timer.t*2))^3
+		v.x = v.x + math.random()*math.sin(2*math.pi*(timer.t / (p[1]*3) + v.i/#l)) + v.dx*(math.sin(math.pi* timer.t*2))^3
+		v.y = v.y + math.random()*math.cos(2*math.pi*(timer.t / (p[2]*3) + v.i/#l)) + v.dy*(math.cos(math.pi* timer.t*2))^3
 	end
 end
 
@@ -73,7 +73,7 @@ function patch.init()
 	patch.palette = PALETTE
 	patch.nPoints = 3+math.random(32)
 	patch.points = {}
-	for i=1,patch.nPoints do
+	for i=1, patch.nPoints do
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 	-- canvases
@@ -88,7 +88,7 @@ function patch.reset()
 	-- regenerate points
 	patch.nPoints = 3+math.random(32)
 	patch.points = {}
-	for i=1,patch.nPoints do
+	for i=1, patch.nPoints do
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 end
@@ -102,12 +102,12 @@ function patch.draw()
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
 	if hang then
 		patch.shader_trail = love.graphics.newShader(shaders.trail) -- set/update trail shader
-		patch.shader_trail:send("trailColor", {p[4], p[5], p[6], 0.99804684})
+		patch.shader_trail:send("trailColor", { p[4], p[5], p[6], 0.99804684})
 		patch.canvases.trail:renderTo(function()
 			love.graphics.setColor(1,1,1,1)
 			love.graphics.setShader(patch.shader_trail) -- apply shader
 			love.graphics.draw(patch.canvases.main, -- draw content of main buffer onto trail buffer
-								0, 0, 0, 1/screen.scale.x, 1/screen.scale.y)
+								0, 0, 0, 1/ screen.scale.x, 1/ screen.scale.y)
 			love.graphics.setShader() -- remove shader
 		end)
 	end
@@ -117,7 +117,7 @@ function patch.draw()
 	patch.canvases.main:renderTo(function()
 			love.graphics.setColor(1,1,1,1)
 			love.graphics.draw(patch.canvases.trail,  -- draw content of main buffer onto trail buffer
-								0, 0, 0, 1/screen.scale.x, 1/screen.scale.y)
+								0, 0, 0, 1/ screen.scale.x, 1/ screen.scale.y)
 		end)
 
 	-- update points positions
@@ -153,7 +153,7 @@ function patch.draw()
 	-- apply shader
 	love.graphics.setShader(shader)
 	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, 1/screen.scale.x, 1/screen.scale.y)
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, 1/ screen.scale.x, 1/ screen.scale.y)
 	-- remove shader
 	love.graphics.setShader()
 end

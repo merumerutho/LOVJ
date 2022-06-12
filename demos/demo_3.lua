@@ -26,7 +26,7 @@ function patch.patchControls()
 	
 	-- Reset
 	if love.keyboard.isDown("r") then
-		timer.initial_time = love.timer.getTime()
+		timer.InitialTime = love.timer.getTime()
     patch.init()
 	end
 	
@@ -48,7 +48,7 @@ end
 
 
 
-function patch.ballUpdate(k,b)
+function patch.ballUpdate(k, b)
   local p = params[1]
   b.w = b.w + b.s + b.w * p[1]/10
   if b.w > screen.inner.w/2*math.sqrt(2) then
@@ -76,7 +76,7 @@ function patch.init()
 	
 	patch.ballList = {}
 	-- generate balls
-	for i=1,patch.nBalls do
+	for i=1, patch.nBalls do
 		patch.newBall(patch.ballList)
 	end
 	patch.count = patch.nBalls
@@ -86,8 +86,8 @@ end
 function patch.drawBall(b)
   -- local p = params[1]
 	for a = 0, b.n do
-		local x = screen.inner.w/2 + 20*math.cos(2*math.pi*timer.t/6.2) - b.w * math.cos(2*math.pi*(timer.t/2*b.cs + a / b.n + b.rp))
-		local y = screen.inner.h/2 + 25*math.sin(2*math.pi*timer.t/5.5) - b.w * math.sin(2*math.pi*(timer.t/2*b.cs + a / b.n + b.rp))
+		local x = screen.inner.w/2 + 20*math.cos(2*math.pi* timer.t/6.2) - b.w * math.cos(2*math.pi*(timer.t/2*b.cs + a / b.n + b.rp))
+		local y = screen.inner.h/2 + 25*math.sin(2*math.pi* timer.t/5.5) - b.w * math.sin(2*math.pi*(timer.t/2*b.cs + a / b.n + b.rp))
 		local r = (b.w / 30)*(b.w / 30)
 		-- filled circle
 		love.graphics.setColor(0, 0, 0, 1)

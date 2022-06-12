@@ -7,7 +7,7 @@ patch = {}
 patch.methods = {}
 
 -- Fill screen with background color
-function patch.methods.fill_bg(x,y,r,g,b,a)
+function patch.methods.fill_bg(x, y, r, g, b, a)
 	r = PALETTE[1][1]/255
 	g = PALETTE[1][2]/255
 	b = PALETTE[1][3]/255
@@ -52,7 +52,7 @@ function patch.patchControls()
 	
 	-- Reset
 	if love.keyboard.isDown("r") then
-		timer.initial_time = love.timer.getTime()
+		timer.InitialTime = love.timer.getTime()
     patch.init()
 	end
 	
@@ -84,7 +84,7 @@ end
 
 
 
-function patch.ballTrajectory(k,b)
+function patch.ballTrajectory(k, b)
   b.x = b.x + b.ax
   b.y = b.y + b.ay
   b.z = b.z + 0.05*b.az
@@ -113,13 +113,13 @@ function patch.init()
   patch.nBalls = 500
   patch.ballList = {}
   -- generate balls
-  for i=1,patch.nBalls do
+  for i=1, patch.nBalls do
     patch.addBall(patch.ballList, screen.inner.w/2, screen.inner.h/2)
   end
 end
 
 
-function patch.drawBall(img,b)
+function patch.drawBall(img, b)
   local border_col = patch.palette[math.random(16)]
   love.graphics.setColor(border_col[1]/255, border_col[2]/255, border_col[3]/255, 1)
   love.graphics.circle("line", b.x, b.y, (b.z/2)^1.6, (b.z*2)+6)

@@ -4,8 +4,9 @@ lick = require "lib/lick"
 res = require "resources"
 screen = require "lib/screen"
 timer = require "lib/timer"
+resources = require "lib/resources"
 controls = require "lib/controls"
-socket = require "comm"
+comm = require "lib/comm"
 
 patch = require "demos/demo_1"
 lick.updateCurrentlyLoadedPatch("demos/demo_1.lua")
@@ -24,24 +25,23 @@ function love.load()
 	-- Init Patch
 	patch.init()
 	-- Init socket
-	socket.init()
+	comm.init()
 end
 
 
 -- Main draw cycle, called once every frame (depends on vsync)
 function love.draw()
 	-- set scaling
-	love.graphics.scale(screen.scale.x, screen.scale.y)
+	love.graphics.scale(screen.Scale.X, screen.Scale.Y)
 	-- draw patch
 	patch.draw()
 	-- calculate fps
-	fps = 1/(love.timer.getAverageDelta())
+	local fps = 1/(love.timer.getAverageDelta())
 end
 
 
 -- Main update cycle, executed as fast as possible
 function love.update()
-
 	timer.update()  -- update timer
 	-- Console management
 	if timer.consoleTimer() then
@@ -49,8 +49,8 @@ function love.update()
 		print("Packets received:", sockets[1].info)
 	end
 
-	controls.generalControls()  -- evaluate general controls
+	controls.HandleGeneralControls()  -- evaluate general controls
 
-	response_data = comm.request()  -- request data from UDP connections
+	local response_data = comm.SendRequests()  -- request data from UDP connections
 	dispatcher.update(response_data)  -- TODO implement this
 end

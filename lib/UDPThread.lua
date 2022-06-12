@@ -18,7 +18,7 @@ local listening = false -- not listening yet
 local packetCount = 0
 
 -- Function called at initialization
-function init()
+local function Init()
 	-- Create channel "info"
 	reqChannel = love.thread.getChannel("reqChannel_" + id)
 	rspChannel = love.thread.getChannel("rspChannel_" + id)
@@ -33,7 +33,7 @@ end
 
 
 -- Function to receive incoming packets
-function receivePacket()
+local function ReceivePacket()
 	-- Receive packets
 	local packet
 	local msg_or_ip
@@ -44,7 +44,7 @@ end
 
 
 -- Function to parse packets and extract their contents
-function parsePacket(p)
+local function ParsePacket(p)
 	if p then
 		packetCount = packetCount + 1  -- increase packet count
 		table.insert(rspMsgs, p)  -- insert data in response queue
@@ -53,7 +53,7 @@ end
 
 
 -- Function to send back info obtained from extracted packets
-function parseRequest()
+local function ParseRequest()
 	local req = reqChannel:pop()  -- get requests
 
 	if req == cfg.reqMsg then	-- if REQ present, send the rspMsgs queue back
@@ -84,10 +84,10 @@ end
 
 
 --
-init()
+Init()
 
 while listening do
-	packet = receivePacket()  -- listen to udp
-	parsePacket(packet)  -- put packets in the queue
-	parseRequest()  -- elaborate requests from main program
+	packet = ReceivePacket()  -- listen to udp
+	ParsePacket(packet)  -- put packets in the queue
+	ParseRequest()  -- elaborate requests from main program
 end

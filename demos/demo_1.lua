@@ -6,7 +6,7 @@ patch = {}
 patch.methods = {}
 
 -- Fill screen with background color
-function patch.methods.fill_bg(x,y,r,g,b,a)
+function patch.methods.fill_bg(x, y, r, g, b, a)
 	r = PALETTE[1][1]/255
 	g = PALETTE[1][2]/255
 	b = PALETTE[1][3]/255
@@ -16,8 +16,8 @@ end
 
 
 -- Check if pixel in screen boundary
-function patch.methods.inScreen(x,y)
-	return (x>0 and x<screen.inner.w and y > 0 and y < screen.inner.h)
+function patch.methods.inScreen(x, y)
+	return (x>0 and x< screen.inner.w and y > 0 and y < screen.inner.h)
 end
 
 
@@ -59,7 +59,7 @@ function patch.patchControls()
 	if love.keyboard.isDown("r") then
 		p[1]=0.5
 		p[2]=1
-		timer.initial_time = love.timer.getTime()
+		timer.InitialTime = love.timer.getTime()
 	end
 	
 	return p

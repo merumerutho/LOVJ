@@ -26,7 +26,7 @@ function patch.patchControls()
 	
 	-- Reset
 	if love.keyboard.isDown("r") then
-		timer.initial_time = love.timer.getTime()
+		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
 	
@@ -51,7 +51,7 @@ end
 
 function patch.draw()
 	p = params[1]
-	for i=-1,patch.n-1 do
+	for i=-1, patch.n-1 do
 		-- type: outer or inner
 		local c = math.random(2)
 		-- shortcut :)
@@ -61,8 +61,8 @@ function patch.draw()
 		-- x coordinate
 		local x = math.random(screen.inner.w/2)
 		-- y coordinates
-		local y1 = ((hi/patch.n)*i) - r/2 - 5 + (timer.t*20)%(screen.inner.h/patch.n)
-		local y2 = y1 + (hi/patch.n)  + r/2 + 5 + (timer.t*20)%(screen.inner.h/patch.n)
+		local y1 = ((hi/ patch.n)*i) - r/2 - 5 + (timer.t*20)%(screen.inner.h/ patch.n)
+		local y2 = y1 + (hi/ patch.n)  + r/2 + 5 + (timer.t*20)%(screen.inner.h/ patch.n)
 		-- draw
 		if c == 1 then
 			love.graphics.setColor(1, 1, 1, p[1])

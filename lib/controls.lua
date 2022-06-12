@@ -5,7 +5,7 @@
 
 controls = {}
 
-function controls.generalControls(key, scancode, isrepeat)
+function controls.HandleGeneralControls(key, scancode, isrepeat)
 	return
 end
 
