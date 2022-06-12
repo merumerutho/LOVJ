@@ -6,7 +6,7 @@
 -- added modification to close UDP thread if present
 
 local lick = {}
-local socks_cfg = require "connection_cfg"
+local socks_cfg = require "lib/cfg/cfg_connections"
 
 lick.files = {"main.lua", "main.lua"}
 lick.debug = false
@@ -15,8 +15,8 @@ lick.clearFlag = false
 lick.sleepTime = love.graphics.newCanvas and 0.001 or 1
 
 local last_modified = 0
-comm = {}
-comm.UDP_thread = nil
+connections = {}
+connections.UDP_thread = nil
 
 local function handle(err)
   return "ERROR: " .. err
@@ -147,12 +147,12 @@ end
 
 function closeUDPThread()
 	-- If there is a "UDP_thread"
-	if comm.UDP_thread then
+	if connections.UDP_thread then
 		print("[LICK] - Closing UDP thread...")
 		assert(love.thread.getChannel("UDP_REQUEST"):push("quit"))
 		resp = love.thread.getChannel("UDP_SYSTEM_INFO"):demand()
 		if resp == "clear" then
-			comm.UDP_thread:release()
+			connections.UDP_thread:release()
 			print("[LICK] - UDP Thread released.")
 		end
 	end

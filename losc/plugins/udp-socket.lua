@@ -32,7 +32,7 @@ SOFTWARE.
 -- @license MIT
 -- @copyright David Granström 2021
 
-local socket = require 'comm'
+local socket = require 'connections'
 
 local relpath = (...):gsub('%.[^%.]+$', '')
 relpath = relpath:gsub('%.[^%.]+$', '')

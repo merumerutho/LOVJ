@@ -71,7 +71,7 @@ function patch.init()
 	patch.palette = PALETTE
 
 	patch.img = false
-	patch.img_data = love.image.newImageData(screen.inner.w, screen.inner.h)
+	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
 	
 end
 

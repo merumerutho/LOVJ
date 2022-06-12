@@ -2,7 +2,7 @@
 --lick.reset = true
 
 -- NETWORK SETTINGS
-local socket = require "comm"
+local socket = require "connections"
 local address, port = "127.0.0.1", 55555
 start = love.timer.getTime()
 i=0

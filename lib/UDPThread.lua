@@ -3,14 +3,14 @@
 -- Implementation of thread handling UDP sockets
 
 -- Parse arguments
-local init_cfg = ...
-local id = init_cfg[1]
-local ip = init_cfg[2]["address"]
-local ip_port = init_cfg[2]["port"]
+local initParams = { ...}
+local id = initParams[1]
+local ip = initParams[2]["address"]
+local ip_port = initParams[2]["port"]
 
 -- include libs
-local socket = require "comm"
-local cfg = require "connection_cfg"
+local socket = require "socket"
+local cfg = require "lib/cfg/cfg_connections"
 
 -- local variables
 local rspMsgs = {} -- Response list
@@ -20,8 +20,8 @@ local packetCount = 0
 -- Function called at initialization
 local function Init()
 	-- Create channel "info"
-	reqChannel = love.thread.getChannel("reqChannel_" + id)
-	rspChannel = love.thread.getChannel("rspChannel_" + id)
+	reqChannel = love.thread.getChannel("reqChannel_" .. id)
+	rspChannel = love.thread.getChannel("rspChannel_" .. id)
 
 	-- Setup UDP listener
 	udp = socket.udp()
