@@ -5,6 +5,8 @@ controls = require "lib/controls"
 -- import palette
 PALETTE = available_palettes.TIC80
 
+local ALPHA_MAGIC_NUM = 0.99804684
+
 patch = {}
 patch.methods = {}
 
@@ -12,7 +14,7 @@ patch.shaders = { shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.w
 
 --- @private inScreen Check if pixel in screen boundary
 function patch.methods.inScreen(x, y)
-	return (x>0 and x< screen.inner.w and y > 0 and y < screen.inner.h)
+	return (x > 0 and x < screen.inner.w and y > 0 and y < screen.inner.h)
 end
 
 --- @private patchCheckControls Checks the input controls locally
@@ -47,10 +49,10 @@ end
 --- @private generatePoint Generate a random point in space
 function patch.generatePoint(i)
 	local po = {}
-	po.x = screen.inner.w/2 + math.random(screen.inner.w/2) - math.random(screen.inner.w/2)
-	po.y = screen.inner.h/2 + math.random(screen.inner.h/2) - math.random(screen.inner.h/2)
-	po.dx = tonumber(po.x > screen.inner.w/2) or -1
-	po.dy = tonumber(po.y > screen.inner.h/2) or -1
+	po.x = screen.inner.w / 2 + math.random(screen.inner.w / 2) - math.random(screen.inner.w / 2)
+	po.y = screen.inner.h / 2 + math.random(screen.inner.h / 2) - math.random(screen.inner.h / 2)
+	po.dx = tonumber(po.x > screen.inner.w / 2) or -1
+	po.dy = tonumber(po.y > screen.inner.h / 2) or -1
 	po.i = i
 	return po
 end
@@ -59,9 +61,9 @@ end
 --- @private updatePoints Updates points positions
 function patch.updatePoints(l)
 	p = params.elements[1]
-	for k,v in pairs(l) do
-		v.x = v.x + math.random()*math.sin(2*math.pi*(timer.t / (p[1]*3) + v.i/#l)) + v.dx*(math.sin(math.pi* timer.t*2))^3
-		v.y = v.y + math.random()*math.cos(2*math.pi*(timer.t / (p[2]*3) + v.i/#l)) + v.dy*(math.cos(math.pi* timer.t*2))^3
+	for k, v in pairs(l) do
+		v.y = v.y + math.random() * math.cos(2 * math.pi * (timer.t / (p[2] * 3) + v.i / #l)) + v.dy * (math.cos(math.pi * timer.t * 2)) ^ 3
+		v.x = v.x + math.random() * math.sin(2 * math.pi * (timer.t / (p[1] * 3) + v.i / #l)) + v.dx * (math.sin(math.pi * timer.t * 2)) ^ 3
 	end
 end
 
@@ -71,9 +73,9 @@ function patch.init()
 	p=params.elements[1]
 	patch.hang = false
 	patch.palette = PALETTE
-	patch.nPoints = 3+math.random(32)
+	patch.nPoints = 3 + math.random(32)
 	patch.points = {}
-	for i=1, patch.nPoints do
+	for i = 1, patch.nPoints do
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 	-- canvases
@@ -86,9 +88,9 @@ end
 
 function patch.reset()
 	-- regenerate points
-	patch.nPoints = 3+math.random(32)
+	patch.nPoints = 3 + math.random(32)
 	patch.points = {}
-	for i=1, patch.nPoints do
+	for i = 1, patch.nPoints do
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 end
@@ -102,12 +104,12 @@ function patch.draw()
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
 	if hang then
 		patch.shader_trail = love.graphics.newShader(shaders.trail) -- set/update trail shader
-		patch.shader_trail:send("trailColor", { p[4], p[5], p[6], 0.99804684})
+		patch.shader_trail:send("trailColor", {p[4], p[5], p[6], ALPHA_MAGIC_NUM})
 		patch.canvases.trail:renderTo(function()
-			love.graphics.setColor(1,1,1,1)
+			love.graphics.setColor(1, 1, 1, 1)
 			love.graphics.setShader(patch.shader_trail) -- apply shader
 			love.graphics.draw(patch.canvases.main, -- draw content of main buffer onto trail buffer
-								0, 0, 0, 1/ screen.scale.x, 1/ screen.scale.y)
+								0, 0, 0, (1 / screen.scale.x), (1 / screen.scale.y))
 			love.graphics.setShader() -- remove shader
 		end)
 	end
@@ -115,24 +117,23 @@ function patch.draw()
 	-- copy back from trail buffer onto main
 	patch.canvases.main:renderTo(love.graphics.clear)
 	patch.canvases.main:renderTo(function()
-			love.graphics.setColor(1,1,1,1)
+			love.graphics.setColor(1, 1, 1, 1)
 			love.graphics.draw(patch.canvases.trail,  -- draw content of main buffer onto trail buffer
-								0, 0, 0, 1/ screen.scale.x, 1/ screen.scale.y)
+								0, 0, 0, (1 / screen.scale.x), (1 / screen.scale.y))
 		end)
-
 	-- update points positions
 	patch.updatePoints(patch.points)
 
 	-- select shader
-	local shader = love.graphics.newShader(patch.shaders[1+p[3]])
+	local shader = love.graphics.newShader(patch.shaders[1 + p[3]])
 
 	-- set canvas
 	love.graphics.setCanvas(patch.canvases.main)
 
 	-- if inside screen, draw points
-	for k,pix in pairs(patch.points) do
-		if patch.methods.inScreen(pix.x,pix.y) then
-			love.graphics.setColor({1,1,1,1})
+	for k, pix in pairs(patch.points) do
+		if patch.methods.inScreen(pix.x, pix.y) then
+			love.graphics.setColor({1, 1, 1, 1})
 			love.graphics.points(pix.x, pix.y)
 		end
 	end
@@ -143,7 +144,7 @@ function patch.draw()
 		if k==#(patch.points) then
 			love.graphics.line(po[k].x, po[k].y, po[1].x, po[1].y)
 		else
-			love.graphics.line(po[k].x, po[k].y, po[k+1].x, po[k+1].y)
+			love.graphics.line(po[k].x, po[k].y, po[k + 1].x, po[k + 1].y)
 		end
 	end
 
@@ -153,7 +154,7 @@ function patch.draw()
 	-- apply shader
 	love.graphics.setShader(shader)
 	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, 1/ screen.scale.x, 1/ screen.scale.y)
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.scale.x), (1 / screen.scale.y))
 	-- remove shader
 	love.graphics.setShader()
 end
