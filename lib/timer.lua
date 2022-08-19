@@ -20,7 +20,7 @@ function timer.update()
 end
 
 
-function timer.consoleTimer()
+function timer.consoleSwInterrupt()
 	if timer.T - timer.DeltaT.console >= timer.CONSOLE_UPDATE_INTERVAL then
 		timer.DeltaT.console = timer.T
 		return true

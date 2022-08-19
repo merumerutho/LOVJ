@@ -4,6 +4,11 @@
 
 Palettes = {}
 
+Palettes.BW = 	{
+	{0, 0, 0}, -- black
+	{1, 1, 1}  -- white
+}
+
 Palettes.PICO8 = {
 	{0, 0, 0}, -- black
 	{29, 43, 83}, -- blue

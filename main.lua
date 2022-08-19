@@ -1,5 +1,3 @@
-print()
-
 lick = require "lib/lick"
 res = require "lib/resources"
 screen = require "lib/screen"
@@ -8,10 +6,14 @@ resources = require "lib/resources"
 controls = require "lib/controls"
 connections = require "lib/connections"
 dispatcher = require "lib/dispatcher"
+debug = require "debug"
 
-patch = require "demos/demo_1"
-lick.updateCurrentlyLoadedPatch("demos/demo_1.lua")
 
+local defaultPatch = "demos/demo_2"
+patch = require(defaultPatch)
+lick.updateCurrentlyLoadedPatch( defaultPatch .. ".lua")
+
+local fps = 0
 -- lick reset enable
 lick.reset = true
 
@@ -27,6 +29,7 @@ function love.load()
 	patch.init()
 	-- Init socket
 	connections.Init()
+
 end
 
 
@@ -37,7 +40,7 @@ function love.draw()
 	-- draw patch
 	patch.draw()
 	-- calculate fps
-	local fps = 1/(love.timer.getAverageDelta())
+	fps = 1/(love.timer.getAverageDelta())
 end
 
 
@@ -45,14 +48,13 @@ end
 function love.update()
 	timer.update()  -- update timer
 	-- Console management
-	if timer.consoleTimer() then
+	if timer.consoleSwInterrupt() then
 		print("FPS:", fps)
 	end
 
-	controls.HandleGeneralControls()  -- evaluate general controls
+	controls.handleGeneralControls()  -- evaluate general controls
 
 	local response_data = connections.SendRequests()  -- request data from UDP connections
-	if (#response_data ~= 1) then
-		dispatcher.update(response_data)  -- TODO implement this
-	end
+	dispatcher.update(response_data)  -- TODO implement this
+	patch.update()
 end

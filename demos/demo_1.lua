@@ -1,4 +1,6 @@
 available_palettes = require "lib/palettes"
+kp = require "lib/utils/keypress"
+
 -- import pico8 palette
 PALETTE = available_palettes.PICO8
 
@@ -17,46 +19,47 @@ end
 
 -- Check if pixel in screen boundary
 function patch.methods.inScreen(x, y)
-	return (x > 0 and x < screen.inner.w and y > 0 and y < screen.inner.h)
+	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
 
 
 function patch.patchControls()
-	p = params[1]
+	-- p = params[1]
+	p = resources.parameters
 	
 	-- INCREASE
-	if love.keyboard.isDown("up") then
+	if kp.isDown("up") then
 		-- Param "a"
-		if love.keyboard.isDown("a") then
+		if kp.isDown("a") then
 			p[1].value = p[1].value + .1
 		end
 		-- Param "b"
-		if love.keyboard.isDown("b") then
+		if kp.isDown("b") then
 			p[2].value = p[2].value + .1
 		end
 	end
 	
 	-- DECREASE
-	if love.keyboard.isDown("down") then
+	if kp.isDown("down") then
 		-- Param "a"
-		if love.keyboard.isDown("a") then
+		if kp.isDown("a") then
 			p[1].value = p[1].value - .1
 		end
 		-- Param "b"
-		if love.keyboard.isDown("b") then
+		if kp.isDown("b") then
 			p[2].value = p[2].value - .1
 		end
 	end
 	
 	-- Hanger
-	if love.keyboard.isDown("x") then
+	if kp.isDown("x") then
 		hang = true
 	else
 		hang = false
 	end
 	
 	-- Reset
-	if love.keyboard.isDown("r") then
+	if kp.isDown("r") then
 		p[1].value = 0.5
 		p[2].value = 1
 		timer.InitialTime = love.timer.getTime()
@@ -77,8 +80,6 @@ end
 
 
 function patch.draw()
-	p = resources.parameters
-
 	-- clear picture
 	if not hang then
 		patch.img_data:mapPixel(patch.methods.fill_bg)
@@ -88,12 +89,12 @@ function patch.draw()
     for x = -20, 20, .25 do
 		for y = -20, 20, .25 do
 			-- calculate oscillating radius
-			local r = ((x * x) + (y * y)) + 10 * math.sin(timer.t / 2.5)
+			local r = ((x * x) + (y * y)) + 10 * math.sin(timer.T / 2.5)
 			-- apply time-dependent rotation
-			local x1 = x * math.cos(timer.t) - y * math.sin(timer.t)
-			local y1 = x * math.sin(timer.t) + y * math.cos(timer.t)
+			local x1 = x * math.cos(timer.T) - y * math.sin(timer.T)
+			local y1 = x * math.sin(timer.T) + y * math.cos(timer.T)
 			-- calculate pixel position to draw
-			local w, h = screen.inner.w, screen.inner.h
+			local w, h = screen.InternalRes.W, screen.InternalRes.H
 			local px = w / 2 + (r - p[2].value) * x1
 			local py = h / 2 + (r - p[1].value) * y1
 			px = px + 8 * math.cos(r)
@@ -109,7 +110,7 @@ function patch.draw()
 	
 	-- render picture
 	local img = love.graphics.newImage(patch.img_data)
-	love.graphics.draw(img, 0, 20)
+	love.graphics.draw(img, 0, 0)
 end
 
 

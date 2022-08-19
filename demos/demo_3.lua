@@ -1,58 +1,50 @@
 available_palettes = require "lib/palettes"
 screen = require "lib/screen"
+kp = require "lib/utils/keypress"
+
 -- import pico8 palette
 PALETTE = available_palettes.PICO8
 
 patch = {}
 patch.methods = {}
 
-
 function patch.patchControls()
-	local p = params[1]
-	if love.keyboard.isDown("lctrl") then
-		if love.keyboard.isDown("a") then
-		  p[1] = 1
-		else
-		  p[1] = 0
-		end
-    
-		-- Hanger
-		if love.keyboard.isDown("x") then
-		  hang = true
-		else
-		  hang = false
-		end
+	local p = resources.parameters
+	if kp.isDown("lctrl") then
+		-- Accelerator
+		if kp.isDown("a") then rSet(p, 1, 1) else rSet(p, 1, 0) end
+
+		-- Hanger (TODO implement)
+		if kp.isDown("x") then hang = true else hang = false end
   	end
 	
 	-- Reset
-	if love.keyboard.isDown("r") then
+	if kp.isDown("r") then
 		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
-	
-	return p
+
 end
 
 
 function patch.newBall()
-	b = {}
-	b.n = 6 + math.random(16)
-	b.s = math.random()
-	b.cs = patch.bs + math.random()
-	b.w = math.abs(8 * math.sin(timer.t / 10))
-	b.c = patch.palette[math.random(16)]
-	b.rp = math.random()
+	ball = {}
+	ball.n = 6 + math.random(16)
+	ball.s = math.random()
+	ball.cs = patch.bs + math.random()
+	ball.w = math.abs(8 * math.sin(timer.T / 10))
+	ball.c = patch.palette[math.random(16)]
+	ball.rp = math.random()
 	-- insert to list
-	table.insert(patch.ballList, b)
+	table.insert(patch.ballList, ball)
 end
 
 
-
-function patch.ballUpdate(k, b)
-  local p = params[1]
-  b.w = b.w + b.s + b.w * p[1] / 10
-  if b.w > screen.inner.w / 2 * math.sqrt(2) then
-    table.remove(patch.ballList, k)
+function patch.ballUpdate(idx, ball)
+  local p = resources.parameters
+  ball.w = ball.w + ball.s + ball.w * rGet(p, 1) / 10
+  if ball.w > screen.InternalRes.W / 2 * math.sqrt(2) then
+    table.remove(patch.ballList, idx)
     patch.count = patch.count - 1
     -- re-add ball
     patch.newBall()
@@ -67,10 +59,10 @@ function patch.init()
 	patch.hang = false
 	patch.palette = PALETTE
 	-- balls
-	patch.nBalls = 200
+	patch.nBalls = 100
 	patch.bs = 1 / 100
 
-	math.randomseed(timer.t)
+	math.randomseed(timer.T)
 
 	patch.ballList = {}
 	-- generate balls
@@ -82,10 +74,9 @@ end
 
 
 function patch.drawBall(b)
-  -- local p = params[1]
 	for a = 0, b.n do
-		local x = screen.inner.w / 2 + 20 * math.cos(2 * math.pi * timer.t / 6.2) - b.w * math.cos(2 * math.pi * (timer.t / 2 * b.cs + a / b.n + b.rp))
-		local y = screen.inner.h / 2 + 25 * math.sin(2 * math.pi * timer.t / 5.5) - b.w * math.sin(2 * math.pi * (timer.t / 2 * b.cs + a / b.n + b.rp))
+		local x = (screen.InternalRes.W / 2) + (20 * math.cos(2 * math.pi * timer.T / 6.2)) - b.w * math.cos(2 * math.pi * (timer.T / 2 * b.cs + a / b.n + b.rp))
+		local y = (screen.InternalRes.H / 2) + (25 * math.sin(2 * math.pi * timer.T / 5.5)) - b.w * math.sin(2 * math.pi * (timer.T / 2 * b.cs + a / b.n + b.rp))
 		local r = (b.w / 30) * (b.w / 30)
 		-- filled circle
 		love.graphics.setColor(0, 0, 0, 1)
@@ -98,7 +89,6 @@ end
 
 
 function patch.draw()
-	--local p = params[1]
 	-- draw balls
 	for k, b in pairs(patch.ballList) do
 		patch.drawBall(b)

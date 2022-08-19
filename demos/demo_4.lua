@@ -1,35 +1,36 @@
 available_palettes = require "lib/palettes"
 screen = require "lib/screen"
+kp = require "lib/utils/keypress"
+
 -- import pico8 palette
-PALETTE = available_palettes.PICO8
+PALETTE = available_palettes.BW
 
 patch = {}
 patch.methods = {}
 
-
 function patch.patchControls()
-	local p = params[1]
-	if love.keyboard.isDown("lctrl") then
-		if love.keyboard.isDown("a") then
+	p = resources.parameters
+	if kp.isDown("lctrl") then
+		if kp.isDown("a") then
 		  p[1] = 0
 		else
 		  p[1] = 1
 		end
 
 		-- Hanger
-		if love.keyboard.isDown("x") then
-		  hang = true
+		if kp.isDown("x") then
+			patch.invert = 1
 		else
-		  hang = false
+			patch.invert = 0
 		end
   	end
 	
 	-- Reset
-	if love.keyboard.isDown("r") then
+	if kp.isDown("r") then
 		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
-	
+
 	return p
 end
 
@@ -38,40 +39,51 @@ function patch.init()
   
 	patch.hang = false
 	patch.palette = PALETTE
+	patch.invert = 0
 	
-	math.randomseed(timer.t)
+	math.randomseed(timer.T)
 
 	patch.bpm = 128
 	patch.n = 10
 
-	params[1][1] = 1
+	--params[1][1] = 1
 
 end
 
 
 function patch.draw()
-	p = params[1]
+	--p = params[1]
 	for i= -1, patch.n-1 do
 		-- type: outer or inner
 		local c = math.random(2)
 		-- shortcut :)
-		local hi = screen.inner.h
+		local hi = screen.InternalRes.H
 		-- random offset
 		local r = math.random(20) + 1
 		-- x coordinate
-		local x = math.random(screen.inner.w / 2)
+		local x = math.random(screen.InternalRes.W / 2)
 		-- y coordinates
-		local y1 = ((hi / patch.n) * i) - r / 2 - 5 + (timer.t * 20) % (screen.inner.h / patch.n)
-		local y2 = y1 + (hi / patch.n)  + r / 2 + 5 + (timer.t * 20) % (screen.inner.h / patch.n)
+		-- y1 = top of rectangle
+		-- y2 = bottom of rectangle
+		local y1 = ((hi / patch.n) * i) - r / 2 - 5  + (timer.T * 20) % (screen.InternalRes.H / patch.n)
+		local y2 = y1 + (hi / patch.n)  + r / 2 + 5  + (timer.T * 20) % (screen.InternalRes.H / patch.n)
+
+		--y1 = y1 + (screen.ExternalRes.H-screen.InternalRes.H)/2
+		--y2 = y2 + (screen.ExternalRes.H-screen.InternalRes.H)/2
+
 		-- draw
+		transparency = 1
 		if c == 1 then
-			love.graphics.setColor(1, 1, 1, p[1])
-			love.graphics.rectangle("fill", x, y1, screen.inner.w - (2 * x), y2 - y1)
+			local color = patch.palette[2 - patch.invert]
+			love.graphics.setColor(color[1], color[2], color[3], transparency)
+			love.graphics.rectangle("fill", x, y1, screen.InternalRes.W - (2 * x), y2 - y1)
 		else
-			love.graphics.setColor(1, 1, 1, p[1])
-			love.graphics.rectangle("fill", 0, y1, screen.inner.w, y2 - y1)
-			love.graphics.setColor(0, 0, 0, 1)
-			love.graphics.rectangle("fill", x, y1, screen.inner.w - (2 * x), y2 - y1)
+			local color = patch.palette[2 - patch.invert]
+			love.graphics.setColor(color[1], color[2], color[3], transparency)
+			love.graphics.rectangle("fill", 0, y1, screen.InternalRes.W, y2 - y1)
+			color = patch.palette[1 + patch.invert]
+			love.graphics.setColor(color[1], color[2], color[3], 1)
+			love.graphics.rectangle("fill", x, y1, screen.InternalRes.W - (2 * x), y2 - y1)
 		end
 	end
 end

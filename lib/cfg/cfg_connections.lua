@@ -6,7 +6,7 @@ cfg.TIMEOUT_TIME = 1000  -- [ms]
 cfg.listOfThreads = {
                         {   -- UDP connection 1
                             ["address"] = "127.0.0.1",
-                            ["port"] = 69420
+                            ["port"] = 55555
                         }
 }
 

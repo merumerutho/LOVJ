@@ -1,76 +1,69 @@
 available_palettes = require "lib/palettes"
 shaders = require "lib/shaders"
 controls = require "lib/controls"
+kp = require "lib/utils/keypress"
 
 -- import palette
 PALETTE = available_palettes.TIC80
 
-local ALPHA_MAGIC_NUM = 0.99804684
+local ALPHA_MAGIC_NUM = 0.959--804--684
 
 patch = {}
 patch.methods = {}
 
-patch.shaders = { shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror }
+patch.shaders = {shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror}
 
 --- @private inScreen Check if pixel in screen boundary
 function patch.methods.inScreen(x, y)
-	return (x > 0 and x < screen.inner.w and y > 0 and y < screen.inner.h)
+	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
 
 --- @private patchCheckControls Checks the input controls locally
 function patch.patchCheckControls()
-	p = params.elements[1]
-	
-	-- Reset
-	if love.keyboard.isDown("r") then
+	local p = resources.parameters
+	-- reset
+	if kp.isDown("r") then
 		patch.reset()
 	end
-	
-	return params
-end
-
---- @protected keypressed Key press callback function
-function love.keypressed(key, scancode, isrepeat)
-	p = params.elements[1]
-	-- parameter 'c'
-	if key == 'c' then
-		p[3] = (p[3] + 1) % 4
+	-- c parameter
+	if kp.keypressOnAttack("c") then
+		rSet(p,3, (rGet(p,3) + 1) % 4)
 	end
-	-- hang command
-	if key == 'x' then
-		hang = not hang
+	-- hang
+	if kp.keypressOnAttack("x") then
+		patch.hang = not patch.hang
 	end
-
 	-- fallback to general controls callback
-	controls.HandleGeneralControls()
+	controls.handleGeneralControls()
 end
 
 
 --- @private generatePoint Generate a random point in space
 function patch.generatePoint(i)
-	local po = {}
-	po.x = screen.inner.w / 2 + math.random(screen.inner.w / 2) - math.random(screen.inner.w / 2)
-	po.y = screen.inner.h / 2 + math.random(screen.inner.h / 2) - math.random(screen.inner.h / 2)
-	po.dx = tonumber(po.x > screen.inner.w / 2) or -1
-	po.dy = tonumber(po.y > screen.inner.h / 2) or -1
-	po.i = i
-	return po
+	local point = {}
+	point.x = screen.InternalRes.W / 2 + math.random(screen.InternalRes.W / 2) - math.random(screen.InternalRes.W / 2)
+	point.y = screen.InternalRes.H / 2 + math.random(screen.InternalRes.H / 2) - math.random(screen.InternalRes.H / 2)
+	point.dx = tonumber(point.x > screen.InternalRes.W / 2) or -1
+	point.dy = tonumber(point.y > screen.InternalRes.H / 2) or -1
+	point.i = i
+	return point
 end
 
 
 --- @private updatePoints Updates points positions
 function patch.updatePoints(l)
-	p = params.elements[1]
+	local p = resources.parameters
 	for k, v in pairs(l) do
-		v.y = v.y + math.random() * math.cos(2 * math.pi * (timer.t / (p[2] * 3) + v.i / #l)) + v.dy * (math.cos(math.pi * timer.t * 2)) ^ 3
-		v.x = v.x + math.random() * math.sin(2 * math.pi * (timer.t / (p[1] * 3) + v.i / #l)) + v.dx * (math.sin(math.pi * timer.t * 2)) ^ 3
+		v.y = v.y + math.random() * math.cos(2 * math.pi * (timer.T / (rGet(p, 2) * 3) + v.i / #l)) + v.dy * (math.cos(math.pi * timer.T * 2)) ^ 3
+		v.x = v.x + math.random() * math.sin(2 * math.pi * (timer.T / (rGet(p, 1) * 3) + v.i / #l)) + v.dx * (math.sin(math.pi * timer.T * 2)) ^ 3
 	end
 end
 
 
 --- @public init Initializes the patch
 function patch.init()
-	p=params.elements[1]
+	p = resources.parameters
+
 	patch.hang = false
 	patch.palette = PALETTE
 	patch.nPoints = 3 + math.random(32)
@@ -80,10 +73,20 @@ function patch.init()
 	end
 	-- canvases
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.outer.w, screen.outer.h)
-	patch.canvases.trail = love.graphics.newCanvas(screen.outer.w, screen.outer.h)
+	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.trail = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	-- move this somewhere else?
 	patch.shader_trail = nil
+
+	-- Initialize parameters
+
+	rSet(p, 1, 20)
+	rSet(p, 2, 30)
+
+	-- trail color
+	rSet(p, 4, 1)				rSetName(p, 4, "trail_color_red")
+	rSet(p, 5, 0.75)			rSetName(p, 5, "trail_color_green")
+	rSet(p, 6, 0.85)			rSetName(p, 6, "trail_color_blue")
 end
 
 function patch.reset()
@@ -97,19 +100,21 @@ end
 
 --- @public draw Draws the content of the patch
 function patch.draw()
-	p = params.elements[1]
+	local p = resources.parameters
+
+
 	-- clean trail buffer
 	patch.canvases.trail:renderTo(love.graphics.clear)
 
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
-	if hang then
+	if patch.hang then
 		patch.shader_trail = love.graphics.newShader(shaders.trail) -- set/update trail shader
-		patch.shader_trail:send("trailColor", {p[4], p[5], p[6], ALPHA_MAGIC_NUM})
+		patch.shader_trail:send("trailColor", {rGet(p, 4), rGet(p, 5), rGet(p, 6), ALPHA_MAGIC_NUM})
 		patch.canvases.trail:renderTo(function()
 			love.graphics.setColor(1, 1, 1, 1)
 			love.graphics.setShader(patch.shader_trail) -- apply shader
 			love.graphics.draw(patch.canvases.main, -- draw content of main buffer onto trail buffer
-								0, 0, 0, (1 / screen.scale.x), (1 / screen.scale.y))
+								0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 			love.graphics.setShader() -- remove shader
 		end)
 	end
@@ -117,15 +122,16 @@ function patch.draw()
 	-- copy back from trail buffer onto main
 	patch.canvases.main:renderTo(love.graphics.clear)
 	patch.canvases.main:renderTo(function()
-			love.graphics.setColor(1, 1, 1, 1)
-			love.graphics.draw(patch.canvases.trail,  -- draw content of main buffer onto trail buffer
-								0, 0, 0, (1 / screen.scale.x), (1 / screen.scale.y))
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.draw(patch.canvases.trail,  -- draw content of main buffer onto trail buffer
+							0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 		end)
+
 	-- update points positions
 	patch.updatePoints(patch.points)
 
 	-- select shader
-	local shader = love.graphics.newShader(patch.shaders[1 + p[3]])
+	local shader = love.graphics.newShader(patch.shaders[1 + rGet(p, 3)])
 
 	-- set canvas
 	love.graphics.setCanvas(patch.canvases.main)
@@ -150,11 +156,10 @@ function patch.draw()
 
 	-- remove canvas
 	love.graphics.setCanvas()
-
 	-- apply shader
 	love.graphics.setShader(shader)
 	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.scale.x), (1 / screen.scale.y))
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 	-- remove shader
 	love.graphics.setShader()
 end

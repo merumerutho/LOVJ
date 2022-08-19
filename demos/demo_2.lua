@@ -61,25 +61,25 @@ end
 
 
 function patch.addBall(ball_list, sx, sy)
-	b = {}
+	ball = {}
   -- ball starting position
-	b.x = sx
-	b.y = sy
+	ball.x = sx
+	ball.y = sy
   -- ball z-depth (radius)
-	b.z = math.random()
+	ball.z = math.random()
   -- ball color
-	b.c = patch.palette[math.random(16)]
+	ball.c = patch.palette[math.random(16)]
   -- ball direction is binary
-	b.dx = (-1) ^ (1+math.random(2))
-	b.dy = (-1) ^ (1+math.random(2))
+	ball.dx = (-1) ^ (1+math.random(2))
+	ball.dy = (-1) ^ (1+math.random(2))
   -- ball speed 
-	b.ax = b.dx * ((math.random()) * 0.5 + 0.05)
-	b.ay = b.dy * ((math.random()) * 0.5 + 0.05 - b.dx * b.ax / 10)
-  	b.az = (math.abs(b.ax) + math.abs(b.ay))
+	ball.ax = ball.dx * ((math.random()) * 0.5 + 0.05)
+	ball.ay = ball.dy * ((math.random()) * 0.5 + 0.05 - ball.dx * ball.ax / 10)
+  	ball.az = (math.abs(ball.ax) + math.abs(ball.ay))
   	-- readjust ay
-  	b.ax = (b.ax / b.dx - b.dy * b.ay / 10) * b.dx
+  	ball.ax = (ball.ax / ball.dx - ball.dy * ball.ay / 10) * ball.dx
   	-- add ball to list
-	table.insert(patch.ballList, b)
+	table.insert(patch.ballList, ball)
 end
 
 
@@ -91,12 +91,12 @@ function patch.ballTrajectory(k, b)
   
   if b.z < 0 then b.z = 0 end
   if (b.x < -b.z or 
-      b.x > screen.inner.w + b.z or
+      b.x > screen.InternalRes.w + b.z or
       b.y < -b.z or
-      b.y > screen.inner.h + b.z) then
+      b.y > screen.InternalRes.H + b.z) then
       
       table.remove(patch.ballList, k)
-      patch.addBall(ball_list, screen.inner.w / 2, screen.inner.h / 2)
+      patch.addBall(ball_list, screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   end
 end
 
@@ -107,14 +107,14 @@ function patch.init()
 	patch.palette = PALETTE
 
 	patch.img = false
-	patch.img_data = love.image.newImageData(screen.inner.w, screen.inner.h)
+	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
 	
   	-- balls
   	patch.nBalls = 500
   	patch.ballList = {}
   	-- generate balls
   	for i = 1, patch.nBalls do
-    	patch.addBall(patch.ballList, screen.inner.w / 2, screen.inner.h / 2)
+    	patch.addBall(patch.ballList, screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   	end
 end
 
@@ -130,7 +130,7 @@ end
 
 
 function patch.draw()
-	p = params[1]
+	--p = params[1]
 	-- clear picture
 	if not patch.hang then
 		patch.img_data:mapPixel(patch.methods.fill_bg)
