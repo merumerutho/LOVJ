@@ -1,9 +1,9 @@
-cfg = {}
+cfg_connections = {}
 
-cfg.TIMEOUT_TIME = 1000  -- [ms]
+cfg_connections.TIMEOUT_TIME = 1000  -- [ms]
 
 -- List of request channels to open
-cfg.listOfThreads = {
+cfg_connections.listOfThreads = {
                         {   -- UDP connection 1
                             ["address"] = "127.0.0.1",
                             ["port"] = 55555
@@ -11,12 +11,12 @@ cfg.listOfThreads = {
 }
 
 -- string sent as a request notifier, in request channels
-cfg.reqMsg = "RQST"
+cfg_connections.reqMsg = "RQST"
 
 -- string sent as an acknowledgement, in request channels
-cfg.ackMsg = "ACK"
+cfg_connections.ackMsg = "ACK"
 
 -- string sent as a closure notifier, in request channels
-cfg.quitMsg = "QUIT"
+cfg_connections.quitMsg = "QUIT"
 
-return cfg
+return cfg_connections

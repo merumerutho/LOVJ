@@ -1,9 +1,9 @@
-screenSettings = {}
+cfg_screen = {}
 
-screenSettings.INTERNAL_RES_WIDTH = 120
-screenSettings.INTERNAL_RES_RATIO = 9/16
+cfg_screen.INTERNAL_RES_WIDTH = 120
+cfg_screen.INTERNAL_RES_RATIO = 9/16
 
-screenSettings.OUTER_RES_WIDTH = 480
-screenSettings.OUTER_RES_RATIO = 9/16
+cfg_screen.OUTER_RES_WIDTH = 480
+cfg_screen.OUTER_RES_RATIO = 9/16
 
-return screenSettings
+return cfg_screen

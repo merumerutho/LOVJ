@@ -1,5 +1,6 @@
 available_palettes = require "lib/palettes"
 shaders = require "lib/shaders"
+cfg_shaders = require "lib/cfg/cfg_shaders"
 controls = require "lib/controls"
 kp = require "lib/utils/keypress"
 
@@ -13,7 +14,7 @@ patch.methods = {}
 
 patch.shaders = {shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror, shaders.warp, shaders.kaleido}
 
---- @private inScreen Check if pixel in screen boundary
+--- @private patch.methods.inScreen Check if pixel in screen boundary
 function patch.methods.inScreen(x, y)
 	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
@@ -25,18 +26,18 @@ function patch.patchCheckControls()
 	if kp.isDown("r") then
 		patch.reset()
 	end
-	-- c parameter
-	if kp.keypressOnAttack("c") then
-		rSet(p,3, (rGet(p,3) + 1) % #patch.shaders)
+	-- selected shader
+	if kp.keypressOnAttack("s") then
+		rSetByName(p, "selected_shader", (rGetByName(p, "selected_shader") + 1) % #patch.shaders)
 	end
 	-- warp
 	if kp.isDown("w") then
-		if kp.isDown("up") then rSet(p, 7, (rGet(p, 7)+0.1)) end
-		if kp.isDown("down") then rSet(p, 7, (rGet(p,7)-0.1)) end
+		if kp.isDown("up") then rSetByName(p, "_warpParameter", (rGetByName(p, "_warpParameter") + 0.1)) end
+		if kp.isDown("down") then rSetByName(p, "_warpParameter", (rGetByName(p, "_warpParameter") - 0.1)) end
 	end
 	if kp.isDown("k") then
-		if kp.keypressOnAttack("up") then rSet(p, 8, (rGet(p, 8)+1)) end
-		if kp.keypressOnAttack("down") then rSet(p, 8, (rGet(p, 8)-1)) end
+		if kp.keypressOnAttack("up") then rSetByName(p, "_segmentParameter", (rGetByName(p, "_segmentParameter")+1)) end
+		if kp.keypressOnAttack("down") then rSetByName(p, "_segmentParameter", (rGetByName(p, "_segmentParameter")-1)) end
 	end
 	-- hang
 	if kp.keypressOnAttack("x") then
@@ -92,11 +93,12 @@ function patch.init()
 	rSet(p, 1, 20)
 	rSet(p, 2, 30)
 
+	rSet(p, 3, 0)				rSetName(p, 3, "selected_shader")
 	-- trail color
 	rSet(p, 4, 1)				rSetName(p, 4, "trail_color_red")
 	rSet(p, 5, 0.75)			rSetName(p, 5, "trail_color_green")
 	rSet(p, 6, 0.85)			rSetName(p, 6, "trail_color_blue")
-
+	-- shader parameters
 	rSet(p, 7, 2.)				rSetName(p, 7, "_warpParameter")
 	rSet(p, 8, 4.)				rSetName(p, 8, "_segmentParameter")
 
@@ -115,12 +117,11 @@ end
 function patch.draw()
 	local p = resources.parameters
 
-
 	-- clean trail buffer
 	patch.canvases.trail:renderTo(love.graphics.clear)
 
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
-	if patch.hang then
+	if patch.hang and cfg_shaders.enabled then
 		patch.shader_trail = love.graphics.newShader(shaders.trail) -- set/update trail shader
 		patch.shader_trail:send("_trailColor", {rGet(p, 4), rGet(p, 5), rGet(p, 6), ALPHA_MAGIC_NUM})
 		patch.canvases.trail:renderTo(function()
@@ -144,12 +145,15 @@ function patch.draw()
 	patch.updatePoints(patch.points)
 
 	-- select shader
-	local shader = love.graphics.newShader(patch.shaders[1 + rGet(p, 3)])
-	if rGet(p,3) == 4 then
-		shader:send("_warpParameter", rGet(p, 7))
-	end
-	if rGet(p,3) == 5 then
-		shader:send("_segmentParameter", rGet(p, 8))
+	local shader = nil
+	if cfg_shaders.enabled then
+		shader = love.graphics.newShader(patch.shaders[1 + rGetByName(p, "selected_shader")])
+		if rGetByName(p, "selected_shader") == 4 then
+			shader:send("_warpParameter", rGetByName(p, "_warpParameter"))
+		end
+		if rGetByName(p, "selected_shader") == 5 then
+			shader:send("_segmentParameter", rGetByName(p, "_segmentParameter"))
+		end
 	end
 
 	-- set canvas
@@ -176,11 +180,15 @@ function patch.draw()
 	-- remove canvas
 	love.graphics.setCanvas()
 	-- apply shader
-	love.graphics.setShader(shader)
+	if cfg_shaders.enabled then
+		love.graphics.setShader(shader)
+	end
 	-- render graphics
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 	-- remove shader
-	love.graphics.setShader()
+	if cfg_shaders.enabled then
+		love.graphics.setShader()
+	end
 end
 
 --- @public update Updates the patch

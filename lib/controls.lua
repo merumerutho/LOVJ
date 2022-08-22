@@ -17,6 +17,11 @@ function controls.handleGeneralControls(key, scancode, isrepeat)
 		screen.ToggleFullscreen()
 	end
 
+	-- toggle shaders
+	if kp.isDown("lctrl") and kp.keypressOnAttack("s") then
+		toggleShaders()
+	end
+
 	return
 end
 

@@ -12,26 +12,43 @@ resources.graphics = {} -- filepaths or data bound to graphics resources / sprit
 resources.parameters.DEFAULT_SIZE = 128
 
 
--- global functions
-
+-- functions
 --- @public rSet Setter for resource value by idx
 function rSet(r, idx, v)
     r[idx].value = v
 end
 
---- @public rSet Setter for resource value by idx
+--- @public rGet Setter for resource value by idx
 function rGet(r, idx)
     return r[idx].value
 end
 
---- @public rSet Setter for resource name by idx
+--- @public rSetName Setter for resource name by idx
 function rSetName(r, idx, n)
     r[idx].name = n
 end
 
---- @public rSet Setter for resource name by idx
+--- @public rGetName Setter for resource name by idx
 function rGetName(r, idx)
     return r[idx].name
+end
+
+--- @private rGetIdxByName Obtain idx of resource based on its name
+local function rGetIdxByName(r, name)
+    for i=1,#r do
+        if r[i].name == name then return i end
+    end
+    return -1
+end
+
+--- @public rSetByName Setter for resource value by name
+function rSetByName(r, name, n)
+    return rSet(r, rGetIdxByName(r, name), n)
+end
+
+--- @public rGetByName Getter for resource value by name
+function rGetByName(r, name)
+    return rGet(r, rGetIdxByName(r, name))
 end
 
 -- Initialize parameters table
