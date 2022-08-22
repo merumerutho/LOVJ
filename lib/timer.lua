@@ -2,27 +2,27 @@
 --
 -- Internal timer settings
 
-CONSOLE_UPDATE_INTERVAL = 1
-TARGET_FPS = 60
-
 timer = {}
 
+timer.CONSOLE_UPDATE_INTERVAL = 1
+timer.TARGET_FPS = 60
+
 function timer.init()
-	timer.deltaT = {}
-	timer.deltaT.console = 0
-	timer.initial_time = love.timer.getTime()
-	timer.t = love.timer.getTime()
+	timer.DeltaT = {}
+	timer.DeltaT.console = 0
+	timer.InitialTime = love.timer.getTime()
+	timer.T = love.timer.getTime()
 end
 
 
 function timer.update()
-	timer.t = love.timer.getTime() - timer.initial_time
+	timer.T = love.timer.getTime() - timer.InitialTime
 end
 
 
-function timer.consoleCheck()
-	if timer.t - timer.deltaT.console >= CONSOLE_UPDATE_INTERVAL then
-		timer.deltaT.console = timer.t
+function timer.consoleSwInterrupt()
+	if timer.T - timer.DeltaT.console >= timer.CONSOLE_UPDATE_INTERVAL then
+		timer.DeltaT.console = timer.T
 		return true
 	end
 	return false

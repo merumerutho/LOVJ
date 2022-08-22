@@ -2,14 +2,38 @@
 --
 -- Implementation of thread handling UDP sockets
 
-local socket = require "socket"
-local cfg = require "lib/cfg/sock_cfg"
+-- Parse arguments
+local initParams = { ...}
+local id = initParams[1]
+local ip = initParams[2]["address"]
+local ip_port = initParams[2]["port"]
 
--- Parse from argument passed by initializer
-local udp_cfg = ... 
+-- include libs
+local socket = require "socket"
+local cfg = require "lib/cfg/cfg_connections"
+
+-- local variables
+local rspMsgs = {} -- Response list
+local listening = false -- not listening yet
+local packetCount = 0
+
+-- Function called at initialization
+local function Init()
+	-- Create channel "info"
+	reqChannel = love.thread.getChannel("reqChannel_" .. id)
+	rspChannel = love.thread.getChannel("rspChannel_" .. id)
+
+	-- Setup UDP listener
+	udp = socket.udp()
+	udp:settimeout(0.0001)
+	assert(udp:setsockname(ip, ip_port))
+
+	listening = true  -- set listening flag
+end
+
 
 -- Function to receive incoming packets
-function receivePacket()
+local function ReceivePacket()
 	-- Receive packets
 	local packet
 	local msg_or_ip
@@ -18,49 +42,52 @@ function receivePacket()
 	return packet
 end
 
+
 -- Function to parse packets and extract their contents
-function parsePacket()
-	if packet then
-    -- TODO extract content of packets
-		packetCount = packetCount+1
+local function ParsePacket(p)
+	if p then
+		packetCount = packetCount + 1  -- increase packet count
+		table.insert(rspMsgs, p)  -- insert data in response queue
 	end
 end
+
 
 -- Function to send back info obtained from extracted packets
-function parseRequest()
-  -- Get request
-	req = reqChannel:pop()
-  -- If reqMsg
-	if req == cfg.reqMsg then		-- 
-		infoChannel:push(packetCount)
-	elseif req == cfg.quitMsg then	-- Close UDP socket upon request
+local function ParseRequest()
+	local req = reqChannel:pop()  -- get requests
+
+	if req == cfg.reqMsg then	-- if REQ present, send the rspMsgs queue back
+		local msg = {}
+		msg.info = packetCount
+		msg.content = rspMsgs
+
+		-- response contains packetCount as info,
+		-- and the actual messages as content
+		rspChannel:push(msg)
+
+		local ack = nil
+		while ack ~= cfg.ackMsg do  -- wait for acknowledgement
+		  ack = reqChannel:pop()
+		end
+
+		for k in pairs(rspMsgs) do
+			rspMsgs[k] = nil  -- empty the queue
+		end
+    
+	elseif req == cfg.quitMsg then	-- if QUIT request present
 		udp:close()
-		infoChannel:push("clear")
-		listen = false
+		rspChannel:push("clear")
+		listening = false
 	end
-	req = false
+	req = nil  -- remove request
 end
 
 
--- Create channel "info" 
-reqChannel = love.thread.getChannel("UDP_REQUEST")
-infoChannel = love.thread.getChannel("UDP_SYSTEM_INFO")
+--
+Init()
 
--- Setup UDP listener
-udp = socket.udp()
-udp:settimeout(0.0001)
-assert(udp:setsockname(udp_cfg.address, udp_cfg.port))
-
--- Set listen flag
-listen = true
--- Initialize packet count
-packetCount=0
-
--- Listen to UDP
-while listen do
-  packet = receivePacket()
-  -- Parse UDP packets
-  parsePacket(packet)
-  -- Parse main thread requests
-  parseRequest()
+while listening do
+	packet = ReceivePacket()  -- listen to udp
+	ParsePacket(packet)  -- put packets in the queue
+	ParseRequest()  -- elaborate requests from main program
 end

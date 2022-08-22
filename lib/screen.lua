@@ -2,52 +2,66 @@
 --
 -- Graphical settings
 
-INNER_WIDTH = 240
-INNER_RATIO = 16/9
-
-OUTER_WIDTH = 800
-OUTER_RATIO = 16/9
+screen_settings = require "lib/cfg/cfg_screen"
 
 screen = {}
 
-
-function set_internal_res(w,r)
-	screen.inner = {}
-	screen.inner.w = w
-	screen.inner.ratio = 1/r
-	screen.inner.h = math.floor(w/r)
+-- set_internal_res(w,r):
+-- assign internal resolution to be (w x h)
+-- where h is calculated as w/r
+function SetInternalRes(w, r)
+	screen.InternalRes = {}
+	screen.InternalRes.W = w
+	screen.InternalRes.R = 1/r
+	screen.InternalRes.H = math.floor(w/r)
 end
 
 
-function set_external_res(w,r)
-	screen.outer = {}
-	screen.outer.w = w
-	screen.outer.ratio = 1/r
-	screen.outer.h = math.floor(w/r)
+function SetExternalRes(w, r)
+	screen.ExternalRes = {}
+	screen.ExternalRes.W = w
+	screen.ExternalRes.R = 1/r
+	screen.ExternalRes.H = math.floor(w/r)
 end
 
 
-function set_screen_additional()
+function screen.UpdateScreenOptions()
+	love.window.setMode(screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setDefaultFilter("linear", "nearest")
 	love.window.setVSync(false)
+	love.window.setFullscreen(screen.isFullscreen)
 end
 
 
-function calculate_scaling()
-	screen.scale = {}
-	screen.scale.x = screen.outer.w / screen.inner.w
-	screen.scale.y = screen.outer.h / screen.inner.h
+local function CalculateScaling()
+	screen.Scaling = {}
+	screen.Scaling.X = screen.ExternalRes.W / screen.InternalRes.W
+	screen.Scaling.Y = screen.ExternalRes.H / screen.InternalRes.H
+end
+
+-- Toggle fullscreen on / off
+function screen.ToggleFullscreen()
+	screen.isFullscreen = (not screen.isFullscreen)
+	if screen.isFullscreen then
+		screen.ExternalRes.W, screen.ExternalRes.H = love.window.getDesktopDimensions()
+	else
+		local ss = screen_settings
+		SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
+	end
+	CalculateScaling()
+	screen.UpdateScreenOptions()
 end
 
 
 function screen.init()
-	-- Set resolution
-	set_internal_res(INNER_WIDTH, INNER_RATIO)
-	set_external_res(OUTER_WIDTH, OUTER_RATIO)
-	calculate_scaling()
-	set_screen_additional()
-	
-	return screen.inner.w, screen.inner.h
+	-- Set internal resolution and screen scaling settings
+	local ss = screen_settings
+	SetInternalRes(ss.INTERNAL_RES_WIDTH, ss.INTERNAL_RES_RATIO)
+	SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
+	screen.isFullscreen = false
+	CalculateScaling()
+	screen.UpdateScreenOptions()
+	return screen
 end
 
 return screen

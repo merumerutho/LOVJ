@@ -1,80 +1,68 @@
-PALETTE = {
-	{26,28,44}, 	-- black
-	{93,39,93}, 	-- purple
-	{177,62,83},	-- red
-	{239,125,87},	-- orange
-	{255,205,117},	-- yellow
-	{167,240,112},	-- light green
-	{56,183,100},	-- green
-	{37,113,121},	-- dark green
-	{41,54,111},	-- dark blue
-	{59,93,201},	-- blue
-	{65,166,246},	-- light blue
-	{115,239,247},	-- cyan
-	{244,244,244},	-- white
-	{148,176,194},	-- light grey
-	{86,108,134},	-- grey
-	{51,60,87}		-- dark grey
-	}
+available_palettes = require "lib/palettes"
+kp = require "lib/utils/keypress"
+
+-- import pico8 palette
+PALETTE = available_palettes.PICO8
 
 patch = {}
 patch.methods = {}
 
 -- Fill screen with background color
-function patch.methods.fill_bg(x,y,r,g,b,a)
-	r = PALETTE[1][1]/255
-	g = PALETTE[1][2]/255
-	b = PALETTE[1][3]/255
-	a=1
+function patch.methods.fill_bg(x, y, r, g, b, a)
+	r = PALETTE[1][1] / 255
+	g = PALETTE[1][2] / 255
+	b = PALETTE[1][3] / 255
+	a = 1
 	return r,g,b,a
 end
 
 
 -- Check if pixel in screen boundary
-function patch.methods.inScreen(x,y)
-	return (x>0 and x<screen.inner.w and y > 0 and y < screen.inner.h)
+function patch.methods.inScreen(x, y)
+	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
 
 
 function patch.patchControls()
-	p = params[1]
+	-- p = params[1]
+	p = resources.parameters
 	
 	-- INCREASE
-	if love.keyboard.isDown("up") then
+	if kp.isDown("up") then
 		-- Param "a"
-		if love.keyboard.isDown("a") then
-			p[1] = p[1] + .1
+		if kp.isDown("a") then
+			p[1].value = p[1].value + .1
 		end
 		-- Param "b"
-		if love.keyboard.isDown("b") then
-			p[2] = p[2] + .1
+		if kp.isDown("b") then
+			p[2].value = p[2].value + .1
 		end
 	end
 	
 	-- DECREASE
-	if love.keyboard.isDown("down") then
+	if kp.isDown("down") then
 		-- Param "a"
-		if love.keyboard.isDown("a") then
-			p[1] = p[1] - .1 
+		if kp.isDown("a") then
+			p[1].value = p[1].value - .1
 		end
 		-- Param "b"
-		if love.keyboard.isDown("b") then
-			p[2] = p[2] - .1
+		if kp.isDown("b") then
+			p[2].value = p[2].value - .1
 		end
 	end
 	
 	-- Hanger
-	if love.keyboard.isDown("x") then
+	if kp.isDown("x") then
 		hang = true
 	else
 		hang = false
 	end
 	
 	-- Reset
-	if love.keyboard.isDown("r") then
-		p[1]=0.5
-		p[2]=1
-		timer.initial_time = love.timer.getTime()
+	if kp.isDown("r") then
+		p[1].value = 0.5
+		p[2].value = 1
+		timer.InitialTime = love.timer.getTime()
 	end
 	
 	return p
@@ -86,45 +74,43 @@ function patch.init()
 	patch.palette = PALETTE
 
 	patch.img = false
-	patch.img_data = love.image.newImageData(screen.inner.w, screen.inner.h)
+	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
 	
 end
 
 
 function patch.draw()
-	p = params[1]
-
 	-- clear picture
 	if not hang then
 		patch.img_data:mapPixel(patch.methods.fill_bg)
 	end
 	
 	-- draw picture
-    for x = -20,20,.25 do
-		for y=-20,20,.25 do
+    for x = -20, 20, .25 do
+		for y = -20, 20, .25 do
 			-- calculate oscillating radius
-			local r = (x*x+y*y) + 10*math.sin(timer.t/2.5)
+			local r = ((x * x) + (y * y)) + 10 * math.sin(timer.T / 2.5)
 			-- apply time-dependent rotation
-			local x1 = x*math.cos(timer.t) - y*math.sin(timer.t)
-			local y1 = x*math.sin(timer.t) + y*math.cos(timer.t)
+			local x1 = x * math.cos(timer.T) - y * math.sin(timer.T)
+			local y1 = x * math.sin(timer.T) + y * math.cos(timer.T)
 			-- calculate pixel position to draw
-			local w, h = screen.inner.w, screen.inner.h
-			local px = w/2 + (r-p[2])*x1
-			local py = h/2 + (r-p[1])*y1
-			px = px + 8*math.cos(r)
+			local w, h = screen.InternalRes.W, screen.InternalRes.H
+			local px = w / 2 + (r - p[2].value) * x1
+			local py = h / 2 + (r - p[1].value) * y1
+			px = px + 8 * math.cos(r)
 			-- calculate color position in lookup table
-			local col = -r*2 + math.atan(x1,y1)
-			col = patch.palette[(math.floor(col) % 16) +1]
+			local col = -r * 2 + math.atan(x1, y1)
+			col = patch.palette[(math.floor(col) % 16) + 1]
 			-- draw pixels on picture
-			if patch.methods.inScreen(px,py) then
-				patch.img_data:setPixel(px, py, col[1]/255, col[2]/255, col[3]/255, 1)
+			if patch.methods.inScreen(px, py) then
+				patch.img_data:setPixel(px, py, col[1] / 255, col[2] / 255, col[3] / 255, 1)
 			end
 		end
 	end
 	
 	-- render picture
 	local img = love.graphics.newImage(patch.img_data)
-	love.graphics.draw(img,0,20)
+	love.graphics.draw(img, 0, 0)
 end
 
 
