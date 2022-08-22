@@ -9,7 +9,7 @@ dispatcher = require "lib/dispatcher"
 debug = require "debug"
 
 
-local defaultPatch = "demos/demo_2"
+local defaultPatch = "demos/demo_5"
 patch = require(defaultPatch)
 lick.updateCurrentlyLoadedPatch( defaultPatch .. ".lua")
 
@@ -40,7 +40,7 @@ function love.draw()
 	-- draw patch
 	patch.draw()
 	-- calculate fps
-	fps = 1/(love.timer.getAverageDelta())
+	fps = love.timer.getFPS()
 end
 
 

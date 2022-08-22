@@ -11,7 +11,7 @@ local ALPHA_MAGIC_NUM = 0.959--804--684
 patch = {}
 patch.methods = {}
 
-patch.shaders = {shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror}
+patch.shaders = {shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror, shaders.warp, shaders.kaleido}
 
 --- @private inScreen Check if pixel in screen boundary
 function patch.methods.inScreen(x, y)
@@ -27,7 +27,16 @@ function patch.patchCheckControls()
 	end
 	-- c parameter
 	if kp.keypressOnAttack("c") then
-		rSet(p,3, (rGet(p,3) + 1) % 4)
+		rSet(p,3, (rGet(p,3) + 1) % #patch.shaders)
+	end
+	-- warp
+	if kp.isDown("w") then
+		if kp.isDown("up") then rSet(p, 7, (rGet(p, 7)+0.1)) end
+		if kp.isDown("down") then rSet(p, 7, (rGet(p,7)-0.1)) end
+	end
+	if kp.isDown("k") then
+		if kp.keypressOnAttack("up") then rSet(p, 8, (rGet(p, 8)+1)) end
+		if kp.keypressOnAttack("down") then rSet(p, 8, (rGet(p, 8)-1)) end
 	end
 	-- hang
 	if kp.keypressOnAttack("x") then
@@ -87,6 +96,10 @@ function patch.init()
 	rSet(p, 4, 1)				rSetName(p, 4, "trail_color_red")
 	rSet(p, 5, 0.75)			rSetName(p, 5, "trail_color_green")
 	rSet(p, 6, 0.85)			rSetName(p, 6, "trail_color_blue")
+
+	rSet(p, 7, 2.)				rSetName(p, 7, "_warpParameter")
+	rSet(p, 8, 4.)				rSetName(p, 8, "_segmentParameter")
+
 end
 
 function patch.reset()
@@ -109,7 +122,7 @@ function patch.draw()
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
 	if patch.hang then
 		patch.shader_trail = love.graphics.newShader(shaders.trail) -- set/update trail shader
-		patch.shader_trail:send("trailColor", {rGet(p, 4), rGet(p, 5), rGet(p, 6), ALPHA_MAGIC_NUM})
+		patch.shader_trail:send("_trailColor", {rGet(p, 4), rGet(p, 5), rGet(p, 6), ALPHA_MAGIC_NUM})
 		patch.canvases.trail:renderTo(function()
 			love.graphics.setColor(1, 1, 1, 1)
 			love.graphics.setShader(patch.shader_trail) -- apply shader
@@ -132,6 +145,12 @@ function patch.draw()
 
 	-- select shader
 	local shader = love.graphics.newShader(patch.shaders[1 + rGet(p, 3)])
+	if rGet(p,3) == 4 then
+		shader:send("_warpParameter", rGet(p, 7))
+	end
+	if rGet(p,3) == 5 then
+		shader:send("_segmentParameter", rGet(p, 8))
+	end
 
 	-- set canvas
 	love.graphics.setCanvas(patch.canvases.main)
