@@ -1,3 +1,5 @@
+debug = require "debug"
+
 lick = require "lib/lick"
 res = require "lib/resources"
 screen = require "lib/screen"
@@ -6,10 +8,10 @@ resources = require "lib/resources"
 controls = require "lib/controls"
 connections = require "lib/connections"
 dispatcher = require "lib/dispatcher"
-debug = require "debug"
 
+cfg_patches = require "lib/cfg/cfg_patches"
 
-local defaultPatch = "demos/demo_5"
+local defaultPatch = cfg_patches.defaultPatch
 patch = require(defaultPatch)
 lick.updateCurrentlyLoadedPatch( defaultPatch .. ".lua")
 
