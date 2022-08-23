@@ -67,11 +67,27 @@ function patch.updatePoints(l)
 	end
 end
 
+--- @private init_params Initialize parameters for this patch
+local function init_params()
+	p = resources.parameters
+
+	-- Initialize parameters
+	p:setName(1, "speed_x") 			p:set("speed_x", 20)
+	p:setName(2, "speed_y") 			p:set("speed_y", 30)
+	p:setName(3, "selected_shader") 	p:set("selected_shader", 0)
+
+	-- trail color
+	p:setName(4, "trail_color_red")		p:set("trail_color_red", 1)
+	p:setName(5, "trail_color_green")	p:set("trail_color_green", 0.75)
+	p:setName(6, "trail_color_blue")	p:set("trail_color_blue", 0.85)
+
+	-- shader parameters
+	p:setName(7, "_warpParameter")		p:set("_warpParameter", 2.)
+	p:setName(8, "_segmentParameter")	p:set("_segmentParameter", 4.)
+end
 
 --- @public init Initializes the patch
 function patch.init()
-	p = resources.parameters
-
 	patch.hang = false
 	patch.palette = PALETTE
 	patch.nPoints = 3 + math.random(32)
@@ -86,19 +102,7 @@ function patch.init()
 	-- move this somewhere else?
 	patch.shader_trail = nil
 
-	-- Initialize parameters
-	p:setName(1, "speed_x") 		p:set("speed_x", 20)
-	p:setName(2, "speed_y") 		p:set("speed_y", 30)
-
-	p:setName(3, "selected_shader") p:set("selected_shader", 0)
-
-	-- trail color
-	p:setByIdx(4, 1)				p:setName(4, "trail_color_red")
-	p:setByIdx(5, 0.75)				p:setName(5, "trail_color_green")
-	p:setByIdx(6, 0.85)				p:setName(6, "trail_color_blue")
-	-- shader parameters
-	p:setByIdx(7, 2.)				p:setName(7, "_warpParameter")
-	p:setByIdx(8, 4.)				p:setName(8, "_segmentParameter")
+	init_params()
 end
 
 function patch.reset()

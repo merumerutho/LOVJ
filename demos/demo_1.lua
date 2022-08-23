@@ -99,7 +99,6 @@ function patch.draw()
 		patch.img_data:mapPixel(fill_bg)
 	end
 
-
 	-- select shader
 	local shader_script
 	local shader
