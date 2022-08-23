@@ -1,14 +1,13 @@
 available_palettes = require "lib/palettes"
 kp = require "lib/utils/keypress"
 shaders = require "lib/shaders"
+cfg_shaders = require "lib/cfg/cfg_shaders"
 
 -- import pico8 palette
 PALETTE = available_palettes.PICO8
 
 patch = {}
 patch.methods = {}
-
-patch.shaders = {shaders.default, shaders.h_mirror, shaders.w_mirror, shaders.wh_mirror, shaders.warp, shaders.kaleido}
 
 -- Fill screen with background color
 local function fill_bg(x, y, r, g, b, a)
@@ -68,42 +67,50 @@ function patch.patchControls()
 
 	-- selected shader
 	if kp.keypressOnAttack("s") then
-		rSetByName(p, "selected_shader", (rGetByName(p, "selected_shader") + 1) % #patch.shaders)
+		p:set("selected_shader", (p:get("selected_shader") + 1) % #cfg_shaders.shaders)
 	end
 
 end
 
 
-function patch.init()
+local function init_params()
 	p = resources.parameters
+	p:setName(10, "selected_shader")			p:set("selected_shader", 0)
+	p:setName(11, "_warpParameter")				p:set("_warpParameter", 2)
+	p:setName(12, "_segmentParameter")			p:set("_segmentParameter", 3)
+end
 
+--- @public init init routine
+function patch.init()
 	patch.hang = false
 	patch.palette = PALETTE
 
 	patch.img = false
 	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
 
-	rSet(p, 10, 0)			rSetName(p, 10, "selected_shader")
-	rSet(p, 11, 2)			rSetName(p, 11, "_warpParameter")
-	rSet(p, 12, 3)			rSetName(p, 12, "_segmentParameter")
+	init_params()
 end
 
-
+--- @public patch.draw draw routine
 function patch.draw()
-	-- clear picture
+
+	-- clear background picture
 	if not hang then
 		patch.img_data:mapPixel(fill_bg)
 	end
 
-	local shader = nil
+
 	-- select shader
+	local shader_script
+	local shader
 	if cfg_shaders.enabled then
-		shader = love.graphics.newShader(patch.shaders[1 + rGetByName(p, "selected_shader")])
-		if rGetByName(p, "selected_shader") == 4 then
-			shader:send("_warpParameter", rGetByName(p, "_warpParameter"))
+		shader_script = cfg_shaders.shaders[1 + p:get("selected_shader")]
+		shader = love.graphics.newShader(shader_script)
+		if shader_script == shaders.warp then
+			shader:send("_warpParameter", p:get("_warpParameter"))
 		end
-		if rGetByName(p, "selected_shader") == 5 then
-			shader:send("_segmentParameter", rGetByName(p, "_segmentParameter"))
+		if shader_script == shaders.kaleido then
+			shader:send("_segmentParameter", p:get("_segmentParameter"))
 		end
 	end
 
@@ -142,6 +149,7 @@ function patch.draw()
 	if cfg_shaders.enabled then
 		love.graphics.setShader()
 	end
+
 end
 
 
