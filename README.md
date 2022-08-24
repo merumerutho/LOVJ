@@ -44,5 +44,5 @@ They must contain, similarly to any LÖVE2D script:
 The "patch" object must be returned once the script is initialized.
 
 
-## MIDI to UDP
-TBD.
+## MIDI to OSC
+[Here](https://github.com/Merutochan/MIDI2OSC) 
