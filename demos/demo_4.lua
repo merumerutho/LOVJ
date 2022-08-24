@@ -11,18 +11,8 @@ patch.methods = {}
 function patch.patchControls()
 	p = resources.parameters
 	if kp.isDown("lctrl") then
-		if kp.isDown("a") then
-		  p[1] = 0
-		else
-		  p[1] = 1
-		end
-
-		-- Hanger
-		if kp.isDown("x") then
-			patch.invert = 1
-		else
-			patch.invert = 0
-		end
+		-- Inverter
+		patch.invert = kp.isDown("x")
   	end
 	
 	-- Reset
@@ -30,58 +20,57 @@ function patch.patchControls()
 		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
+end
 
-	return p
+
+local function init_params()
+	p = resources.parameters
 end
 
 
 function patch.init()
-  
-	patch.hang = false
 	patch.palette = PALETTE
-	patch.invert = 0
+	patch.invert = false
 	
 	math.randomseed(timer.T)
 
-	patch.bpm = 128
+	patch.bpm = 128  -- TODO: implement
 	patch.n = 10
 
-	--params[1][1] = 1
-
+	init_params()
 end
 
 
 function patch.draw()
-	--p = params[1]
 	for i= -1, patch.n-1 do
-		-- type: outer or inner
+		-- type: outer or inner rectangle
 		local c = math.random(2)
-		-- shortcut :)
-		local hi = screen.InternalRes.H
-		-- random offset
-		local r = math.random(20) + 1
+		-- shortcuts :)
+		local iw = screen.InternalRes.W
+		local ih = screen.InternalRes.H
 		-- x coordinate
-		local x = math.random(screen.InternalRes.W / 2)
-		-- y coordinates
+		local x = math.random(iw / 2)
+		-- random height offset
+		local r = math.random(20) + 1
 		-- y1 = top of rectangle
 		-- y2 = bottom of rectangle
-		local y1 = ((hi / patch.n) * i) - r / 2 - 5  + (timer.T * 20) % (screen.InternalRes.H / patch.n)
-		local y2 = y1 + (hi / patch.n)  + r / 2 + 5  + (timer.T * 20) % (screen.InternalRes.H / patch.n)
-
-		--y1 = y1 + (screen.ExternalRes.H-screen.InternalRes.H)/2
-		--y2 = y2 + (screen.ExternalRes.H-screen.InternalRes.H)/2
+		local y1 = ((ih / patch.n) * i) - r / 2 - 5  + (timer.T * 20) % (ih / patch.n)
+		local y2 = y1 + (ih / patch.n)  + r / 2 + 5  + (timer.T * 20) % (ih / patch.n)
 
 		-- draw
-		transparency = 1
+		local transparency = 1
+
+		local inversion = patch.invert and 1 or 0  -- convert bool to int
+
 		if c == 1 then
-			local color = patch.palette[2 - patch.invert]
+			local color = patch.palette[2 - inversion]
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", x, y1, screen.InternalRes.W - (2 * x), y2 - y1)
 		else
-			local color = patch.palette[2 - patch.invert]
+			local color = patch.palette[2 - inversion]
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", 0, y1, screen.InternalRes.W, y2 - y1)
-			color = patch.palette[1 + patch.invert]
+			color = patch.palette[1 + inversion]
 			love.graphics.setColor(color[1], color[2], color[3], 1)
 			love.graphics.rectangle("fill", x, y1, screen.InternalRes.W - (2 * x), y2 - y1)
 		end
@@ -89,8 +78,7 @@ function patch.draw()
 end
 
 
-function patch.update(new_params)
-  	params = new_params
+function patch.update()
 	-- update parameters with patch controls
 	patch.patchControls()
 

@@ -7,7 +7,7 @@ controls = {}
 kp = require("lib/utils/keypress")
 cmd = require("lib/utils/cmdmenu")
 
-controls.slots = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
+controls.slots = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
 
 function controls.handleGeneralControls(key, scancode, isrepeat)
 	if kp.keypressOnRelease("escape") then
@@ -30,11 +30,6 @@ function controls.handleGeneralControls(key, scancode, isrepeat)
 			patch = require(cfg_patches.patches[k])
 			patch.init()
 		end
-	end
-
-	if kp.keypressOnRelease("2") then
-		patch = require(cfg_patches.patches[2])
-		patch.init()
 	end
 
 	return
