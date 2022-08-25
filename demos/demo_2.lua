@@ -166,4 +166,7 @@ function patch.orderZ(l)
   end
 end
 
+--- @public defaultDraw assigned to draw method by default
+patch.defaultDraw = patch.draw
+
 return patch

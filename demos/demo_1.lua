@@ -153,9 +153,12 @@ end
 
 
 function patch.update()
-	-- update parameters with patch controls
-	patch.patchControls()
+	-- apply keyboard patch controls
+	if not cmd.isOpen then patch.patchControls() end
 	return
 end
+
+--- @public defaultDraw assigned to draw method by default
+patch.defaultDraw = patch.draw
 
 return patch

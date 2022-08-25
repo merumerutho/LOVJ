@@ -205,5 +205,7 @@ function patch.update()
 	params = patch.patchCheckControls()
 end
 
+--- @public defaultDraw assigned to draw method by default
+patch.defaultDraw = patch.draw
 
 return patch

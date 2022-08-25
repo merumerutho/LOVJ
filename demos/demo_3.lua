@@ -106,4 +106,7 @@ function patch.update(new_params)
   end
 end
 
+--- @public defaultDraw assigned to draw method by default
+patch.defaultDraw = patch.draw
+
 return patch
