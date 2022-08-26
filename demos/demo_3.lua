@@ -1,19 +1,19 @@
-palettes = require "lib/palettes"
+palettes = require "lib/utils/palettes"
 screen = require "lib/screen"
 kp = require "lib/utils/keypress"
 
 -- import pico8 palette
 local PALETTE
+local hang
 
 patch = {}
 
-function patch.patchControls()
+--- @private patchControls handle controls for current patch
+local function patchControls()
 	local p = resources.parameters
 	if kp.isDown("lctrl") then
 		-- Accelerator
-		if kp.isDown("a") then p:setByIdx(1, 1) else p:setByIdx(1, 0) end
-		-- Hanger (TODO implement)
-		if kp.isDown("x") then hang = true else hang = false end
+		if kp.isDown("a") then p:set("acceleration", 1) else p:set("acceleration", 0) end
   	end
 	-- Reset
 	if kp.isDown("r") then
@@ -21,10 +21,10 @@ function patch.patchControls()
     	patch.init()
 	end
 	-- hang
-	if kp.isDown("x") then patch.hang = true else patch.hang = false end
+	if kp.isDown("x") then hang = true else hang = false end
 end
 
-
+--- @private newBall spawn new ball in ballList
 local function newBall()
 	ball = {}
 	ball.n = 6 + math.random(16)
@@ -37,7 +37,7 @@ local function newBall()
 	table.insert(patch.ballList, ball)
 end
 
-
+--- @private ballUpdate update ball status and position in ballList
 local function ballUpdate(idx, ball)
 	local p = resources.parameters
 	ball.w = ball.w + ball.s + ball.w * p:getByIdx(1) / 10
@@ -53,19 +53,26 @@ local function ballUpdate(idx, ball)
 	end
 end
 
+--- @private init_params initialize patch parameters
+local function init_params()
+	p = resources.parameters
+	p:setName(1, "acceleration")		p:set("acceleration", 0)
+end
 
+--- @public init initialization function for the patch
 function patch.init()
 	PALETTE = palettes.PICO8
-	patch.hang = false
-	-- balls
-	patch.nBalls = 100
-	patch.bs = 1 / 100
-
+	hang = false
 	patch.canvases = {}
 	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 
 	math.randomseed(timer.T)
 
+	init_params()
+
+	-- ball stuff
+	patch.nBalls = 100
+	patch.bs = 1 / 100
 	patch.ballList = {}
 	-- generate balls
 	for i = 1, patch.nBalls do
@@ -97,19 +104,18 @@ function patch.draw()
 	-- select shader
 	local shader
 	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-
 	-- set canvas
 	love.graphics.setCanvas(patch.canvases.main)
 	-- clean canvas
-	if not patch.hang then patch.canvases.main:renderTo(love.graphics.clear) end
+	if not hang then patch.canvases.main:renderTo(love.graphics.clear) end
 
 	-- draw balls
 	for k, b in pairs(patch.ballList) do
 		drawBall(b)
 	end
+
 	-- reset canvas
 	love.graphics.setCanvas()
-
 	-- apply shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
 	-- render graphics
@@ -118,15 +124,14 @@ function patch.draw()
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 end
 
-
-function patch.update(new_params)
-  params = new_params
+--- @public update update patch function
+function patch.update()
 	-- update parameters with patch controls
-	patch.patchControls()
-  -- update balls
-  for k, b in pairs(patch.ballList) do
-    ballUpdate(k, b)
-  end
+	patchControls()
+	-- update balls
+	for k, b in pairs(patch.ballList) do
+    	ballUpdate(k, b)
+	end
 end
 
 --- @public defaultDraw assigned to draw method by default

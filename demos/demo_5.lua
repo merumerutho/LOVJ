@@ -1,4 +1,4 @@
-palettes = require "lib/palettes"
+palettes = require "lib/utils/palettes"
 controls = require "lib/controls"
 kp = require "lib/utils/keypress"
 

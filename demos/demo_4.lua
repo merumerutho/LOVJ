@@ -1,4 +1,4 @@
-palettes = require "lib/palettes"
+palettes = require "lib/utils/palettes"
 screen = require "lib/screen"
 kp = require "lib/utils/keypress"
 
