@@ -1,19 +1,18 @@
-available_palettes = require "lib/palettes"
+palettes = require "lib/palettes"
 shaders = require "lib/shaders"
 cfg_shaders = require "lib/cfg/cfg_shaders"
 controls = require "lib/controls"
 kp = require "lib/utils/keypress"
 
 -- import palette
-PALETTE = available_palettes.TIC80
+local PALETTE = palettes.TIC80
 
 local ALPHA_MAGIC_NUM = 0.959--804--684
 
 patch = {}
-patch.methods = {}
 
---- @private patch.methods.inScreen Check if pixel in screen boundary
-function patch.methods.inScreen(x, y)
+--- @private inScreen Check if pixel in screen boundary
+local function inScreen(x, y)
 	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
 
@@ -169,7 +168,7 @@ function patch.draw()
 
 	-- if inside screen, draw points
 	for k, pix in pairs(patch.points) do
-		if patch.methods.inScreen(pix.x, pix.y) then
+		if inScreen(pix.x, pix.y) then
 			love.graphics.setColor({1, 1, 1, 1})
 			love.graphics.points(pix.x, pix.y)
 		end
@@ -197,6 +196,7 @@ function patch.draw()
 	if cfg_shaders.enabled then
 		love.graphics.setShader()
 	end
+
 end
 
 --- @public update Updates the patch

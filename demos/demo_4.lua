@@ -1,9 +1,9 @@
-available_palettes = require "lib/palettes"
+palettes = require "lib/palettes"
 screen = require "lib/screen"
 kp = require "lib/utils/keypress"
 
 -- import pico8 palette
-PALETTE = available_palettes.BW
+PALETTE = palettes.BW
 
 patch = {}
 patch.methods = {}

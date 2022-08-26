@@ -1,19 +1,18 @@
-available_palettes = require "lib/palettes"
+palettes = require "lib/palettes"
 kp = require "lib/utils/keypress"
 shaders = require "lib/shaders"
 cfg_shaders = require "lib/cfg/cfg_shaders"
 
 -- import pico8 palette
-PALETTE = available_palettes.PICO8
+local PALETTE
 
 patch = {}
 patch.methods = {}
 
 -- Fill screen with background color
 local function fill_bg(x, y, r, g, b, a)
-	r = PALETTE[1][1] / 255
-	g = PALETTE[1][2] / 255
-	b = PALETTE[1][3] / 255
+	local color = palettes.getColor(PALETTE, 1)
+	r, g, b = color[1], color[2], color[3]
 	a = 1
 	return r,g,b,a
 end
@@ -70,6 +69,16 @@ function patch.patchControls()
 		p:set("selected_shader", (p:get("selected_shader") + 1) % #cfg_shaders.shaders)
 	end
 
+	-- warp
+	if kp.isDown("w") then
+		if kp.isDown("up") then p:set("_warpParameter", (p:get("_warpParameter") + 0.1)) end
+		if kp.isDown("down") then p:set("_warpParameter", (p:get("_warpParameter") - 0.1)) end
+	end
+	if kp.isDown("k") then
+		if kp.keypressOnAttack("up") then p:set("_segmentParameter", (p:get("_segmentParameter")+1)) end
+		if kp.keypressOnAttack("down") then p:set("_segmentParameter", (p:get("_segmentParameter")-1)) end
+	end
+
 end
 
 
@@ -82,8 +91,9 @@ end
 
 --- @public init init routine
 function patch.init()
+	PALETTE = palettes.PICO8
+
 	patch.hang = false
-	patch.palette = PALETTE
 
 	patch.img = false
 	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
@@ -94,6 +104,7 @@ end
 --- @public patch.draw draw routine
 function patch.draw()
 
+	love.graphics.setColor(1,1,1,1)
 	-- clear background picture
 	if not hang then
 		patch.img_data:mapPixel(fill_bg)
@@ -128,10 +139,10 @@ function patch.draw()
 			px = px + 8 * math.cos(r)
 			-- calculate color position in lookup table
 			local col = -r * 2 + math.atan(x1, y1)
-			col = patch.palette[(math.floor(col) % 16) + 1]
+			col = palettes.getColor(PALETTE, (math.floor(col) % 16) + 1)
 			-- draw pixels on picture
 			if inScreen(px, py) then
-				patch.img_data:setPixel(px, py, col[1] / 255, col[2] / 255, col[3] / 255, 1)
+				patch.img_data:setPixel(px, py, col[1], col[2], col[3], 1)
 			end
 		end
 	end

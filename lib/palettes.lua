@@ -47,4 +47,8 @@ Palettes.TIC80 =  {
 	{51,60,87}		-- dark grey
 }
 
+function Palettes.getColor(p, idx)
+	return {p[idx][1] / 255, p[idx][2] / 255, p[idx][3] / 255}
+end
+
 return Palettes

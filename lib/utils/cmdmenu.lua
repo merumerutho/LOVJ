@@ -10,11 +10,14 @@ CmdMenu.buffer = ""
 CmdMenu.history = {}
 -- idx to history
 CmdMenu.idx_history = 0
+-- supported commands
+CmdMenu.commands = {
+	{"debug", debug.debug} -- debug
+}
 
 --- @public handleCmdMenu cmd menu handler
 function CmdMenu.handleCmdMenu()
 	CmdMenu.isOpen = (not CmdMenu.isOpen)
-	print("Cmd menu is open:" .. tostring(CmdMenu.isOpen))
 	if CmdMenu.isOpen then patch.draw = CmdMenu.update else patch.draw = patch.defaultDraw end
 end
 
@@ -26,6 +29,11 @@ end
 --- @private cmdMenu_flush execute command
 local function cmdMenu_flush()
 	print("Flushing " .. CmdMenu.buffer) -- TODO implement actual execution
+	for k,v in pairs(CmdMenu.commands) do
+		if CmdMenu.buffer == v[1] then
+			loadstring(v[2])
+		end
+	end
 	-- add to history
 	table.insert(CmdMenu.history, CmdMenu.buffer)
 	CmdMenu.idx_history = 0  -- reset idx to 0
@@ -78,7 +86,7 @@ local function cmdMenu_handleKeys()
 	end
 
 	-- flush
-	if kp.keypressOnAttack("return") then
+	if kp.keypressOnAttack("return") and (#CmdMenu.buffer > 0) then
 		cmdMenu_flush()
 	end
 

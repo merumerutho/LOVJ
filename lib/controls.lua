@@ -28,7 +28,7 @@ function controls.handleGeneralControls()
 
 	-- load patch from associated quick-slot
 	for k,v in pairs(controls.slots) do
-		if kp.keypressOnRelease(v) then
+		if kp.keypressOnRelease(v) and not cmd.isOpen then
 			patch = require(cfg_patches.patches[k])
 			patch.init()
 		end
