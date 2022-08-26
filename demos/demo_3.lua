@@ -20,6 +20,8 @@ function patch.patchControls()
 		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
+	-- hang
+	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
 
 
@@ -37,17 +39,18 @@ end
 
 
 local function ballUpdate(idx, ball)
-  local p = resources.parameters
-  ball.w = ball.w + ball.s + ball.w * p:getByIdx(1) / 10
-  if ball.w > screen.InternalRes.W / 2 * math.sqrt(2) then
-    table.remove(patch.ballList, idx)
-    patch.count = patch.count - 1
-    -- re-add ball
-    newBall()
-  end
-  while patch.count > patch.nBalls do
-    table.remove(patch.ballList, 1)
-  end
+	local p = resources.parameters
+	ball.w = ball.w + ball.s + ball.w * p:getByIdx(1) / 10
+	local largestSide = math.max(screen.InternalRes.W, screen.InternalRes.H)
+	if ball.w > largestSide / 2 * math.sqrt(2) then
+		table.remove(patch.ballList, idx)
+		patch.count = patch.count - 1
+		-- re-add ball
+		newBall()
+	end
+	while patch.count > patch.nBalls do
+		table.remove(patch.ballList, 1)
+	end
 end
 
 
@@ -57,6 +60,9 @@ function patch.init()
 	-- balls
 	patch.nBalls = 100
 	patch.bs = 1 / 100
+
+	patch.canvases = {}
+	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 
 	math.randomseed(timer.T)
 
@@ -82,15 +88,34 @@ local function drawBall(b)
 		-- filled circle
 		love.graphics.setColor(b.c[1], b.c[2], b.c[3], 1)
 		love.graphics.circle("fill", x, y, r, (r * 2) + 6)
+		love.graphics.setColor(1,1,1,1)
 	end
 end
 
 
 function patch.draw()
+	-- select shader
+	local shader
+	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
+
+	-- set canvas
+	love.graphics.setCanvas(patch.canvases.main)
+	-- clean canvas
+	if not patch.hang then patch.canvases.main:renderTo(love.graphics.clear) end
+
 	-- draw balls
 	for k, b in pairs(patch.ballList) do
 		drawBall(b)
 	end
+	-- reset canvas
+	love.graphics.setCanvas()
+
+	-- apply shader
+	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
+	-- render graphics
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+	-- remove shader
+	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 end
 
 

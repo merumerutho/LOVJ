@@ -5,7 +5,6 @@
 
 resources = {}
 -- subdivided in three sections:
-resources.global = {}  -- shared globally: general option values, post-processing shaders, etc.
 resources.graphics = {} -- filepaths or data bound to graphics resources / sprites etc.
 
 local DEFAULT_SIZE = 128
@@ -69,6 +68,8 @@ end
 function resources.Init()
     -- used as parameters bound to elements in patches
     resources.parameters = Resource:new(nil, DEFAULT_SIZE)
+    -- shared globally: general option values, post-processing shaders, etc.
+    resources.globals = Resource:new(nil, DEFAULT_SIZE)
 end
 
 --- @public Update Updater for overall resources

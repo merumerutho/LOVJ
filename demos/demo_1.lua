@@ -1,7 +1,5 @@
 palettes = require "lib/palettes"
 kp = require "lib/utils/keypress"
-shaders = require "lib/shaders"
-cfg_shaders = require "lib/cfg/cfg_shaders"
 
 -- import pico8 palette
 local PALETTE
@@ -63,22 +61,6 @@ function patch.patchControls()
 		p[2].value = 1
 		timer.InitialTime = love.timer.getTime()
 	end
-
-	-- selected shader
-	if kp.keypressOnAttack("s") then
-		p:set("selected_shader", (p:get("selected_shader") + 1) % #cfg_shaders.shaders)
-	end
-
-	-- warp
-	if kp.isDown("w") then
-		if kp.isDown("up") then p:set("_warpParameter", (p:get("_warpParameter") + 0.1)) end
-		if kp.isDown("down") then p:set("_warpParameter", (p:get("_warpParameter") - 0.1)) end
-	end
-	if kp.isDown("k") then
-		if kp.keypressOnAttack("up") then p:set("_segmentParameter", (p:get("_segmentParameter")+1)) end
-		if kp.keypressOnAttack("down") then p:set("_segmentParameter", (p:get("_segmentParameter")-1)) end
-	end
-
 end
 
 
@@ -110,19 +92,8 @@ function patch.draw()
 		patch.img_data:mapPixel(fill_bg)
 	end
 
-	-- select shader
-	local shader_script
 	local shader
-	if cfg_shaders.enabled then
-		shader_script = cfg_shaders.shaders[1 + p:get("selected_shader")]
-		shader = love.graphics.newShader(shader_script)
-		if shader_script == shaders.warp then
-			shader:send("_warpParameter", p:get("_warpParameter"))
-		end
-		if shader_script == shaders.kaleido then
-			shader:send("_segmentParameter", p:get("_segmentParameter"))
-		end
-	end
+	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
 
 	-- draw picture
     for x = -20, 20, .25 do
@@ -148,18 +119,13 @@ function patch.draw()
 	end
 
 	-- apply shader
-	if cfg_shaders.enabled then
-		love.graphics.setShader(shader)
-	end
+	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
 	-- render picture
 	local img = love.graphics.newImage(patch.img_data)
 	love.graphics.draw(img, 0, 0)
 
 	-- remove shader
-	if cfg_shaders.enabled then
-		love.graphics.setShader()
-	end
-
+	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 end
 
 

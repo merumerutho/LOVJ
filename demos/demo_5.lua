@@ -1,6 +1,4 @@
 palettes = require "lib/palettes"
-shaders = require "lib/shaders"
-cfg_shaders = require "lib/cfg/cfg_shaders"
 controls = require "lib/controls"
 kp = require "lib/utils/keypress"
 
@@ -22,10 +20,6 @@ function patch.patchCheckControls()
 	-- reset
 	if kp.isDown("r") then
 		patch.reset()
-	end
-	-- selected shader
-	if kp.keypressOnAttack("s") then
-		p:set("selected_shader", (p:get("selected_shader") + 1) % #cfg_shaders.shaders)
 	end
 	-- warp
 	if kp.isDown("w") then
@@ -150,18 +144,8 @@ function patch.draw()
 	patch.updatePoints(patch.points)
 
 	-- select shader
-	local shader_script
 	local shader
-	if cfg_shaders.enabled then
-		shader_script = cfg_shaders.shaders[1 + p:get("selected_shader")]
-		shader = love.graphics.newShader(shader_script)
-		if shader_script == shaders.warp then
-			shader:send("_warpParameter", p:get("_warpParameter"))
-		end
-		if shader_script == shaders.kaleido then
-			shader:send("_segmentParameter", p:get("_segmentParameter"))
-		end
-	end
+	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
 
 	-- set canvas
 	love.graphics.setCanvas(patch.canvases.main)
@@ -187,15 +171,11 @@ function patch.draw()
 	-- remove canvas
 	love.graphics.setCanvas()
 	-- apply shader
-	if cfg_shaders.enabled then
-		love.graphics.setShader(shader)
-	end
+	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
 	-- render graphics
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 	-- remove shader
-	if cfg_shaders.enabled then
-		love.graphics.setShader()
-	end
+	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 
 end
 

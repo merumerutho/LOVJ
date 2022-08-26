@@ -41,11 +41,7 @@ function patch.patchControls()
 	end
 	
 	-- Hanger
-	if love.keyboard.isDown("x") then
-		hang = true
-	else
-		hang = false
-	end
+	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
 	
 	-- Reset
 	if love.keyboard.isDown("r") then
@@ -68,8 +64,8 @@ local function addBall(ball_list, sx, sy)
 	ball.dx = (-1) ^ (1+math.random(2))
 	ball.dy = (-1) ^ (1+math.random(2))
   -- ball speed 
-	ball.ax = ball.dx * ((math.random()) * 0.5 + 0.05)
-	ball.ay = ball.dy * ((math.random()) * 0.5 + 0.05 - ball.dx * ball.ax / 10)
+	ball.ax = ball.dx * ((math.random()) + 0.05)
+	ball.ay = ball.dy * ((math.random()) + 0.05 - ball.dx * ball.ax / 10)
   	ball.az = (math.abs(ball.ax) + math.abs(ball.ay))
   	-- readjust ay
   	ball.ax = (ball.ax / ball.dx - ball.dy * ball.ay / 10) * ball.dx
@@ -100,6 +96,9 @@ function patch.init()
 	patch.hang = false
 	PALETTE = palettes.PICO8
 
+	patch.canvases = {}
+	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+
 	patch.img = false
 	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
 	
@@ -120,20 +119,36 @@ local function drawBall(img, b)
   	-- filled circle
   	love.graphics.setColor(b.c[1], b.c[2], b.c[3], 1)
 	love.graphics.circle("fill", b.x, b.y, (b.z / 2) ^ 1.6, (b.z * 2) + 6)
+	love.graphics.setColor(1,1,1,1)
 end
 
 
 function patch.draw()
+	-- select shader
+	local shader
+	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
 	-- clear picture
 	if not patch.hang then
 		patch.img_data:mapPixel(patch.methods.fill_bg)
+		patch.canvases.main:renderTo(love.graphics.clear)
 	end
-  
+	-- set canvas
+	love.graphics.setCanvas(patch.canvases.main)
+
+
   	-- draw balls
   	for k,b in pairs(patch.ballList) do
     	drawBall(patch.img_data, b)
   	end
-	
+	-- reset canvas
+	love.graphics.setCanvas()
+
+	-- apply shader
+	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
+	-- render graphics
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+	-- remove shader
+	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 end
 
 

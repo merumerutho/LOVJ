@@ -10,6 +10,7 @@ connections = require "lib/connections"
 dispatcher = require "lib/dispatcher"
 
 cfg_patches = require "lib/cfg/cfg_patches"
+cfg_shaders = require "lib/cfg/cfg_shaders"
 
 local defaultPatch = cfg_patches.defaultPatch
 patch = require(defaultPatch)
@@ -31,6 +32,8 @@ function love.load()
 	patch.init()
 	-- Init socket
 	connections.Init()
+	-- Init Shaders globals
+	cfg_shaders.assignGlobals()
 
 end
 
