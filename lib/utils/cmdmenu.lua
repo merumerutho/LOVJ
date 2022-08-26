@@ -40,7 +40,7 @@ local function cmdMenu_flush()
 	CmdMenu.buffer = "" -- delete buffer
 end
 
---- @private handleKeysHistory handle keys to browse command history
+--- @private cmdMenu_handleKeysHistory handle keys to browse command history
 local function cmdMenu_handleKeysHistory()
 	if kp.keypressOnAttack("up") then
 		if CmdMenu.idx_history < #CmdMenu.history then

@@ -6,7 +6,7 @@
 Connections = {}
 local cfg = require "lib/cfg/cfg_connections"
 
-function Connections.Init()
+function Connections.init()
   -- initialize list of udp threads and channels (request, response)
   Connections.UdpThreads = {}
   Connections.ReqChannels = {}
@@ -23,7 +23,7 @@ function Connections.Init()
 end
 
 
-function Connections.SendRequests()
+function Connections.sendRequests()
   local responses = {}
 
   for k,reqCh in pairs(Connections.ReqChannels) do

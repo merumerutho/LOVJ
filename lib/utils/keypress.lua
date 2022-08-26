@@ -3,7 +3,7 @@ Keypress = {}
 Keypress.currentlyPressed = {}
 
 -- local scope
-local function check_single_press(key, onrelease)
+local function checkSinglePress(key, onrelease)
     -- If some key is pressed
     if love.keyboard.isDown(key) then
         local was_pressed = false
@@ -32,11 +32,11 @@ end
 
 -- global scope
 function Keypress.keypressOnAttack(key)
-    return check_single_press(key, false)
+    return checkSinglePress(key, false)
 end
 
 function Keypress.keypressOnRelease(key)
-    return check_single_press(key, true)
+    return checkSinglePress(key, true)
 end
 
 function Keypress.isDown(key)

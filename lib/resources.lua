@@ -65,7 +65,7 @@ function Resource:new(o, n)
 end
 
 --- @public init Initializer for overall resources
-function resources.Init()
+function resources.init()
     -- used as parameters bound to elements in patches
     resources.parameters = Resource:new(nil, DEFAULT_SIZE)
     -- shared globally: general option values, post-processing shaders, etc.
@@ -73,7 +73,7 @@ function resources.Init()
 end
 
 --- @public Update Updater for overall resources
-function resources.Update(update_msg)
+function resources.update(update_msg)
     for k, msg in pairs(update_msg) do
         local destination = msg[1] -- destination (osc)
         local content = msg[2] -- content of packet (osc)

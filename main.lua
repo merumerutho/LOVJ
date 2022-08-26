@@ -27,11 +27,11 @@ function love.load()
 	-- Init timer
 	timer.init()
 	-- Init resources
-	resources.Init()
+	resources.init()
 	-- Init Patch
 	patch.init()
 	-- Init socket
-	connections.Init()
+	connections.init()
 	-- Init Shaders globals
 	cfg_shaders.assignGlobals()
 
@@ -59,7 +59,7 @@ function love.update()
 
 	controls.handleGeneralControls()  -- evaluate general controls
 
-	local response_data = connections.SendRequests()  -- request data from UDP connections
+	local response_data = connections.sendRequests()  -- request data from UDP connections
 	dispatcher.update(response_data)  -- TODO implement this
 	patch.update()
 end

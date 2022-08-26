@@ -1,7 +1,6 @@
 -- screen.lua
 --
 -- Graphical settings
-
 screen_settings = require "lib/cfg/cfg_screen"
 
 screen = {}
@@ -33,7 +32,7 @@ function screen.UpdateScreenOptions()
 end
 
 
-local function CalculateScaling()
+local function calculateScaling()
 	screen.Scaling = {}
 	screen.Scaling.X = screen.ExternalRes.W / screen.InternalRes.W
 	screen.Scaling.Y = screen.ExternalRes.H / screen.InternalRes.H
@@ -48,7 +47,7 @@ function screen.ToggleFullscreen()
 		local ss = screen_settings
 		SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
 	end
-	CalculateScaling()
+	calculateScaling()
 	screen.UpdateScreenOptions()
 end
 
@@ -59,7 +58,7 @@ function screen.init()
 	SetInternalRes(ss.INTERNAL_RES_WIDTH, ss.INTERNAL_RES_RATIO)
 	SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
 	screen.isFullscreen = false
-	CalculateScaling()
+	calculateScaling()
 	screen.UpdateScreenOptions()
 	return screen
 end
