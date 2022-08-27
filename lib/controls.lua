@@ -20,13 +20,13 @@ local function handleShaderCommands()
 	end
 	-- warp
 	if kp.isDown("w") then
-		if kp.isDown("up") then p:set("_warpParameter", (p:get("_warpParameter") + 0.1)) end
-		if kp.isDown("down") then p:set("_warpParameter", (p:get("_warpParameter") - 0.1)) end
+		if kp.isDown("up") then g:set("_warpParameter", (g:get("_warpParameter") + 0.1)) end
+		if kp.isDown("down") then g:set("_warpParameter", (g:get("_warpParameter") - 0.1)) end
 	end
 	-- kaleido
 	if kp.isDown("k") then
-		if kp.keypressOnAttack("up") then p:set("_segmentParameter", (p:get("_segmentParameter")+1)) end
-		if kp.keypressOnAttack("down") then p:set("_segmentParameter", (p:get("_segmentParameter")-1)) end
+		if kp.keypressOnAttack("up") then g:set("_segmentParameter", (g:get("_segmentParameter")+1)) end
+		if kp.keypressOnAttack("down") then g:set("_segmentParameter", (g:get("_segmentParameter")-1)) end
 	end
 end
 

@@ -21,54 +21,40 @@ local function inScreen(x, y)
 end
 
 
+local function init_params()
+	p = resources.parameters
+	p:setName(1, "a")			p:set("a", 0.5)
+	p:setName(2, "b")			p:set("b", 1)
+end
+
+
 function patch.patchControls()
 	p = resources.parameters
 	
 	-- INCREASE
 	if kp.isDown("up") then
 		-- Param "a"
-		if kp.isDown("a") then
-			p[1].value = p[1].value + .1
-		end
+		if kp.isDown("a") then p:set("a", p:get("a") + .1) end
 		-- Param "b"
-		if kp.isDown("b") then
-			p[2].value = p[2].value + .1
-		end
+		if kp.isDown("b") then p:set("b", p:get("b") + .1) end
 	end
 	
 	-- DECREASE
 	if kp.isDown("down") then
 		-- Param "a"
-		if kp.isDown("a") then
-			p[1].value = p[1].value - .1
-		end
+		if kp.isDown("a") then p:set("a", p:get("a") - .1) end
 		-- Param "b"
-		if kp.isDown("b") then
-			p[2].value = p[2].value - .1
-		end
+		if kp.isDown("b") then p:set("b", p:get("b") - .1) end
 	end
 	
 	-- Hanger
-	if kp.isDown("x") then
-		hang = true
-	else
-		hang = false
-	end
+	if kp.isDown("x") then hang = true else hang = false end
 	
 	-- Reset
 	if kp.isDown("r") then
-		p[1].value = 0.5
-		p[2].value = 1
+		init_params()
 		timer.InitialTime = love.timer.getTime()
 	end
-end
-
-
-local function init_params()
-	p = resources.parameters
-	p:setName(10, "selected_shader")			p:set("selected_shader", 0)
-	p:setName(11, "_warpParameter")				p:set("_warpParameter", 2)
-	p:setName(12, "_segmentParameter")			p:set("_segmentParameter", 3)
 end
 
 --- @public init init routine
@@ -105,8 +91,8 @@ function patch.draw()
 			local y1 = x * math.sin(timer.T) + y * math.cos(timer.T)
 			-- calculate pixel position to draw
 			local w, h = screen.InternalRes.W, screen.InternalRes.H
-			local px = w / 2 + (r - p[2].value) * x1
-			local py = h / 2 + (r - p[1].value) * y1
+			local px = w / 2 + (r - p:get("b")) * x1
+			local py = h / 2 + (r - p:get("a")) * y1
 			px = px + 8 * math.cos(r)
 			-- calculate color position in lookup table
 			local col = -r * 2 + math.atan(x1, y1)

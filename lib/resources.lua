@@ -4,9 +4,6 @@
 --
 
 resources = {}
--- subdivided in three sections:
-resources.graphics = {} -- filepaths or data bound to graphics resources / sprites etc.
-
 local DEFAULT_SIZE = 128
 
 Resource = {}
@@ -70,6 +67,8 @@ function resources.init()
     resources.parameters = Resource:new(nil, DEFAULT_SIZE)
     -- shared globally: general option values, post-processing shaders, etc.
     resources.globals = Resource:new(nil, DEFAULT_SIZE)
+    -- filepaths or data bound to graphics resources / sprites etc.
+    resources.graphics = Resource:new(nil, DEFAULT_SIZE)
 end
 
 --- @public Update Updater for overall resources

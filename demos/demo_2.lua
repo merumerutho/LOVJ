@@ -92,7 +92,6 @@ end
 
 
 function patch.init()
-
 	patch.hang = false
 	PALETTE = palettes.PICO8
 
