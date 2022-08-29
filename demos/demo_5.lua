@@ -5,7 +5,7 @@ kp = require "lib/utils/keypress"
 -- import palette
 local PALETTE = palettes.TIC80
 
-local ALPHA_MAGIC_NUM = 0.959--804--684
+local ALPHA_MAGIC_NUM = 0.995
 
 patch = {}
 
@@ -140,8 +140,7 @@ function patch.draw()
 							0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 		end)
 
-	-- update points positions
-	patch.updatePoints(patch.points)
+
 
 	-- select shader
 	local shader
@@ -183,6 +182,10 @@ end
 function patch.update()
 	-- update parameters with local patch controls
 	params = patch.patchCheckControls()
+	-- update points positions
+	if timer.fpsInterrupt() then
+		patch.updatePoints(patch.points)
+	end
 end
 
 --- @public defaultDraw assigned to draw method by default

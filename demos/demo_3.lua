@@ -3,6 +3,7 @@ screen = require "lib/screen"
 kp = require "lib/utils/keypress"
 
 -- import pico8 palette
+local DEFAULT_ACCELERATION = 0.4
 local PALETTE
 local hang
 
@@ -13,11 +14,10 @@ local function patchControls()
 	local p = resources.parameters
 	if kp.isDown("lctrl") then
 		-- Accelerator
-		if kp.isDown("a") then p:set("acceleration", 1) else p:set("acceleration", 0) end
+		if kp.isDown("a") then p:set("acceleration", DEFAULT_ACCELERATION+1) else p:set("acceleration", DEFAULT_ACCELERATION) end
   	end
 	-- Reset
 	if kp.isDown("r") then
-		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
 	-- hang
@@ -56,7 +56,7 @@ end
 --- @private init_params initialize patch parameters
 local function init_params()
 	p = resources.parameters
-	p:setName(1, "acceleration")		p:set("acceleration", 0)
+	p:setName(1, "acceleration")		p:set("acceleration", DEFAULT_ACCELERATION)
 end
 
 --- @public init initialization function for the patch
@@ -128,9 +128,11 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	patchControls()
-	-- update balls
-	for k, b in pairs(patch.ballList) do
-    	ballUpdate(k, b)
+	if timer.fpsInterrupt() then
+		-- update balls
+		for k, b in pairs(patch.ballList) do
+			ballUpdate(k, b)
+		end
 	end
 end
 
