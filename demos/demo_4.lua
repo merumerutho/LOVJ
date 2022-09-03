@@ -6,7 +6,6 @@ kp = require "lib/utils/keypress"
 PALETTE = palettes.BW
 
 patch = {}
-patch.methods = {}
 
 function patch.patchControls()
 	p = resources.parameters

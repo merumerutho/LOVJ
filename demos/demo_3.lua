@@ -3,7 +3,7 @@ screen = require "lib/screen"
 kp = require "lib/utils/keypress"
 
 -- import pico8 palette
-local PALETTE
+local PALETTE = palettes.PICO8
 local hang
 
 patch = {}
@@ -61,7 +61,6 @@ end
 
 --- @public init initialization function for the patch
 function patch.init()
-	PALETTE = palettes.PICO8
 	hang = false
 	patch.canvases = {}
 	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)

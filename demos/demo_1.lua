@@ -2,7 +2,7 @@ palettes = require "lib/utils/palettes"
 kp = require "lib/utils/keypress"
 
 -- import pico8 palette
-local PALETTE
+local PALETTE = palettes.PICO8
 
 patch = {}
 patch.methods = {}
@@ -59,8 +59,6 @@ end
 
 --- @public init init routine
 function patch.init()
-	PALETTE = palettes.PICO8
-
 	patch.hang = false
 
 	patch.img = false

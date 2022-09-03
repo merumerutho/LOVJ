@@ -1,8 +1,6 @@
 palettes = require "lib/utils/palettes"
 kp = require "lib/utils/keypress"
 
--- import pico8 palette
-local PALETTE
 local hang
 local BG_SPRITE_SIZE = 8
 

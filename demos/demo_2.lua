@@ -1,13 +1,13 @@
 palettes = require "lib/utils/palettes"
 screen = require "lib/screen"
 
-local PALETTE
+local PALETTE = palettes.PICO8
 
 patch = {}
 patch.methods = {}
 
 -- Fill screen with background color
-function patch.methods.fill_bg(x, y, r, g, b, a)
+local function fill_bg(x, y, r, g, b, a)
 	local col = palettes.getColor(PALETTE, 1)
 	r, g, b = col[1], col[2], col[3]
 	a = 1
@@ -93,7 +93,6 @@ end
 
 function patch.init()
 	patch.hang = false
-	PALETTE = palettes.PICO8
 
 	patch.canvases = {}
 	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
@@ -128,7 +127,7 @@ function patch.draw()
 	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
 	-- clear picture
 	if not patch.hang then
-		patch.img_data:mapPixel(patch.methods.fill_bg)
+		patch.img_data:mapPixel(fill_bg)
 		patch.canvases.main:renderTo(love.graphics.clear)
 	end
 	-- set canvas
