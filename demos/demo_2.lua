@@ -45,8 +45,7 @@ function patch.patchControls()
 	
 	-- Reset
 	if love.keyboard.isDown("r") then
-		timer.InitialTime = love.timer.getTime()
-    patch.init()
+    	patch.init()
 	end
 end
 
@@ -64,8 +63,8 @@ local function addBall(ball_list, sx, sy)
 	ball.dx = (-1) ^ (1+math.random(2))
 	ball.dy = (-1) ^ (1+math.random(2))
   -- ball speed 
-	ball.ax = ball.dx * ((math.random()) + 0.05)
-	ball.ay = ball.dy * ((math.random()) + 0.05 - ball.dx * ball.ax / 10)
+	ball.ax = ball.dx * ((math.random())*3 + 0.05)
+	ball.ay = ball.dy * ((math.random())*3 + 0.05 - ball.dx * ball.ax / 10)
   	ball.az = (math.abs(ball.ax) + math.abs(ball.ay))
   	-- readjust ay
   	ball.ax = (ball.ax / ball.dx - ball.dy * ball.ay / 10) * ball.dx
@@ -96,9 +95,6 @@ function patch.init()
 
 	patch.canvases = {}
 	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-
-	patch.img = false
-	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
 	
   	-- balls
   	patch.nBalls = 500
@@ -110,7 +106,7 @@ function patch.init()
 end
 
 
-local function drawBall(img, b)
+local function drawBall(b)
   	local border_col = palettes.getColor(PALETTE, math.random(16))
   	love.graphics.setColor(border_col[1] / 255, border_col[2] / 255, border_col[3] / 255, 1)
   	love.graphics.circle("line", b.x, b.y, (b.z / 2) ^ 1.6, (b.z * 2) + 6)
@@ -127,7 +123,6 @@ function patch.draw()
 	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
 	-- clear picture
 	if not patch.hang then
-		patch.img_data:mapPixel(fill_bg)
 		patch.canvases.main:renderTo(love.graphics.clear)
 	end
 	-- set canvas
@@ -136,7 +131,7 @@ function patch.draw()
 
   	-- draw balls
   	for k,b in pairs(patch.ballList) do
-    	drawBall(patch.img_data, b)
+    	drawBall(b)
   	end
 	-- reset canvas
 	love.graphics.setCanvas()
@@ -164,12 +159,14 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	patch.patchControls()
-  	-- update balls
-  	for k, b in pairs(patch.ballList) do
-		ballTrajectory(k, b)
-  	end
-  	-- re-order balls
-  	orderZ(patch.ballList)
+	if timer.fpsInterrupt() then
+		-- update balls
+		for k, b in pairs(patch.ballList) do
+			ballTrajectory(k, b)
+		end
+		-- re-order balls
+		orderZ(patch.ballList)
+	end
 end
 
 --- @public defaultDraw assigned to draw method by default

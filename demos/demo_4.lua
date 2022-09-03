@@ -16,7 +16,6 @@ function patch.patchControls()
 	
 	-- Reset
 	if kp.isDown("r") then
-		timer.InitialTime = love.timer.getTime()
     	patch.init()
 	end
 end
@@ -81,7 +80,7 @@ function patch.update()
 	-- update parameters with patch controls
 	patch.patchControls()
 
-	--beat per step? (why times 4 though?)
+	--beat per step?
   	--local bps = patch.bpm/60*4
 
 end
