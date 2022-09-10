@@ -49,12 +49,6 @@ function patch.patchControls()
 	
 	-- Hanger
 	if kp.isDown("x") then hang = true else hang = false end
-	
-	-- Reset
-	if kp.isDown("r") then
-		init_params()
-		timer.InitialTime = love.timer.getTime()
-	end
 end
 
 --- @public init init routine

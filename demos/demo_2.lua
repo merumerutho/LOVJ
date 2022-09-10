@@ -160,7 +160,7 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	patch.patchControls()
-	if timer.fpsInterrupt() then
+	if timer.fpsTimer() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do
 			ballTrajectory(k, b)

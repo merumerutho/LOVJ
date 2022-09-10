@@ -61,7 +61,7 @@ end
 
 --- @public init initialization function for the patch
 function patch.init()
-	PALETTE = palettes.PICO8
+	PALETTE = palettes.TIC80
 	hang = false
 	patch.canvases = {}
 	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
@@ -128,7 +128,7 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	patchControls()
-	if timer.fpsInterrupt() then
+	if timer.fpsTimer() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do
 			ballUpdate(k, b)
