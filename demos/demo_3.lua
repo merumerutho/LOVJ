@@ -127,7 +127,7 @@ end
 --- @public update update patch function
 function patch.update()
 	-- update parameters with patch controls
-	patchControls
+	patchControls()
 	if timer.fpsTimer() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do
