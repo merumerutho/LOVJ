@@ -51,12 +51,25 @@ end
 function patch.draw()
 	love.graphics.setColor(1,1,1,1)
 
+	-- select shader
+	local shader
+	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
+
+	-- set canvas
 	love.graphics.setCanvas(patch.canvases.main)
+
 	-- render graphics
 	love.graphics.draw(patch.video.handle, 0, 0, 0, patch.video.scaleX, patch.video.scaleY)
 
+	-- reset canvas
 	love.graphics.setCanvas()
+
+	-- apply shader
+	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
+	-- render graphics
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+	-- remove shader
+	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 end
 
 
