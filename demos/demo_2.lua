@@ -16,30 +16,6 @@ end
 
 
 function patch.patchControls()
-	-- INCREASE
-	if love.keyboard.isDown("up") then
-		-- Param "a"
-		if love.keyboard.isDown("a") then
-			p[1] = p[1] + .1
-		end
-		-- Param "b"
-		if love.keyboard.isDown("b") then
-			p[2] = p[2] + .1
-		end
-	end
-	
-	-- DECREASE
-	if love.keyboard.isDown("down") then
-		-- Param "a"
-		if love.keyboard.isDown("a") then
-			p[1] = p[1] - .1 
-		end
-		-- Param "b"
-		if love.keyboard.isDown("b") then
-			p[2] = p[2] - .1
-		end
-	end
-	
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
 	
@@ -90,6 +66,13 @@ local function ballTrajectory(k, b)
 end
 
 
+--- @private init_params Initialize parameters for this patch
+local function init_params()
+	p = resources.parameters
+
+end
+
+
 function patch.init()
 	patch.hang = false
 
@@ -103,6 +86,8 @@ function patch.init()
   	for i = 1, patch.nBalls do
     	addBall(patch.ballList, screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   	end
+
+
 end
 
 
