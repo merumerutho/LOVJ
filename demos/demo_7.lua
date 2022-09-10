@@ -27,11 +27,16 @@ end
 function patch.init()
 	PALETTE = palettes.PICO8
 
+	patch.canvases = {}
+	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+
 	init_params()
 
     patch.video = {}
     patch.video.handle = love.graphics.newVideo(g:get("video"))
     patch.video.pos = 0
+	patch.video.scaleX = screen.InternalRes.W / patch.video.handle:getWidth()
+	patch.video.scaleY = screen.InternalRes.H / patch.video.handle:getHeight()
     patch.video.handle:play()
 end
 
@@ -46,9 +51,12 @@ end
 function patch.draw()
 	love.graphics.setColor(1,1,1,1)
 
+	love.graphics.setCanvas(patch.canvases.main)
 	-- render graphics
-	love.graphics.draw(patch.video.handle, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+	love.graphics.draw(patch.video.handle, 0, 0, 0, patch.video.scaleX, patch.video.scaleY)
 
+	love.graphics.setCanvas()
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 end
 
 
