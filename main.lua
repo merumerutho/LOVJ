@@ -53,7 +53,7 @@ end
 function love.update()
 	timer.update()  -- update timer
 	-- Console management
-	if timer.consoleSwInterrupt() then
+	if timer.consoleTimer() then
 		print("FPS:", fps)
 	end
 

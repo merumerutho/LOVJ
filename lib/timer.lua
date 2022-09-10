@@ -13,6 +13,7 @@ function timer.init()
 	timer.DeltaT = {}
 	timer.DeltaT.console = 0
 	timer.DeltaT.fps = 0
+	timer.DeltaT.oneSec = 0
 	timer.InitialTime = love.timer.getTime()
 	timer.T = love.timer.getTime()
 end
@@ -23,7 +24,7 @@ function timer.update()
 end
 
 
-function timer.consoleSwInterrupt()
+function timer.consoleTimer()
 	if timer.T - timer.DeltaT.console >= timer.CONSOLE_UPDATE_INTERVAL then
 		timer.DeltaT.console = timer.T
 		return true
@@ -31,9 +32,17 @@ function timer.consoleSwInterrupt()
 	return false
 end
 
-function timer.fpsInterrupt()
+function timer.fpsTimer()
 	if timer.T - timer.DeltaT.fps >= spf then
 		timer.DeltaT.fps = timer.T
+		return true
+	end
+	return false
+end
+
+function timer.oneSecondTimer()
+	if timer.T - timer.DeltaT.oneSec > 1 then
+		timer.DeltaT.oneSec = timer.T
 		return true
 	end
 	return false

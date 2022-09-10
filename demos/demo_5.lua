@@ -18,7 +18,10 @@ end
 function patch.patchCheckControls()
 	local p = resources.parameters
 	-- reset
-	if kp.isDown("r") then
+	if kp.keypressOnAttack("r") then
+		patch.reset()
+	end
+	if kp.isDown("lshift") and kp.isDown("r") then
 		patch.reset()
 	end
 	-- warp
@@ -183,7 +186,7 @@ function patch.update()
 	-- update parameters with local patch controls
 	params = patch.patchCheckControls()
 	-- update points positions
-	if timer.fpsInterrupt() then
+	if timer.fpsTimer() then
 		patch.updatePoints(patch.points)
 	end
 end
