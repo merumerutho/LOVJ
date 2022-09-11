@@ -29,6 +29,7 @@ function patch.init()
 
 	patch.canvases = {}
 	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.video = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 
 	init_params()
 
@@ -49,24 +50,40 @@ end
 
 --- @public patch.draw draw routine
 function patch.draw()
+	g = resources.globals
 	love.graphics.setColor(1,1,1,1)
 
-	-- select shader
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
+	-- clear screen to colour
+	patch.canvases.main:renderTo(function()
+		local col = {timer.T*0.2 % 1, timer.T * 0.4 % 1, timer.T*0.1 % 1}
+		love.graphics.clear(col)
+	end )
 
+	-- select shader and apply chroma keying
+	local shader, chroma
+	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
+	if cfg_shaders.enabled then
+		chroma = love.graphics.newShader(shaders.chromakey)
+		chroma:send("_chromaColor", g:get("_chromaColor"))
+		chroma:send("_chromaTolerance", g:get("_chromaTolerance"))
+	end
 	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
+	love.graphics.setCanvas(patch.canvases.video)
 
 	-- render graphics
 	love.graphics.draw(patch.video.handle, 0, 0, 0, patch.video.scaleX, patch.video.scaleY)
-
-	-- reset canvas
-	love.graphics.setCanvas()
+	-- apply chroma keying
+	if cfg_shaders.enabled then cfg_shaders.applyShader(chroma) end
+	-- set main canvas
+	love.graphics.setCanvas(patch.canvases.main)
+	-- draw video w/ chroma keying
+	love.graphics.draw(patch.canvases.video, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 
 	-- apply shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render graphics
+	-- select draw canvas
+	love.graphics.setCanvas()
+	-- draw all
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end

@@ -21,6 +21,8 @@ function cfg_shaders.assignGlobals()
 	g:setName(1, "selected_shader")		g:set("selected_shader", 0)
 	g:setName(2, "_warpParameter")		g:set("_warpParameter", 2)
 	g:setName(3, "_segmentParameter")	g:set("_segmentParameter", 3)
+	g:setName(4, "_chromaColor")		g:set("_chromaColor", {0,0,0,0})
+	g:setName(5, "_chromaTolerance")	g:set("_chromaTolerance", {0.05, 0.1})
 end
 
 --- @public selectShader select the shader to apply
