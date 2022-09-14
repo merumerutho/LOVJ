@@ -45,7 +45,7 @@ function patch.init()
 	hang = false
 
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.main = love.graphics.newCanvas()
 
 	init_params()
 end

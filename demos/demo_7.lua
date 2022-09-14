@@ -28,8 +28,8 @@ function patch.init()
 	PALETTE = palettes.PICO8
 
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	patch.canvases.video = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.main = love.graphics.newCanvas()
+	patch.canvases.video = love.graphics.newCanvas()
 
 	init_params()
 

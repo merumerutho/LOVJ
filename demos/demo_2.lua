@@ -18,11 +18,8 @@ end
 function patch.patchControls()
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
-	
 	-- Reset
-	if love.keyboard.isDown("r") then
-    	patch.init()
-	end
+	if love.keyboard.isDown("r") then patch.init() end
 end
 
 
@@ -77,7 +74,7 @@ function patch.init()
 	patch.hang = false
 
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.main = love.graphics.newCanvas()
 	
   	-- balls
   	patch.nBalls = 500

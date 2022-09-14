@@ -93,8 +93,8 @@ function patch.init()
 	end
 	-- canvases
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	patch.canvases.trail = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.main = love.graphics.newCanvas()
+	patch.canvases.trail = love.graphics.newCanvas()
 	-- move this somewhere else?
 	patch.shader_trail = nil
 

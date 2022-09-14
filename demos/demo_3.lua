@@ -64,7 +64,7 @@ function patch.init()
 	PALETTE = palettes.PICO8
 	hang = false
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	patch.canvases.main = love.graphics.newCanvas()
 
 	math.randomseed(timer.T)
 
