@@ -40,8 +40,6 @@ end
 
 -- Main draw cycle, called once every frame (depends on vsync)
 function love.draw()
-	-- set scaling
-	love.graphics.scale(screen.Scaling.X, screen.Scaling.Y)
 	-- draw patch
 	patch.draw()
 	-- calculate fps

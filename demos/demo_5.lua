@@ -93,8 +93,8 @@ function patch.init()
 	end
 	-- canvases
 	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas()
-	patch.canvases.trail = love.graphics.newCanvas()
+	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.canvases.trail = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 	-- move this somewhere else?
 	patch.shader_trail = nil
 
@@ -140,7 +140,7 @@ function patch.draw()
 	patch.canvases.main:renderTo(function()
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.draw(patch.canvases.trail,  -- draw content of main buffer onto trail buffer
-							0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+							0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 		end)
 
 
@@ -175,7 +175,7 @@ function patch.draw()
 	-- apply shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
 	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 

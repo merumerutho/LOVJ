@@ -49,6 +49,7 @@ function screen.ToggleFullscreen()
 	end
 	calculateScaling()
 	screen.UpdateScreenOptions()
+	patch.init()
 end
 
 

@@ -7,14 +7,6 @@ local PALETTE = palettes.PICO8
 patch = {}
 patch.methods = {}
 
--- Fill screen with background color
-local function fill_bg(x, y, r, g, b, a)
-	local color = palettes.getColor(PALETTE, 1)
-	r, g, b = color[1], color[2], color[3]
-	a = 1
-	return r,g,b,a
-end
-
 --- @private patch.methods.in Check if pixel in screen boundary
 local function inScreen(x, y)
 	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
@@ -55,8 +47,8 @@ end
 function patch.init()
 	patch.hang = false
 
-	patch.img = false
-	patch.img_data = love.image.newImageData(screen.InternalRes.W, screen.InternalRes.H)
+	patch.canvases = {}
+	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 
 	init_params()
 end
@@ -67,12 +59,16 @@ function patch.draw()
 	love.graphics.setColor(1,1,1,1)
 	-- clear background picture
 	if not hang then
-		patch.img_data:mapPixel(fill_bg)
+		patch.canvases.main:renderTo(love.graphics.clear)
 	end
 
 	local shader
 	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
 
+	-- set canvas
+	love.graphics.setCanvas(patch.canvases.main)
+
+	local points_list = {}
 	-- draw picture
     for x = -20, 20, .25 do
 		for y = -20, 20, .25 do
@@ -89,19 +85,21 @@ function patch.draw()
 			-- calculate color position in lookup table
 			local col = -r * 2 + math.atan(x1, y1)
 			col = palettes.getColor(PALETTE, (math.floor(col) % 16) + 1)
-			-- draw pixels on picture
+			-- add to list of points to draw
 			if inScreen(px, py) then
-				patch.img_data:setPixel(px, py, col[1], col[2], col[3], 1)
+				table.insert(points_list, {px, py, col[1], col[2], col[3], 1})
 			end
 		end
 	end
+	-- draw pixels
+	love.graphics.points(points_list)
 
+	-- reset Canvas
+	love.graphics.setCanvas()
 	-- apply shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
 	-- render picture
-	local img = love.graphics.newImage(patch.img_data)
-	love.graphics.draw(img, 0, 0)
-
+	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 end
