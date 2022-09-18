@@ -138,7 +138,7 @@ end
 
 function patch.update()
 	-- update parameters with patch controls
-	patch.patchControls()
+	if not cmd.isOpen then patch.patchControls() end
 	if timer.fpsTimer() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do

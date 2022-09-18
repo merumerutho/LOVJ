@@ -184,7 +184,7 @@ end
 --- @public update Updates the patch
 function patch.update()
 	-- update parameters with local patch controls
-	params = patch.patchCheckControls()
+	if not cmd.isOpen then patch.patchCheckControls() end
 	-- update points positions
 	if timer.fpsTimer() then
 		patch.updatePoints(patch.points)

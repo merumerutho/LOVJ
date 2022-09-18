@@ -98,7 +98,7 @@ end
 
 function patch.update()
 	-- update parameters with patch controls
-	patch.patchControls()
+	if not cmd.isOpen then patch.patchControls() end
 
 	--beat per step?
   	--local bps = patch.bpm/60*4
