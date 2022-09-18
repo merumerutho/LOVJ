@@ -1,6 +1,7 @@
 local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local screen = require "lib/screen"
+local cmd = require "lib/utils/cmdmenu"
 
 local PALETTE = palettes.PICO8
 

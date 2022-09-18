@@ -1,6 +1,6 @@
 CmdMenu = {}
 local utf8 = require "utf8"
-kp = require "lib/utils/keypress"
+local kp = require "lib/utils/keypress"
 
 -- default state
 CmdMenu.isOpen = false

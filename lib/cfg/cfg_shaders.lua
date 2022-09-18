@@ -1,4 +1,4 @@
-shaders = require "lib/shaders"
+local shaders = require "lib/shaders"
 
 cfg_shaders = {}
 

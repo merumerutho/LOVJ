@@ -2,6 +2,8 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local controls = require "lib/controls"
 local kp = require "lib/utils/keypress"
+local cmd = require "lib/utils/cmdmenu"
+local screen_settings = require "lib/cfg/cfg_screen"
 
 -- import palette
 local PALETTE = palettes.TIC80

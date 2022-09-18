@@ -1,6 +1,7 @@
 local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
+local cmd = require "lib/utils/cmdmenu"
 
 local hang
 local BG_SPRITE_SIZE = 8

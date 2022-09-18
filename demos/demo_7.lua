@@ -2,6 +2,8 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local videoutils = require "lib/utils/video"
+local cmd = require "lib/utils/cmdmenu"
+local screen_settings = require "lib/cfg/cfg_screen"
 
 -- import pico8 palette
 local PALETTE

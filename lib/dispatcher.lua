@@ -2,8 +2,9 @@
 --
 -- dispatch the content of a received msg to relative section
 
-losc = require "losc"
-resources = require "lib/resources"
+local losc = require "losc"
+local resources = require "lib/resources"
+
 dispatcher = {}
 
 -- update the dispatcher

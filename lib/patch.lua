@@ -1,3 +1,5 @@
+local screen_settings = require "lib/cfg/cfg_screen"
+
 Patch = {}
 
 Patch.__index = Patch

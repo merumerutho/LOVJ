@@ -2,10 +2,10 @@
 --
 -- Handle general controls (non patch-specific)
 --
+local kp = require("lib/utils/keypress")
+local cmd = require("lib/utils/cmdmenu")
 
 controls = {}
-kp = require("lib/utils/keypress")
-cmd = require("lib/utils/cmdmenu")
 
 controls.slots = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
 

@@ -1,7 +1,7 @@
 -- screen.lua
 --
 -- Graphical settings
-screen_settings = require "lib/cfg/cfg_screen"
+local screen_settings = require "lib/cfg/cfg_screen"
 
 screen = {}
 
