@@ -1,6 +1,6 @@
-Patch = require "lib/patch"
-palettes = require "lib/utils/palettes"
-kp = require "lib/utils/keypress"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local kp = require "lib/utils/keypress"
 
 -- import pico8 palette
 local PALETTE
@@ -16,7 +16,7 @@ local function init_params()
 end
 
 --- @public patchControls evaluate user keyboard controls
-local function patch.patchControls()
+function patch.patchControls()
 	p = resources.parameters
 
     -- insert here your patch controls
