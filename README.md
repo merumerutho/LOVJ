@@ -2,10 +2,10 @@
 ### A LÖVE VJing framework 
 
 
-LOVJ (previously named [that kind](https://en.wikipedia.org/wiki/Love_Live!) of LOVELive2p) aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively with the code in order to creat visuals in a VJing setting or during a live music performance.
+LOVJ (previously named [LOVELive2p](https://en.wikipedia.org/wiki/Love_Live!)) aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively with the code in order to creat visuals in a VJing setting or during a live music performance.
 
 Shall be flexible enough to support:
-- "1 player" scenarios, with the livecoder/artist handling entirely the code and controls of the visuals.
+- "1 player" scenarios, with the VJ handling entirely control of the visuals.
 - "2+ players" scenario where multiple artists concur to provide signals to control the visuals (through the OSC protocol). 
 Here, the VJ may handle the controls and on top, dynamically select and "wire" the external signals to the parameters of choice inside the code.
 
