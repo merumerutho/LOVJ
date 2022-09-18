@@ -9,6 +9,19 @@ local ALPHA_MAGIC_NUM = 0.995
 
 patch = {}
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+		patch.canvases.trail = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		patch.canvases.trail = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
+
 --- @private inScreen Check if pixel in screen boundary
 local function inScreen(x, y)
 	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
@@ -92,9 +105,7 @@ function patch.init()
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 	-- canvases
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	patch.canvases.trail = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 	-- move this somewhere else?
 	patch.shader_trail = nil
 
@@ -130,8 +141,9 @@ function patch.draw()
 			function()
 				love.graphics.setColor(1, 1, 1, 1)
 				love.graphics.setShader(patch.shader_trail) -- apply shader
-				love.graphics.draw(patch.canvases.main, -- draw content of main buffer onto trail buffer
-									0, 0, 0, (1 / screen.Scaling.X), (1 / screen.Scaling.Y))
+				-- draw content of main buffer onto trail buffer
+					love.graphics.draw(patch.canvases.main,
+							0, 0, 0, 1 / screen.Scaling.RatioX, 1 / screen.Scaling.RatioY)
 				love.graphics.setShader() -- remove shader
 			end)
 	end
@@ -142,8 +154,6 @@ function patch.draw()
 		love.graphics.draw(patch.canvases.trail,  -- draw content of main buffer onto trail buffer
 							0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 		end)
-
-
 
 	-- select shader
 	local shader

@@ -24,7 +24,7 @@ function SetExternalRes(w, r)
 end
 
 
-function screen.UpdateScreenOptions()
+function screen.updateScreenOptions()
 	love.window.setMode(screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setDefaultFilter("linear", "nearest")
 	love.window.setVSync(false)
@@ -34,12 +34,20 @@ end
 
 local function calculateScaling()
 	screen.Scaling = {}
-	screen.Scaling.X = screen.ExternalRes.W / screen.InternalRes.W
-	screen.Scaling.Y = screen.ExternalRes.H / screen.InternalRes.H
+	screen.Scaling.RatioX = screen.ExternalRes.W / screen.InternalRes.W
+	screen.Scaling.RatioY = screen.ExternalRes.H / screen.InternalRes.H
+
+	-- set upscaling mode
+	screen.Scaling.Upscale = screen_settings.UPSCALE_MODE
+
+	-- depending on upscaling mode, set x and y for scaling to "r" or "1/r" => (^1 or ^-1)
+	screen.Scaling.X = screen.Scaling.RatioX ^ (1-2*screen.Scaling.Upscale)
+	screen.Scaling.Y = screen.Scaling.RatioY ^ (1-2*screen.Scaling.Upscale)
+
 end
 
 -- Toggle fullscreen on / off
-function screen.ToggleFullscreen()
+function screen.toggleFullscreen()
 	screen.isFullscreen = (not screen.isFullscreen)
 	if screen.isFullscreen then
 		screen.ExternalRes.W, screen.ExternalRes.H = love.window.getDesktopDimensions()
@@ -48,8 +56,17 @@ function screen.ToggleFullscreen()
 		SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
 	end
 	calculateScaling()
-	screen.UpdateScreenOptions()
+	screen.updateScreenOptions()
 	patch.init()
+end
+
+--- @function changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
+function screen.changeUpscaling()
+	screen_settings.UPSCALE_MODE = math.abs(screen_settings.UPSCALE_MODE - 1)  -- boolean inversion
+	-- calculate new scaling
+	calculateScaling()
+	-- reset canvases
+	patch.setCanvases()
 end
 
 
@@ -60,8 +77,13 @@ function screen.init()
 	SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
 	screen.isFullscreen = false
 	calculateScaling()
-	screen.UpdateScreenOptions()
+	screen.updateScreenOptions()
 	return screen
+end
+
+
+function screen.isUpscalingHiRes()
+	return (screen.Scaling.Upscale == screen_settings.HIGH_RES)
 end
 
 return screen

@@ -40,8 +40,15 @@ end
 
 -- Main draw cycle, called once every frame (depends on vsync)
 function love.draw()
+
+	-- if in high res upscaling mode, then apply scale function here
+	if screen.isUpscalingHiRes() then
+		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
+	end
+
 	-- draw patch
 	patch.draw()
+
 	-- calculate fps
 	fps = love.timer.getFPS()
 end

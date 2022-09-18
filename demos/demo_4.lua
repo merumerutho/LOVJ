@@ -7,6 +7,17 @@ PALETTE = palettes.BW
 
 patch = {}
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
+
 function patch.patchControls()
 	p = resources.parameters
 	if kp.isDown("lctrl") then
@@ -30,8 +41,7 @@ function patch.init()
 	patch.palette = PALETTE
 	patch.invert = false
 
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 
 	math.randomseed(timer.T)
 

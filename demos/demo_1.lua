@@ -5,21 +5,31 @@ kp = require "lib/utils/keypress"
 local PALETTE = palettes.PICO8
 
 patch = {}
-patch.methods = {}
 
---- @private patch.methods.in Check if pixel in screen boundary
+--- @private inScreen Check if pixel in screen boundary
 local function inScreen(x, y)
 	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
 
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
+--- @private init_params initialize parameters for this patch
 local function init_params()
 	p = resources.parameters
 	p:setName(1, "a")			p:set("a", 0.5)
 	p:setName(2, "b")			p:set("b", 1)
 end
 
-
+--- @private patchControls handle controls for current patch
 function patch.patchControls()
 	p = resources.parameters
 	
@@ -46,10 +56,7 @@ end
 --- @public init init routine
 function patch.init()
 	patch.hang = false
-
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-
+	patch.setCanvases()
 	init_params()
 end
 

@@ -6,6 +6,16 @@ local BG_SPRITE_SIZE = 8
 
 patch = {}
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
 --- @private get_bg get background graphics based on resources
 local function get_bg()
 	patch.graphics = {}
@@ -44,8 +54,7 @@ function patch.init()
 	PALETTE = palettes.PICO8
 	hang = false
 
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 
 	init_params()
 end

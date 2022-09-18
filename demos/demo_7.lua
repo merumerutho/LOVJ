@@ -7,6 +7,18 @@ local PALETTE
 
 patch = {}
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+		patch.canvases.video = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		patch.canvases.video = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
 --- @private init_params initialize patch parameters
 local function init_params()
 	g = resources.graphics
@@ -27,9 +39,7 @@ end
 function patch.init()
 	PALETTE = palettes.PICO8
 
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	patch.canvases.video = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 
 	init_params()
 
@@ -77,7 +87,12 @@ function patch.draw()
 	-- set main canvas
 	love.graphics.setCanvas(patch.canvases.main)
 	-- draw video w/ chroma keying
-	love.graphics.draw(patch.canvases.video)
+	if screen.isUpscalingHiRes() then
+		love.graphics.draw(patch.canvases.video, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	else
+		love.graphics.draw(patch.canvases.video)
+	end
+
 
 	-- apply shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end

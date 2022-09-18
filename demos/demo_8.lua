@@ -6,6 +6,16 @@ local PALETTE = palettes.TIC80
 
 patch = {}
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
 --- @private init_params initialize patch parameters
 local function init_params()
 	g = resources.graphics
@@ -26,8 +36,7 @@ end
 --- @public init init routine
 function patch.init()
 
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 
 	init_params()
 end

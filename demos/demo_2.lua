@@ -4,17 +4,19 @@ screen = require "lib/screen"
 local PALETTE = palettes.PICO8
 
 patch = {}
-patch.methods = {}
 
--- Fill screen with background color
-local function fill_bg(x, y, r, g, b, a)
-	local col = palettes.getColor(PALETTE, 1)
-	r, g, b = col[1], col[2], col[3]
-	a = 1
-	return r,g,b,a
+
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
 end
 
-
+--- @private patchControls handle controls for current patch
 function patch.patchControls()
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
@@ -71,9 +73,7 @@ end
 
 function patch.init()
 	patch.hang = false
-
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 	
   	-- balls
   	patch.nBalls = 500

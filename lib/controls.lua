@@ -41,7 +41,12 @@ function controls.handleGeneralControls()
 
 	-- toggle fullscreen
 	if kp.isDown("lalt") and kp.keypressOnAttack("return") then
-		screen.ToggleFullscreen()
+		screen.toggleFullscreen()
+	end
+
+	-- handle low-res/hi-res upscaling
+	if kp.isDown("lalt") and kp.keypressOnAttack("u") then
+		screen.changeUpscaling()
 	end
 
 	-- handle shaders

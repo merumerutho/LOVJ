@@ -9,6 +9,16 @@ local hang
 
 patch = {}
 
+--- @public setCanvases (re)set canvases for this patch
+function patch.setCanvases()
+	patch.canvases = {}
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
 --- @private patchControls handle controls for current patch
 local function patchControls()
 	local p = resources.parameters
@@ -63,8 +73,7 @@ end
 function patch.init()
 	PALETTE = palettes.PICO8
 	hang = false
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch.setCanvases()
 
 	math.randomseed(timer.T)
 
