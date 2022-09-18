@@ -1,10 +1,11 @@
+Patch = require "lib/patch"
 palettes = require "lib/utils/palettes"
 kp = require "lib/utils/keypress"
 
 -- import pico8 palette
 local PALETTE
 
-patch = {}
+patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
@@ -14,8 +15,8 @@ local function init_params()
     -- insert here your patch parameters
 end
 
---- @private patchControls evaluate user keyboard controls
-local function patchControls()
+--- @public patchControls evaluate user keyboard controls
+local function patch.patchControls()
 	p = resources.parameters
 
     -- insert here your patch controls
@@ -26,8 +27,7 @@ end
 function patch.init()
 	PALETTE = palettes.PICO8
 
-	patch.canvases = {}
-	patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	patch:setCanvases()
 
 	init_params()
 end
@@ -70,11 +70,8 @@ end
 
 function patch.update()
 	-- apply keyboard patch controls
-	if not cmd.isOpen then patchControls() end
+	if not cmd.isOpen then patch.patchControls() end
 	return
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

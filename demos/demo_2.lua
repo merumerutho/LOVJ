@@ -1,20 +1,10 @@
-palettes = require "lib/utils/palettes"
-screen = require "lib/screen"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local screen = require "lib/screen"
 
 local PALETTE = palettes.PICO8
 
-patch = {}
-
-
---- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	end
-end
+patch = Patch:new()
 
 --- @private patchControls handle controls for current patch
 function patch.patchControls()
@@ -73,7 +63,7 @@ end
 
 function patch.init()
 	patch.hang = false
-	patch.setCanvases()
+	patch:setCanvases()
 	
   	-- balls
   	patch.nBalls = 500
@@ -148,8 +138,5 @@ function patch.update()
 		orderZ(patch.ballList)
 	end
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

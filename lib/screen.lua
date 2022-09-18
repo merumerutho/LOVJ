@@ -66,7 +66,7 @@ function screen.changeUpscaling()
 	-- calculate new scaling
 	calculateScaling()
 	-- reset canvases
-	patch.setCanvases()
+	patch:setCanvases()
 end
 
 

@@ -1,20 +1,20 @@
-palettes = require "lib/utils/palettes"
-kp = require "lib/utils/keypress"
-videoutils = require "lib/utils/video"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local kp = require "lib/utils/keypress"
+local videoutils = require "lib/utils/video"
 
 -- import pico8 palette
 local PALETTE
 
-patch = {}
+patch = Patch:new()
 
 --- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
+function patch:setCanvases()
+	Patch.setCanvases(patch)  -- call parent function
+	-- patch-specific execution (video canvas)
 	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 		patch.canvases.video = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 		patch.canvases.video = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	end
 end
@@ -27,8 +27,8 @@ local function init_params()
     g:setName(1, "video")           g:set("video", "data/demo_7/demo.ogg")
 end
 
---- @private patchControls evaluate user keyboard controls
-local function patchControls()
+--- @public patchControls evaluate user keyboard controls
+function patch.patchControls()
 	p = resources.parameters
 
     -- insert here your patch controls
@@ -107,14 +107,11 @@ end
 
 function patch.update()
     -- apply keyboard patch controls
-    if not cmd.isOpen then patchControls() end
+    if not cmd.isOpen then patch.patchControls() end
 
     -- handle loop
     videoutils.handleLoop(patch.video)
 
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

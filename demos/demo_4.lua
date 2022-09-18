@@ -1,22 +1,12 @@
-palettes = require "lib/utils/palettes"
-screen = require "lib/screen"
-kp = require "lib/utils/keypress"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local screen = require "lib/screen"
+local kp = require "lib/utils/keypress"
 
 -- import pico8 palette
 PALETTE = palettes.BW
 
-patch = {}
-
---- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	end
-end
-
+patch = Patch:new()
 
 function patch.patchControls()
 	p = resources.parameters
@@ -41,7 +31,7 @@ function patch.init()
 	patch.palette = PALETTE
 	patch.invert = false
 
-	patch.setCanvases()
+	patch:setCanvases()
 
 	math.randomseed(timer.T)
 
@@ -114,8 +104,5 @@ function patch.update()
   	--local bps = patch.bpm/60*4
 
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

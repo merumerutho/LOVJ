@@ -1,20 +1,11 @@
-palettes = require "lib/utils/palettes"
-kp = require "lib/utils/keypress"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local kp = require "lib/utils/keypress"
 
 local hang
 local BG_SPRITE_SIZE = 8
 
-patch = {}
-
---- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	end
-end
+patch = Patch:new()
 
 --- @private get_bg get background graphics based on resources
 local function get_bg()
@@ -41,8 +32,8 @@ local function init_params()
 	p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
 end
 
---- @private patchControls evaluate user keyboard controls
-local function patchControls()
+--- @public patchControls evaluate user keyboard controls
+function patch.patchControls()
 	p = resources.parameters
 	-- Hanger
 	if kp.isDown("x") then hang = true else hang = false end
@@ -54,7 +45,7 @@ function patch.init()
 	PALETTE = palettes.PICO8
 	hang = false
 
-	patch.setCanvases()
+	patch:setCanvases()
 
 	init_params()
 end
@@ -109,11 +100,8 @@ end
 
 function patch.update()
 	-- apply keyboard patch controls
-	if not cmd.isOpen then patchControls() end
+	if not cmd.isOpen then patch.patchControls() end
 	return
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

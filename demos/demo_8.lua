@@ -1,20 +1,11 @@
-palettes = require "lib/utils/palettes"
-kp = require "lib/utils/keypress"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local kp = require "lib/utils/keypress"
 
 -- import pico8 palette
 local PALETTE = palettes.TIC80
 
-patch = {}
-
---- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	end
-end
+patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
@@ -25,8 +16,8 @@ local function init_params()
 
 end
 
---- @private patchControls evaluate user keyboard controls
-local function patchControls()
+--- @public patchControls evaluate user keyboard controls
+function patch.patchControls()
 	p = resources.parameters
 
     -- insert here your patch controls
@@ -36,7 +27,7 @@ end
 --- @public init init routine
 function patch.init()
 
-	patch.setCanvases()
+	patch:setCanvases()
 
 	init_params()
 end
@@ -107,11 +98,8 @@ end
 
 function patch.update()
 	-- apply keyboard patch controls
-	if not cmd.isOpen then patchControls() end
+	if not cmd.isOpen then patch.patchControls() end
 	return
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

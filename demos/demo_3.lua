@@ -1,26 +1,17 @@
-palettes = require "lib/utils/palettes"
-screen = require "lib/screen"
-kp = require "lib/utils/keypress"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local screen = require "lib/screen"
+local kp = require "lib/utils/keypress"
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
 local DEFAULT_ACCELERATION = 0.4
 local hang
 
-patch = {}
+patch = Patch:new()
 
---- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	end
-end
-
---- @private patchControls handle controls for current patch
-local function patchControls()
+--- @public patchControls handle controls for current patch
+function patch.patchControls()
 	local p = resources.parameters
 	if kp.isDown("lctrl") then
 		-- Accelerator
@@ -73,7 +64,7 @@ end
 function patch.init()
 	PALETTE = palettes.PICO8
 	hang = false
-	patch.setCanvases()
+	patch:setCanvases()
 
 	math.randomseed(timer.T)
 
@@ -136,7 +127,7 @@ end
 --- @public update update patch function
 function patch.update()
 	-- update parameters with patch controls
-	if not cmd.isOpen then patchControls() end
+	if not cmd.isOpen then patch.patchControls() end
 	if timer.fpsTimer() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do
@@ -144,8 +135,5 @@ function patch.update()
 		end
 	end
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch

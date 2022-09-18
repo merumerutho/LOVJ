@@ -1,22 +1,22 @@
-palettes = require "lib/utils/palettes"
-controls = require "lib/controls"
-kp = require "lib/utils/keypress"
+local Patch = require "lib/patch"
+local palettes = require "lib/utils/palettes"
+local controls = require "lib/controls"
+local kp = require "lib/utils/keypress"
 
 -- import palette
 local PALETTE = palettes.TIC80
 
 local ALPHA_MAGIC_NUM = 0.995
 
-patch = {}
+patch = Patch:new()
 
 --- @public setCanvases (re)set canvases for this patch
-function patch.setCanvases()
-	patch.canvases = {}
+function patch:setCanvases()
+	Patch.setCanvases(patch)  -- call parent function
+	-- patch-specific execution (trail canvas)
 	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 		patch.canvases.trail = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 	else
-		patch.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 		patch.canvases.trail = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	end
 end
@@ -27,8 +27,8 @@ local function inScreen(x, y)
 	return (x > 0 and x < screen.InternalRes.W and y > 0 and y < screen.InternalRes.H)
 end
 
---- @private patchCheckControls Checks the input controls locally
-function patch.patchCheckControls()
+--- @private patchControls Checks the input controls locally
+function patch.patchControls()
 	local p = resources.parameters
 	-- reset
 	if kp.keypressOnAttack("r") then
@@ -105,7 +105,7 @@ function patch.init()
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 	-- canvases
-	patch.setCanvases()
+	patch:setCanvases()
 	-- move this somewhere else?
 	patch.shader_trail = nil
 
@@ -194,14 +194,11 @@ end
 --- @public update Updates the patch
 function patch.update()
 	-- update parameters with local patch controls
-	if not cmd.isOpen then patch.patchCheckControls() end
+	if not cmd.isOpen then patch.patchControls() end
 	-- update points positions
 	if timer.fpsTimer() then
 		patch.updatePoints(patch.points)
 	end
 end
-
---- @public defaultDraw assigned to draw method by default
-patch.defaultDraw = patch.draw
 
 return patch
