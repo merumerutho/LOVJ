@@ -112,6 +112,8 @@ function patch.init()
 	patch.shader_trail = nil
 
 	init_params()
+
+	patch:assignDefaultDraw()
 end
 
 function patch.reset()
@@ -190,7 +192,7 @@ function patch.draw()
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-
+	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 --- @public update Updates the patch

@@ -40,6 +40,8 @@ function patch.init()
 	patch.n = 10
 
 	init_params()
+
+	patch:assignDefaultDraw()
 end
 
 
@@ -93,17 +95,15 @@ function patch.draw()
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-
+	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 
 function patch.update()
 	-- update parameters with patch controls
 	if not cmd.isOpen then patch.patchControls() end
-
 	--beat per step?
   	--local bps = patch.bpm/60*4
-
 end
 
 return patch

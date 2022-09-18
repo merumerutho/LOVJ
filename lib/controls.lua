@@ -50,7 +50,7 @@ function controls.handleGeneralControls()
 	end
 
 	-- handle shaders
-	handleShaderCommands()
+	if not cmd.isOpen then handleShaderCommands() end
 
 	-- load patch from associated quick-slot
 	for k,v in pairs(controls.slots) do

@@ -74,7 +74,7 @@ function patch.init()
     	addBall(patch.ballList, screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   	end
 
-
+	patch:assignDefaultDraw()
 end
 
 
@@ -113,6 +113,7 @@ function patch.draw()
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
+	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 

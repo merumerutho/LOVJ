@@ -19,6 +19,8 @@ CmdMenu.commands = {
 function CmdMenu.handleCmdMenu()
 	CmdMenu.isOpen = (not CmdMenu.isOpen)
 	if CmdMenu.isOpen then patch.draw = CmdMenu.update else patch.draw = patch.defaultDraw end
+	-- clear cmd buffer, regardless
+	patch.canvases.cmd:renderTo(love.graphics.clear)
 end
 
 --- @public textinput called when a key for text is pressed
@@ -62,14 +64,23 @@ local function cmdMenu_handleKeysHistory()
 	end
 end
 
---- @private cmdMenu_draw draw function for cmd menu
+--- @private cmdMenu_draw print the cmd menu on screen (on separate canvas)
 local function cmdMenu_draw()
-	love.graphics.setColor(.5, .5, .5, .25)
-	love.graphics.rectangle("fill", 0, 0, screen.InternalRes.W, 8)
-	love.graphics.setColor(1,1,1,1)
+	love.graphics.setCanvas(patch.canvases.cmd) -- draw on specific canvas
+	patch.canvases.cmd:renderTo(love.graphics.clear)
+
+	-- console line
+	love.graphics.setColor(.5, .5, .5, .5)
+	love.graphics.rectangle("fill", 0, 0, screen.ExternalRes.W, 8)
+
+	-- print text
 	love.graphics.setFont(love.graphics.newFont(7))
-	love.graphics.print(CmdMenu.buffer,0,0)
 	love.graphics.setColor(1,1,1,1)
+	love.graphics.print(CmdMenu.buffer,0,0)
+
+	-- reset back
+	love.graphics.setColor(1,1,1,1)
+	love.graphics.setCanvas()
 end
 
 --- @private cmdMenu_handleKeys handle key controls for cmd menu
@@ -78,7 +89,7 @@ local function cmdMenu_handleKeys()
 	cmdMenu_handleKeysHistory()
 
 	-- delete (hold shift to delete faster)
-	if (kp.keypressOnAttack("backspace")) or (kp.isDown("lshift") and kp.isDown("backspace")) then
+	if (kp.keypressOnAttack("backspace")) or (kp.isDown("lctrl") and kp.isDown("backspace")) then
 		local byteOffset = utf8.offset(CmdMenu.buffer, -1)
 		if byteOffset then
 			CmdMenu.buffer = string.sub(CmdMenu.buffer, 1, byteOffset - 1)

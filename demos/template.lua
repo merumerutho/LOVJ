@@ -30,6 +30,8 @@ function patch.init()
 	patch:setCanvases()
 
 	init_params()
+
+	patch:assignDefaultDraw()
 end
 
 --- @private draw_bg draw background graphics
@@ -65,6 +67,7 @@ function patch.draw()
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
+	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 

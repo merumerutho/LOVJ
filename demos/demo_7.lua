@@ -51,6 +51,8 @@ function patch.init()
 	patch.video.scaleX = screen.InternalRes.W / patch.video.handle:getWidth()
 	patch.video.scaleY = screen.InternalRes.H / patch.video.handle:getHeight()
     patch.video.handle:play()
+
+	patch:assignDefaultDraw()
 end
 
 --- @private draw_bg draw background graphics
@@ -104,6 +106,7 @@ function patch.draw()
 	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	-- remove shader
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
+	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 

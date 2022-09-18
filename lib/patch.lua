@@ -8,10 +8,6 @@ Patch.__index = Patch
 function Patch:new(p)
     p = p or {}
     setmetatable(p, self)
-
-    -- assign defaultDraw
-    p.defaultDraw = p.draw
-
     return p
 end
 
@@ -23,6 +19,13 @@ function Patch:setCanvases()
 	else
 		self.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	end
+	self.canvases.cmd = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+end
+
+
+function Patch:assignDefaultDraw()
+	-- assign defaultDraw
+    self.defaultDraw = self.draw
 end
 
 
