@@ -3,7 +3,6 @@ local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
 
-local hang
 local BG_SPRITE_SIZE = 8
 
 patch = Patch:new()
@@ -37,14 +36,13 @@ end
 function patch.patchControls()
 	p = resources.parameters
 	-- Hanger
-	if kp.isDown("x") then hang = true else hang = false end
+	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
 
 
 --- @public init init routine
 function patch.init()
 	PALETTE = palettes.PICO8
-	hang = false
 
 	patch:setCanvases()
 
@@ -75,13 +73,8 @@ end
 
 --- @public patch.draw draw routine
 function patch.draw()
-	love.graphics.setColor(1,1,1,1)
+	patch:drawSetup(hang)
 
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-
-	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
 	-- clear main canvas
 	patch.canvases.main:renderTo(function()
 									love.graphics.clear(1,1,1,1)
@@ -90,15 +83,7 @@ function patch.draw()
 	-- draw picture
 	draw_bg()
 
-	-- remove canvas
-	love.graphics.setCanvas()
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 

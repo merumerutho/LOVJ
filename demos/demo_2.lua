@@ -90,30 +90,12 @@ end
 
 
 function patch.draw()
-	-- select shader
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-	-- clear picture
-	if not patch.hang then
-		patch.canvases.main:renderTo(love.graphics.clear)
-	end
-	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
-
+	patch:drawSetup()
   	-- draw balls
   	for k,b in pairs(patch.ballList) do
     	drawBall(b)
   	end
-	-- reset canvas
-	love.graphics.setCanvas()
-
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 

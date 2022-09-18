@@ -99,7 +99,6 @@ end
 
 --- @public init Initializes the patch
 function patch.init()
-	patch.hang = false
 	patch.palette = PALETTE
 	patch.nPoints = 3 + math.random(32)
 	patch.points = {}
@@ -159,12 +158,7 @@ function patch.draw()
 							0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 		end)
 
-	-- select shader
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-
-	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
+	patch:drawSetup()
 
 	-- if inside screen, draw points
 	for k, pix in pairs(patch.points) do
@@ -184,15 +178,7 @@ function patch.draw()
 		end
 	end
 
-	-- remove canvas
-	love.graphics.setCanvas()
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 --- @public update Updates the patch

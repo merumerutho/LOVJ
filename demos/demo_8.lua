@@ -73,30 +73,15 @@ end
 
 --- @public patch.draw draw routine
 function patch.draw()
-	love.graphics.setColor(1,1,1,1)
-
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-
-	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
+	patch:drawSetup()
 	-- clear main canvas
 	patch.canvases.main:renderTo(function()
 									love.graphics.clear(1,1,1,1)
 								end )
-
 	-- draw picture
 	draw_stuff()
 
-	-- remove canvas
-	love.graphics.setCanvas()
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 

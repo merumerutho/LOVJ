@@ -7,7 +7,6 @@ local cmd = require "lib/utils/cmdmenu"
 -- import pico8 palette
 local PALETTE = palettes.PICO8
 local DEFAULT_ACCELERATION = 0.4
-local hang
 
 patch = Patch:new()
 
@@ -23,7 +22,7 @@ function patch.patchControls()
     	patch.init()
 	end
 	-- hang
-	if kp.isDown("x") then hang = true else hang = false end
+	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
 
 --- @private newBall spawn new ball in ballList
@@ -64,7 +63,6 @@ end
 --- @public init initialization function for the patch
 function patch.init()
 	PALETTE = palettes.PICO8
-	hang = false
 	patch:setCanvases()
 
 	math.randomseed(timer.T)
@@ -104,28 +102,12 @@ end
 
 
 function patch.draw()
-	-- select shader
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
-	-- clean canvas
-	if not hang then patch.canvases.main:renderTo(love.graphics.clear) end
-
+	patch:drawSetup()
 	-- draw balls
 	for k, b in pairs(patch.ballList) do
 		drawBall(b)
 	end
-
-	-- reset canvas
-	love.graphics.setCanvas()
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render graphics
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 --- @public update update patch function

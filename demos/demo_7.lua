@@ -64,18 +64,12 @@ end
 
 --- @public patch.draw draw routine
 function patch.draw()
-	g = resources.globals
-	love.graphics.setColor(1,1,1,1)
-
-	-- clear screen to colour
-	patch.canvases.main:renderTo(function()
-		local col = {timer.T*0.2 % 1, timer.T * 0.4 % 1, timer.T*0.1 % 1}
-		love.graphics.clear(col)
-	end )
+	patch:drawSetup()
 
 	-- select shader and apply chroma keying
-	local shader, chroma
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
+	local col = {timer.T*0.2 % 1, timer.T * 0.4 % 1, timer.T*0.1 % 1}
+	love.graphics.clear(col)
+
 	if cfg_shaders.enabled then
 		chroma = love.graphics.newShader(shaders.chromakey)
 		chroma:send("_chromaColor", g:get("_chromaColor"))
@@ -97,16 +91,7 @@ function patch.draw()
 		love.graphics.draw(patch.canvases.video)
 	end
 
-
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- select draw canvas
-	love.graphics.setCanvas()
-	-- draw all
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 

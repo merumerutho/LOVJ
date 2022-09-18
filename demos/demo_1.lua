@@ -42,12 +42,11 @@ function patch.patchControls()
 	end
 	
 	-- Hanger
-	if kp.isDown("x") then hang = true else hang = false end
+	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
 
 --- @public init init routine
 function patch.init()
-	patch.hang = false
 	patch:setCanvases()
 	init_params()
 	patch:assignDefaultDraw()
@@ -55,18 +54,7 @@ end
 
 --- @public patch.draw draw routine
 function patch.draw()
-
-	love.graphics.setColor(1,1,1,1)
-	-- clear background picture
-	if not hang then
-		patch.canvases.main:renderTo(love.graphics.clear)
-	end
-
-	local shader
-	if cfg_shaders.enabled then shader = cfg_shaders.selectShader() end
-
-	-- set canvas
-	love.graphics.setCanvas(patch.canvases.main)
+	patch:drawSetup()
 
 	local points_list = {}
 	-- draw picture
@@ -94,15 +82,7 @@ function patch.draw()
 	-- draw pixels
 	love.graphics.points(points_list)
 
-	-- reset Canvas
-	love.graphics.setCanvas()
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(shader) end
-	-- render picture
-	love.graphics.draw(patch.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
-	love.graphics.draw(patch.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	patch:drawExec()
 end
 
 
