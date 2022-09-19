@@ -11,6 +11,7 @@ dispatcher = require "lib/dispatcher"
 
 cfg_patches = require "lib/cfg/cfg_patches"
 cfg_shaders = require "lib/cfg/cfg_shaders"
+cfg_automations = require "lib/cfg/cfg_automations"
 
 local defaultPatch = cfg_patches.defaultPatch
 patch = require(defaultPatch)

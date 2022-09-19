@@ -12,3 +12,4 @@ function Automation:new(a)
     return a
 end
 
+return Automation

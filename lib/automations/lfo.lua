@@ -1,4 +1,4 @@
-Automation = require "lib/automations/automation"
+local Automation = require "lib/automations/automation"
 
 Lfo = {}
 
@@ -12,3 +12,5 @@ function Lfo:new(l)
 
     return l
 end
+
+return Lfo

@@ -1,4 +1,4 @@
-Automation = require "lib/automations/automation"
+local Automation = require "lib/automations/automation"
 
 Envelope = {}
 
@@ -13,3 +13,4 @@ function Envelope:new(e)
     return e
 end
 
+return Envelope
