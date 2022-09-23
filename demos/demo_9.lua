@@ -2,6 +2,7 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
+local Envelope = require "lib/automations/envelope"
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
@@ -21,6 +22,7 @@ function patch.patchControls()
 	p = resources.parameters
 
 	if kp.isDown("r") then
+		patch.init()
 		timer.init()
 	end
 
@@ -36,7 +38,7 @@ function patch.init()
 
 	init_params()
 
-	patch.env = Envelope:new(2, 1, 0.5)
+	patch.env = Envelope:new(2, 1, 0.5, 1)
 
 	patch:assignDefaultDraw()
 end
@@ -46,11 +48,12 @@ local function draw_stuff()
 	g = resources.graphics
 	p = resources.parameters
 
+	local t = timer.T
     -- insert here your draw routine
-	love.graphics.setColor((timer.T/2) % 1, (timer.T/1.16 + 0.5) % 1, (timer.T /1.7 + 0.33) % 1, 1)
+	love.graphics.setColor(1, 1, 1, 1)
 
-	love.graphics.line(timer.T*30, screen.InternalRes.H,
-						timer.T * 30, screen.InternalRes.H - 100*patch.env:CalculateEnvelope(timer.T))
+	love.graphics.line(t * 30, screen.InternalRes.H,
+						t * 30, screen.InternalRes.H - 100*patch.env:Calculate(t))
 
 end
 
@@ -69,6 +72,10 @@ function patch.update()
 	-- apply keyboard patch controls
 	if not cmd.isOpen then patch.patchControls() end
 	patch.hang = not kp.isDown("r")
+
+	-- update trigger, activated for 5 seconds
+	patch.env:UpdateTrigger(timer.T<5)
+
 	return
 end
 
