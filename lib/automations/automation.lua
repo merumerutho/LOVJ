@@ -1,3 +1,5 @@
+amath = require "lib/automations/automation_math"
+
 local Automation = {}
 Automation.__index = Automation
 
