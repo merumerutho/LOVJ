@@ -3,6 +3,7 @@ local palettes = require "lib/utils/palettes"
 local screen = require "lib/screen"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
+local amath = require "lib/automations/automation_math"
 
 -- import pico8 palette
 PALETTE = palettes.BW
@@ -14,6 +15,8 @@ function patch.patchControls()
 	if kp.isDown("lctrl") then
 		-- Inverter
 		patch.invert = kp.isDown("x")
+
+		patch.freeRunning = kp.isDown("f")
   	end
 	
 	-- Reset
@@ -38,6 +41,7 @@ function patch.init()
 
 	patch.bpm = 128  -- TODO: implement
 	patch.n = 10
+	patch.localTimer = 0
 
 	init_params()
 
@@ -52,7 +56,6 @@ function patch.draw()
 	for i= -1, patch.n-1 do
 		-- type: outer or inner rectangle
 		local c = math.random(2)
-		-- shortcuts :)
 		local iw = screen.InternalRes.W
 		local ih = screen.InternalRes.H
 		-- x coordinate
@@ -81,7 +84,6 @@ function patch.draw()
 			love.graphics.rectangle("fill", x, y1, screen.InternalRes.W - (2 * x), y2 - y1)
 		end
 	end
-
 	patch:drawExec()
 end
 

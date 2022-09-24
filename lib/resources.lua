@@ -3,10 +3,10 @@
 -- Generate and handle patch resources
 --
 
-resources = {}
+local resources = {}
 local DEFAULT_SIZE = 128
 
-Resource = {}
+local Resource = {}
 
 -- functions
 --- @public set setter for resource value by idx

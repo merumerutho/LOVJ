@@ -27,7 +27,7 @@ function Envelope:Attack(t)
     local Tt = self.trigger.atkInst  -- instant of attack of the trigger
     t = t - Tt
 
-    return (t/(Ta)) * amath.rect((t-Ta/2)/Ta)  -- see doc in section "envelope", chapter "attack"
+    return (t/Ta) * amath.rect((t-Ta/2)/Ta)  -- see doc in section "envelope", chapter "attack"
 end
 
 --- @public Decay calculate the decay value at time t
@@ -52,7 +52,7 @@ function Envelope:Sustain(t)
     local Tt = self.trigger.atkInst  -- instant of attack of the trigger
 
     t = (t - Ta - Td - Tt)  -- apply delay of Ta + Td
-    return s * amath.step(t)  -- see doc in section "envelope", chapter "sustain"
+    return (s) * amath.step(t)  -- see doc in section "envelope", chapter "sustain"
 end
 
 --- @public Release calculate the release value at time t
@@ -63,18 +63,15 @@ function Envelope:Release(t)
     local t = t - trg
 
     -- see doc in section "envelope", chapter "release"
-    return (y - y/Tr * t) * amath.rect((t-Tr/2)/Tr)* amath.b2n(not self:isTriggerActive())
+    return (y - y/Tr * t) * amath.rect((t-Tr/2)/Tr)
 end
 
 --- @public Calculate calculate the overall envelope at time t
 function Envelope:Calculate(t)
     -- consider envelope as sum of four concatenated components
     -- attack + decay + release + release
-    local y = (self:Attack(t) + self:Decay(t) + self:Sustain(t)) * amath.b2n(self:isTriggerActive())
-    if not self:isTriggerActive() then
-        y = y + self:Release(t)
-    end
-    return y
+    local tr = self:isTriggerActive()
+    return (self:Attack(t) + self:Decay(t) + self:Sustain(t)) * amath.b2n(tr) + self:Release(t) * amath.b2n(not tr)
 end
 
 return Envelope

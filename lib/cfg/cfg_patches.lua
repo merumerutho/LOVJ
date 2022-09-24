@@ -1,4 +1,4 @@
-cfg_patches = {}
+local cfg_patches = {}
 
 --- @public DEFAULT_PATCH default patch loaded at startup
 cfg_patches.defaultPatch = "demos/demo_9"

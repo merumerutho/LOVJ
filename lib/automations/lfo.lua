@@ -1,4 +1,4 @@
-local Automation = require "lib/automations/automation"
+Automation = require "lib/automations/automation"
 local amath = require "lib/automations/automation_math"
 
 local Lfo = {}

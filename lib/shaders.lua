@@ -1,4 +1,4 @@
-shaders = {}
+local shaders = {}
 
 -- default shader (does nothing)
 shaders.default = [[

@@ -63,9 +63,9 @@ local function draw_stuff()
 
 	for x = -n, n, spacing do
 		love.graphics.line(w/2 - 4*x + 50*math.sin(timer.T/2), gap - 16,
-							w/2 - 24*x + 50*math.sin(timer.T/2), -16)
+				w/2 - 24*x + 50*math.sin(timer.T/2), -16)
 		love.graphics.line(w/2 - 4*x + 50*math.sin(timer.T/2), h - gap + 16,
-							w/2 - 24*x + 50*math.sin(timer.T/2), h + 16)
+				w/2 - 24*x + 50*math.sin(timer.T/2), h + 16)
 	end
 
 	love.graphics.setColor(1,1,1,1)

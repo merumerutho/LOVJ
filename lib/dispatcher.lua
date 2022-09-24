@@ -5,7 +5,7 @@
 local losc = require "losc"
 local resources = require "lib/resources"
 
-dispatcher = {}
+local dispatcher = {}
 
 -- update the dispatcher
 function dispatcher.update(data)

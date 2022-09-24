@@ -1,7 +1,7 @@
 local screen_settings = require "lib/cfg/cfg_screen"
 local cfg_patches = require "lib/cfg/cfg_patches"
 
-Patch = {}
+local Patch = {}
 
 Patch.__index = Patch
 

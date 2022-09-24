@@ -4,6 +4,7 @@ local controls = require "lib/controls"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
 local screen_settings = require "lib/cfg/cfg_screen"
+local shaders = require "lib/shaders"
 
 -- import palette
 local PALETTE = palettes.TIC80

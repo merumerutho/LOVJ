@@ -1,6 +1,6 @@
 local shaders = require "lib/shaders"
 
-cfg_shaders = {}
+local cfg_shaders = {}
 
 cfg_shaders.enabled = true
 --- @public shaders list of shaders

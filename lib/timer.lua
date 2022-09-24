@@ -2,7 +2,7 @@
 --
 -- Internal timer settings
 
-timer = {}
+local timer = {}
 
 timer.CONSOLE_UPDATE_INTERVAL = 1
 timer.TARGET_FPS = 60

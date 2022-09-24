@@ -1,4 +1,4 @@
-cfg_screen = {}
+local cfg_screen = {}
 
 cfg_screen.INTERNAL_RES_WIDTH = 320
 cfg_screen.INTERNAL_RES_RATIO = 16/9

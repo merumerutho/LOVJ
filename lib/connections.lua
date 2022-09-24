@@ -3,7 +3,7 @@
 -- Several communications can be managed (lists specified in the configuration).
 -- A dedicated process (UDP_thread) is used to manage the communication.
 
-Connections = {}
+local Connections = {}
 local cfg = require "lib/cfg/cfg_connections"
 
 function Connections.init()

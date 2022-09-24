@@ -1,4 +1,4 @@
-videoutils = {}
+local videoutils = {}
 
 function videoutils.handleLoop(vid)
     -- loop video

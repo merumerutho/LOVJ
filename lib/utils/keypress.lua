@@ -1,4 +1,4 @@
-Keypress = {}
+local Keypress = {}
 
 Keypress.currentlyPressed = {}
 

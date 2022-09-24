@@ -2,7 +2,7 @@
 --
 -- palettes inspired or taken by several systems.
 
-Palettes = {}
+local Palettes = {}
 
 Palettes.BW = 	{
 	{0, 0, 0}, -- black
