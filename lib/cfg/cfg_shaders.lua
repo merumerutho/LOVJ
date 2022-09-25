@@ -9,7 +9,8 @@ cfg_shaders.shaders = {shaders.default,
                        shaders.wh_mirror,
                        shaders.w_mirror,
                        shaders.warp,
-                       shaders.kaleido}
+                       shaders.kaleido,
+                       shaders.diag_cut}
 
 --- @public toggleShaders enable / disable shaders
 function toggleShaders()
