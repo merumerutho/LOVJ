@@ -2,7 +2,7 @@
 ### A LÖVE VJing framework 
 
 
-LOVJ (previously named [LOVELive2p](https://en.wikipedia.org/wiki/Love_Live!)) aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively with the code in order to creat visuals in a VJing setting or during a live music performance.
+LOVJ (previously called [LOVELive2p](https://en.wikipedia.org/wiki/Love_Live!)) aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively through LUA scripts in order to create a VJing setting mainly targeted at live music performances.
 
 Shall be flexible enough to support:
 - "1 player" scenarios, with the VJ handling entirely control of the visuals.
@@ -12,8 +12,7 @@ Here, the VJ may handle the controls and on top, dynamically select and "wire" t
 
 ## TODOs
 - Evaluate and reintroduce the livecoding feature (currently not working)
-- Introduce Automations: Envelopes and LFOs. These shall be triggered by some specific configurable event (keyboard/timer function/OSC event) and might control any resource
-- Make current patch and other major functions controllable by resources->general variables
+- Make current patch, and other major functions, controllable by resources->general variables
 - Add external patch load, add configuration save etc.
 - A raymarching demo would be cool :)
 
