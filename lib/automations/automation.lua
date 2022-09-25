@@ -1,4 +1,5 @@
 amath = require "lib/automations/automation_math"
+cfg_timers = require "lib/cfg/cfg_timers"
 
 local Automation = {}
 Automation.__index = Automation
@@ -20,14 +21,16 @@ end
 
 --- @public UpdateTrigger update periodically the trigger
 function Automation:UpdateTrigger(trg)
+    local globalTimer = cfg_timers.globalTimer
+
     -- if trigger 0->1, save atkInst
     if not self:isTriggerActive() and trg then
-        self.trigger.atkInst = timer.T
+        self.trigger.atkInst = globalTimer.T
     end
     -- if trigger 1->0, save rlsInst
     if self:isTriggerActive() and not trg then
         self.trigger.oldRlsInst = self.trigger.rlsInst
-        self.trigger.rlsInst = timer.T
+        self.trigger.rlsInst = globalTimer.T
     end
 end
 

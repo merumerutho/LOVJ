@@ -12,12 +12,13 @@ dispatcher = require "lib/dispatcher"
 cfg_patches = require "lib/cfg/cfg_patches"
 cfg_shaders = require "lib/cfg/cfg_shaders"
 cfg_automations = require "lib/cfg/cfg_automations"
+cfg_timers = require "lib/cfg/cfg_timers"
 
 local defaultPatch = cfg_patches.defaultPatch
 patch = require(defaultPatch)
 lick.updateCurrentlyLoadedPatch( defaultPatch .. ".lua")
 
-local fps = 0
+local fps
 -- lick reset enable
 lick.reset = true
 
@@ -25,17 +26,16 @@ lick.reset = true
 function love.load()
 	-- Init screen
 	screen.init()
-	-- Init timer
-	timer.init()
 	-- Init resources
 	resources.init()
+	-- Init timers
+	cfg_timers.init()
 	-- Init Patch
 	patch.init()
 	-- Init socket
 	connections.init()
 	-- Init Shaders globals
 	cfg_shaders.assignGlobals()
-
 end
 
 
@@ -57,9 +57,11 @@ end
 
 -- Main update cycle, executed as fast as possible
 function love.update()
-	timer.update()  -- update timer
+	local fpsTimer = cfg_timers.fpsTimer
+
+	cfg_timers.update()  -- update timers
 	-- Console management
-	if timer.consoleTimer() then
+	if cfg_timers.consoleTimer:Activated() then
 		print("FPS:", fps)
 	end
 

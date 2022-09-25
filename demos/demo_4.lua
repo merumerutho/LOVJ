@@ -3,7 +3,8 @@ local palettes = require "lib/utils/palettes"
 local screen = require "lib/screen"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
-local amath = require "lib/automations/automation_math"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
 
 -- import pico8 palette
 PALETTE = palettes.BW
@@ -37,11 +38,12 @@ function patch.init()
 
 	patch:setCanvases()
 
-	math.randomseed(timer.T)
-
-	patch.bpm = 128  -- TODO: implement
+	patch.bpm = 128
 	patch.n = 10
 	patch.localTimer = 0
+
+	patch.timers = {}
+	patch.timers.bpm = Timer:new(60 / patch.bpm / 4)  -- 60 are seconds in 1 minute, 4 are sub-beats
 
 	patch.hang = true
 
@@ -54,8 +56,10 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local t = cfg_timers.globalTimer.T
+
 	-- draw
-	if timer.oneSecondTimer() then
+	if patch.timers.bpm:Activated() or patch.freeRunning then
 		love.graphics.clear()
 		for i= -1, patch.n-1 do
 			-- type: outer or inner rectangle
@@ -68,8 +72,8 @@ function patch.draw()
 			local r = math.random(20) + 1
 			-- y1 = top of rectangle
 			-- y2 = bottom of rectangle
-			local y1 = ((ih / patch.n) * i) - r / 2 - 5  + (timer.T * 20) % (ih / patch.n)
-			local y2 = y1 + (ih / patch.n)  + r / 2 + 5  + (timer.T * 20) % (ih / patch.n)
+			local y1 = ((ih / patch.n) * i) - r / 2 - 5  + (t * 20) % (ih / patch.n)
+			local y2 = y1 + (ih / patch.n)  + r / 2 + 5  + (t * 20) % (ih / patch.n)
 
 			local transparency = 1
 
@@ -94,8 +98,12 @@ end
 
 
 function patch.update()
+	-- update bpm timer
+	patch.timers.bpm:update()
+
 	-- update parameters with patch controls
 	if not cmd.isOpen then patch.patchControls() end
+
 	--beat per step?
   	--local bps = patch.bpm/60*4
 end

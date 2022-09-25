@@ -2,6 +2,9 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 -- import pico8 palette
 local PALETTE = palettes.TIC80
@@ -37,18 +40,20 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_stuff()
+	local t = cfg_timers.globalTimer.T
+
 	g = resources.graphics
 	p = resources.parameters
 
 	local w = screen.InternalRes.W
 	local h = screen.InternalRes.H
 
-	local gap = 0.225 * screen.InternalRes.H + 20 + 16*math.sin(timer.T/8)
+	local gap = 0.225 * screen.InternalRes.H + 20 + 16*math.sin(t/8)
 
 	love.graphics.setColor(0,0,0,1)
 
 	for x = 16, 16*16, 16 do
-		local ly = gap - 8*32*16 / (x - timer.T * p:get("speed") % 16)
+		local ly = gap - 8*32*16 / (x - t * p:get("speed") % 16)
 		love.graphics.line(0, ly, w, ly)
 		love.graphics.line(0, h - ly, w, h - ly)
 	end
@@ -62,10 +67,10 @@ local function draw_stuff()
 	local spacing = screen.InternalRes.W / 320 + 1
 
 	for x = -n, n, spacing do
-		love.graphics.line(w/2 - 4*x + 50*math.sin(timer.T/2), gap - 16,
-				w/2 - 24*x + 50*math.sin(timer.T/2), -16)
-		love.graphics.line(w/2 - 4*x + 50*math.sin(timer.T/2), h - gap + 16,
-				w/2 - 24*x + 50*math.sin(timer.T/2), h + 16)
+		love.graphics.line(w/2 - 4*x + 50*math.sin(t/2), gap - 16,
+				w/2 - 24*x + 50*math.sin(t/2), -16)
+		love.graphics.line(w/2 - 4*x + 50*math.sin(t/2), h - gap + 16,
+				w/2 - 24*x + 50*math.sin(t/2), h + 16)
 	end
 
 	love.graphics.setColor(1,1,1,1)

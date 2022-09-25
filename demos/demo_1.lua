@@ -2,6 +2,8 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
@@ -56,15 +58,17 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local t = cfg_timers.globalTimer.T
+
 	local points_list = {}
 	-- draw picture
     for x = -20, 20, .25 do
 		for y = -20, 20, .25 do
 			-- calculate oscillating radius
-			local r = ((x * x) + (y * y)) + 10 * math.sin(timer.T / 2.5)
+			local r = ((x * x) + (y * y)) + 10 * math.sin(t / 2.5)
 			-- apply time-dependent rotation
-			local x1 = x * math.cos(timer.T) - y * math.sin(timer.T)
-			local y1 = x * math.sin(timer.T) + y * math.cos(timer.T)
+			local x1 = x * math.cos(t) - y * math.sin(t)
+			local y1 = x * math.sin(t) + y * math.cos(t)
 			-- calculate pixel position to draw
 			local w, h = screen.InternalRes.W, screen.InternalRes.H
 			local px = w / 2 + (r - p:get("b")) * x1

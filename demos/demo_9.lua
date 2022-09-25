@@ -4,6 +4,9 @@ local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
 local Envelope = require "lib/automations/envelope"
 local Lfo = require "lib/automations/lfo"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
@@ -38,8 +41,6 @@ function patch.init()
 
 	init_params()
 
-	timer.init() -- special case, just for the sake of this demo!
-
 	patch.lfo = Lfo:new(1, 0)
 	patch.env = Envelope:new(0.5, 0.5, 0.5, 1)
 
@@ -51,7 +52,7 @@ local function draw_stuff()
 	g = resources.graphics
 	p = resources.parameters
 
-	local t = timer.T
+	local t = cfg_timers.globalTimer.T
 	love.graphics.setColor(1, 1, 1, 1)
 
 	-- LFO
@@ -88,13 +89,15 @@ end
 
 
 function patch.update()
+	local t = cfg_timers.globalTimer.T
+
 	-- apply keyboard patch controls
 	if not cmd.isOpen then patch.patchControls() end
 	patch.hang = not kp.isDown("r")
 
 	-- update triggers
-	patch.env:UpdateTrigger(timer.T>6 and timer.T < 8)
-	patch.lfo:UpdateTrigger(timer.T<5)
+	patch.lfo:UpdateTrigger(t<5)
+	patch.env:UpdateTrigger(t>6 and t<8)
 
 	return
 end
