@@ -1,9 +1,12 @@
 local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
-local kp = require "lib/utils/keypress"
 local videoutils = require "lib/utils/video"
 local cmd = require "lib/utils/cmdmenu"
 local screen_settings = require "lib/cfg/cfg_screen"
+local shaders = require "lib/shaders"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 -- import pico8 palette
 local PALETTE
@@ -66,8 +69,10 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local t = cfg_timers.globalTimer.T
+
 	-- select shader and apply chroma keying
-	local col = {timer.T*0.2 % 1, timer.T * 0.4 % 1, timer.T*0.1 % 1}
+	local col = {t * 0.2 % 1, t * 0.4 % 1, t * 0.1 % 1}
 	love.graphics.clear(col)
 
 	if cfg_shaders.enabled then

@@ -1,16 +1,59 @@
-local Automation = require "lib/automations/automation"
+Automation = require "lib/automations/automation"
+local amath = require "lib/automations/automation_math"
 
-Lfo = {}
+local Lfo = {}
+Lfo.__index = Lfo
+setmetatable(Lfo, {__index = Automation})
 
-Lfo.__idx = Lfo
+function Lfo:new(f, p)
+    local l = Automation:new()  -- inherit from Automation (parent)
 
-function Lfo:new(l)
-    l = {} or l
-    l = Automation:new(l)  -- inherit from Automation (parent)
-    l.parent = Automation:new(l)  -- maintain a copy of the parent for "super" methods
-    setmetatable(l, self)
+    self = setmetatable(l, Lfo)
 
-    return l
+    self.parent = Automation:new()  -- maintain a copy of the parent for "super" methods
+
+    self.frequency = f  -- frequency is defined in Hz
+    self.phase = p  -- phase defined in [0-1] range
+
+    self.prevTime = 0
+    self.random = math.random()  -- used for rndSampleHold
+
+    return self
+end
+
+
+function Lfo:Sine(t)
+    local y = math.sin(2 * math.pi * ( self.frequency * t + self.phase) )
+    return y * amath.b2n(self:isTriggerActive())
+end
+
+
+function Lfo:Square(t)
+    local y = amath.sign(self:Sine(t))
+    return y * amath.b2n(self:isTriggerActive())
+end
+
+
+function Lfo:RampUp(t)
+    -- *2-1 is applied since fmod returns a number in [0, 1]
+    local y = math.fmod(self.frequency * (t + self.phase), 1) * 2 - 1
+    return y * amath.b2n(self:isTriggerActive())
+end
+
+
+function Lfo:RampDown(t)
+    local y = math.fmod(self.frequency * (-t - self.phase), 1) * 2 + 1
+    return y * amath.b2n(self:isTriggerActive())
+end
+
+
+function Lfo:SampleHold(t)
+    -- if sine would have changed sign, recalculate random value to hold
+    if amath.sign(self:Sine(self.prevTime)) ~= amath.sign(self:Sine(t)) then
+        self.random = (math.random() * 2) - 1
+    end
+    self.prevTime = t
+    return self.random * amath.b2n(self:isTriggerActive())
 end
 
 return Lfo

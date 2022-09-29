@@ -4,6 +4,10 @@ local controls = require "lib/controls"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
 local screen_settings = require "lib/cfg/cfg_screen"
+local shaders = require "lib/shaders"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 -- import palette
 local PALETTE = palettes.TIC80
@@ -72,9 +76,16 @@ end
 --- @private updatePoints Updates points positions
 function patch.updatePoints(l)
 	local p = resources.parameters
+
+	local t = cfg_timers.globalTimer.T
+	local r = math.random
+	local cos = math.cos
+	local sin = math.sin
+	local pi = math.pi
+
 	for k, v in pairs(l) do
-		v.y = v.y + math.random() * math.cos(2 * math.pi * (timer.T / (p:getByIdx(2) * 3) + v.i / #l)) + v.dy * (math.cos(math.pi * timer.T * 2)) ^ 3
-		v.x = v.x + math.random() * math.sin(2 * math.pi * (timer.T / (p:getByIdx(1) * 3) + v.i / #l)) + v.dx * (math.sin(math.pi * timer.T * 2)) ^ 3
+		v.y = v.y + r() * cos(2 * pi * (t / (p:getByIdx(2) * 3) + v.i / #l)) + v.dy * (cos(pi * t * 2)) ^ 3
+		v.x = v.x + r() * sin(2 * pi * (t / (p:getByIdx(1) * 3) + v.i / #l)) + v.dx * (sin(pi * t * 2)) ^ 3
 	end
 end
 
@@ -186,7 +197,7 @@ function patch.update()
 	-- update parameters with local patch controls
 	if not cmd.isOpen then patch.patchControls() end
 	-- update points positions
-	if timer.fpsTimer() then
+	if cfg_timers.fpsTimer:Activated() then
 		patch.updatePoints(patch.points)
 	end
 end

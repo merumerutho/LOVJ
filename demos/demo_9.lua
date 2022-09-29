@@ -3,6 +3,10 @@ local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
 local Envelope = require "lib/automations/envelope"
+local Lfo = require "lib/automations/lfo"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
@@ -23,7 +27,6 @@ function patch.patchControls()
 
 	if kp.isDown("r") then
 		patch.init()
-		timer.init()
 	end
 
     -- insert here your patch controls
@@ -38,7 +41,8 @@ function patch.init()
 
 	init_params()
 
-	patch.env = Envelope:new(2, 1, 0.5, 1)
+	patch.lfo = Lfo:new(1, 0)
+	patch.env = Envelope:new(0.5, 0.5, 0.5, 1)
 
 	patch:assignDefaultDraw()
 end
@@ -48,12 +52,28 @@ local function draw_stuff()
 	g = resources.graphics
 	p = resources.parameters
 
-	local t = timer.T
-    -- insert here your draw routine
+	local t = cfg_timers.globalTimer.T
 	love.graphics.setColor(1, 1, 1, 1)
 
-	love.graphics.line(t * 30, screen.InternalRes.H,
-						t * 30, screen.InternalRes.H - 100*patch.env:Calculate(t))
+	-- LFO
+	love.graphics.line(t * 20, screen.InternalRes.H - 10,
+						t * 20, screen.InternalRes.H - 10 - 10*patch.lfo:Square(t))
+
+	love.graphics.line(t * 20, screen.InternalRes.H - 40,
+						t * 20, screen.InternalRes.H - 40 - 10*patch.lfo:Sine(t))
+
+	love.graphics.line(t * 20, screen.InternalRes.H - 70,
+						t * 20, screen.InternalRes.H - 70 - 10*patch.lfo:RampUp(t))
+
+	love.graphics.line(t * 20, screen.InternalRes.H - 100,
+						t * 20, screen.InternalRes.H - 100 - 10*patch.lfo:RampDown(t))
+
+	love.graphics.line(t * 20, screen.InternalRes.H - 130,
+						t * 20, screen.InternalRes.H - 130 - 10*patch.lfo:SampleHold(t))
+
+	-- ENVELOPE
+	love.graphics.line(t * 20, screen.InternalRes.H - 10,
+						t * 20, screen.InternalRes.H  - 10 - 100 * patch.env:Calculate(t))
 
 end
 
@@ -69,12 +89,15 @@ end
 
 
 function patch.update()
+	local t = cfg_timers.globalTimer.T
+
 	-- apply keyboard patch controls
 	if not cmd.isOpen then patch.patchControls() end
 	patch.hang = not kp.isDown("r")
 
-	-- update trigger, activated for 5 seconds
-	patch.env:UpdateTrigger(timer.T<5)
+	-- update triggers
+	patch.lfo:UpdateTrigger(t<5)
+	patch.env:UpdateTrigger(t>6 and t<8)
 
 	return
 end

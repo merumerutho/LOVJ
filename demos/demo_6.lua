@@ -2,6 +2,9 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 local BG_SPRITE_SIZE = 8
 
@@ -53,14 +56,16 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_bg()
+	local t = cfg_timers.globalTimer.T
+
 	g = resources.graphics
 	p = resources.parameters
 
-	local idx = (math.floor(timer.T * p:get("bgSpeed") ) % (patch.graphics.bg.image:getWidth() / BG_SPRITE_SIZE) ) + 1
+	local idx = (math.floor(t * p:get("bgSpeed") ) % (patch.graphics.bg.image:getWidth() / BG_SPRITE_SIZE) ) + 1
 	for x = -patch.graphics.bg.size.x, screen.InternalRes.W, patch.graphics.bg.size.x do
 		for y = -patch.graphics.bg.size.y, screen.InternalRes.H, patch.graphics.bg.size.y do
-			local lx = x + (timer.T*20)% BG_SPRITE_SIZE
-			local ly = y + (timer.T*10)% BG_SPRITE_SIZE
+			local lx = x + (t*20)% BG_SPRITE_SIZE
+			local ly = y + (t*10)% BG_SPRITE_SIZE
 			local rx = (lx - screen.InternalRes.W / 2)
 			local ry = (ly - screen.InternalRes.H / 2)
 			local rIdx = math.floor((idx + math.sqrt((rx*rx) + (ry*ry)) / 10)

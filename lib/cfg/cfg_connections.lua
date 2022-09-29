@@ -1,4 +1,4 @@
-cfg_connections = {}
+local cfg_connections = {}
 
 cfg_connections.TIMEOUT_TIME = 1000  -- [ms]
 

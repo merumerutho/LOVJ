@@ -3,6 +3,9 @@ local palettes = require "lib/utils/palettes"
 local screen = require "lib/screen"
 local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
@@ -27,11 +30,12 @@ end
 
 --- @private newBall spawn new ball in ballList
 local function newBall()
+	local t = cfg_timers.globalTimer.T
 	ball = {}
 	ball.n = 6 + math.random(16)
 	ball.s = math.random()
 	ball.cs = patch.bs + math.random()
-	ball.w = math.abs(8 * math.sin(timer.T / 10))
+	ball.w = math.abs(8 * math.sin(t / 10))
 	ball.c = palettes.getColor(PALETTE, math.random(16))
 	ball.rp = math.random()
 	-- insert to list
@@ -65,8 +69,6 @@ function patch.init()
 	PALETTE = palettes.PICO8
 	patch:setCanvases()
 
-	math.randomseed(timer.T)
-
 	init_params()
 
 	-- ball stuff
@@ -84,11 +86,12 @@ end
 
 
 local function drawBall(b)
+	local t = cfg_timers.globalTimer.T
 	for a = 0, b.n do
-		local x = (screen.InternalRes.W / 2) + (20 * math.cos(2 * math.pi * timer.T / 6.2))
-		local y = (screen.InternalRes.H / 2) + (25 * math.sin(2 * math.pi * timer.T / 5.5))
-		x = x - b.w * math.cos(2 * math.pi * (timer.T / 2 * b.cs + a / b.n + b.rp))
-		y = y - b.w * math.sin(2 * math.pi * (timer.T / 2 * b.cs + a / b.n + b.rp))
+		local x = (screen.InternalRes.W / 2) + (20 * math.cos(2 * math.pi * t / 6.2))
+		local y = (screen.InternalRes.H / 2) + (25 * math.sin(2 * math.pi * t / 5.5))
+		x = x - b.w * math.cos(2 * math.pi * (t / 2 * b.cs + a / b.n + b.rp))
+		y = y - b.w * math.sin(2 * math.pi * (t / 2 * b.cs + a / b.n + b.rp))
 		local r = (b.w / 30) * (b.w / 30)
 		-- filled circle
 		love.graphics.setColor(0, 0, 0, 1)
@@ -114,7 +117,7 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	if not cmd.isOpen then patch.patchControls() end
-	if timer.fpsTimer() then
+	if cfg_timers.fpsTimer:Activated() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do
 			ballUpdate(k, b)

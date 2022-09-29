@@ -2,6 +2,9 @@ local Patch = require "lib/patch"
 local palettes = require "lib/utils/palettes"
 local screen = require "lib/screen"
 local cmd = require "lib/utils/cmdmenu"
+local Timer = require "lib/timer"
+local cfg_timers = require "lib/cfg/cfg_timers"
+
 
 local PALETTE = palettes.PICO8
 
@@ -113,7 +116,7 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	if not cmd.isOpen then patch.patchControls() end
-	if timer.fpsTimer() then
+	if cfg_timers.fpsTimer:Activated() then
 		-- update balls
 		for k, b in pairs(patch.ballList) do
 			ballTrajectory(k, b)

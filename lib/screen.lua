@@ -3,7 +3,7 @@
 -- Graphical settings
 local screen_settings = require "lib/cfg/cfg_screen"
 
-screen = {}
+local screen = {}
 
 -- set_internal_res(w,r):
 -- assign internal resolution to be (w x h)

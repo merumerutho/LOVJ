@@ -2,50 +2,47 @@
 --
 -- Internal timer settings
 
-timer = {}
+local Timer = {}
+Timer.__index = Timer
 
-timer.CONSOLE_UPDATE_INTERVAL = 1
-timer.TARGET_FPS = 60
 
-local spf = 1 / timer.TARGET_FPS
+function Timer:new(rst)
+	local self = setmetatable({}, Timer)
 
-function timer.init()
-	timer.DeltaT = {}
-	timer.DeltaT.console = 0
-	timer.DeltaT.fps = 0
-	timer.DeltaT.oneSec = 0
-	timer.InitialTime = love.timer.getTime()
-	timer.T = love.timer.getTime()
+	self.initTime = love.timer.getTime()  -- get time of initialization
+	self.T = 0  -- initialize timer to 0
+	self.delta = 0  -- delta to the reset time
+	self.resetT = rst  -- the reset time
+	self.hasReset = false  -- becomes true upon reset
+
+	return self
 end
 
 
-function timer.update()
-	timer.T = love.timer.getTime() - timer.InitialTime
+function Timer:setResetT(value)
+	self.resetT = value
 end
 
 
-function timer.consoleTimer()
-	if timer.T - timer.DeltaT.console >= timer.CONSOLE_UPDATE_INTERVAL then
-		timer.DeltaT.console = timer.T
-		return true
+function Timer:checkResetT()
+	if self.resetT == nil then return false end
+	self.hasReset = false
+	if (self.T - self.delta) >= self.resetT then
+		self.delta = self.T
+		self.hasReset = true
 	end
-	return false
 end
 
-function timer.fpsTimer()
-	if timer.T - timer.DeltaT.fps >= spf then
-		timer.DeltaT.fps = timer.T
-		return true
-	end
-	return false
+
+function Timer:update()
+	self.T = love.timer.getTime() - self.initTime
+	self:checkResetT()
 end
 
-function timer.oneSecondTimer()
-	if timer.T - timer.DeltaT.oneSec > 1 then
-		timer.DeltaT.oneSec = timer.T
-		return true
-	end
-	return false
+
+function Timer:Activated()
+	return self.hasReset
 end
 
-return timer
+
+return Timer
