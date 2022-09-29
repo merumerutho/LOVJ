@@ -1,6 +1,7 @@
 # LOVJ
 ### A LÖVE VJing framework 
 
+![demo1](doc/assets/animations/demo1.gif) ![demo3](doc/assets/animations/demo3.gif) ![demo5](doc/assets/animations/demo5.gif) ![demo8](doc/assets/animations/demo8.gif) 
 
 LOVJ (previously called [LOVELive2p](https://en.wikipedia.org/wiki/Love_Live!)) aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively through LUA scripts in order to create a VJing setting mainly targeted at live music performances.
 
