@@ -17,8 +17,6 @@ patch = Patch:new()
 local function init_params()
 	g = resources.graphics
 	p = resources.parameters
-
-    -- insert here your patch parameters
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -27,9 +25,9 @@ function patch.patchControls()
 
 	if kp.isDown("r") then
 		patch.init()
+		cfg_timers.reset()
 	end
 
-    -- insert here your patch controls
 end
 
 
