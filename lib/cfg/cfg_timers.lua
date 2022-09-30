@@ -14,6 +14,14 @@ function cfg_timers.update()
     end
 end
 
+
+function cfg_timers.reset()
+    for i, t in pairs(cfg_timers.timers_list) do
+        t:reset()
+    end
+end
+
+
 function cfg_timers.init()
     -- global
     cfg_timers.globalTimer = Timer:new()

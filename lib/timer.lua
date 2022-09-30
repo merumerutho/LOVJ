@@ -45,4 +45,11 @@ function Timer:Activated()
 end
 
 
+function Timer:reset()
+	self.T = 0
+	self.delta = 0
+	self.initTime = love.timer.getTime()
+end
+
+
 return Timer
