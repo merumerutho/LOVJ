@@ -46,7 +46,7 @@ function patch.init()
 
 	patch.timers = {}
 	patch.timers.bpm = Timer:new(60 / patch.bpm )  -- 60 are seconds in 1 minute, 4 are sub-beats
-	patch.env = Envelope:new(0.01, 0, 1, 0.5)
+	patch.env = Envelope:new(0.005, 0, 1, 0.5)
 	patch.drawList = {}
 
 	init_params()
@@ -54,7 +54,7 @@ function patch.init()
 end
 
 
-function calculateRects()
+function recalculateRects()
 	local t = cfg_timers.globalTimer.T
 
 	-- empty list
@@ -72,10 +72,20 @@ function calculateRects()
 		local r = math.random(20) + 1
 		-- y1 = top of rectangle
 		-- y2 = bottom of rectangle
-		local y1 = ((ih / patch.n) * i) - r / 2 - 5--  + (t * 20) % (ih / patch.n)
-		local y2 = y1 + (ih / patch.n)  + r / 2 + 5--  + (t * 20) % (ih / patch.n)
+		local y1 = ((ih / patch.n) * i) - r / 2 - 5 -- + (t * 20) % (ih / patch.n)
+		local y2 = y1 + (ih / patch.n)  + r / 2 + 5 -- + (t * 20) % (ih / patch.n)
 		-- add to the table
 		table.insert(patch.drawList, {x = x, y1 = y1, y2 = y2, c = c})
+	end
+end
+
+
+function updateRects()
+	local t = cfg_timers.globalTimer.T
+	for k,v in pairs(patch.drawList) do
+		v.y1 = v.y1 + math.sin(t + v.y1 / screen.InternalRes.H) * 2
+		v.y2 = v.y2 + math.sin(t*1.5) + 5 * math.atan(v.x/v.y2)
+		v.x = v.x + math.cos(t*3 - v.y1/screen.InternalRes.H) * 3
 	end
 end
 
@@ -119,11 +129,13 @@ function patch.update()
 
 	-- Upon bpm timer trigger, recalculate rectangles
 	if patch.timers.bpm:Activated() then
-		calculateRects()
+		recalculateRects()
+	else
+		updateRects()
 	end
 
-	-- update parameters with patch controls
-	if not cmd.isOpen then patch.patchControls() end
-end
+		-- update parameters with patch controls
+		if not cmd.isOpen then patch.patchControls() end
+	end
 
 return patch
