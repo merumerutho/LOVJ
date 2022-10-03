@@ -45,8 +45,8 @@ function patch.init()
 	patch.localTimer = 0
 
 	patch.timers = {}
-	patch.timers.bpm = Timer:new(60 / patch.bpm / 4 )  -- 60 are seconds in 1 minute, 4 are sub-beats
-	patch.env = Envelope:new(0, 0, 1, 0.1)
+	patch.timers.bpm = Timer:new(60 / patch.bpm )  -- 60 are seconds in 1 minute, 4 are sub-beats
+	patch.env = Envelope:new(0.01, 0, 1, 0.5)
 	patch.drawList = {}
 
 	init_params()
@@ -77,7 +77,6 @@ function calculateRects()
 		-- add to the table
 		table.insert(patch.drawList, {x = x, y1 = y1, y2 = y2, c = c})
 	end
-	print(t)
 end
 
 
