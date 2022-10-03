@@ -27,6 +27,9 @@ function Envelope:Attack(t)
     local Tt = self.trigger.atkInst  -- instant of attack of the trigger
     t = t - Tt
 
+    -- exception case for no attack
+    if Ta == 0 then return 0 end
+
     return (t/Ta) * amath.rect((t-Ta/2)/Ta)  -- see doc in section "envelope", chapter "attack"
 end
 
@@ -37,6 +40,8 @@ function Envelope:Decay(t, rlsCall)
     local Td = self.decTime
     local s = self.susLvl
     local Tt = self.trigger.atkInst  -- instant of attack of the trigger
+    -- exception case for no decay
+    if Td == 0 then return 0 end
 
     t = (t-Ta-Tt)  -- apply delay of Ta
     local m = (1 - s)/Td  -- angular coefficient

@@ -5,6 +5,9 @@
 
 -- added modification to close UDP thread if present
 
+-- TODO:[livecoding] Restore livecoding feature, by checking for lists of files.
+-- TODO:[shenanigans] Reformat and cleanup code
+
 local lick = {}
 local socks_cfg = require "lib/cfg/cfg_connections"
 

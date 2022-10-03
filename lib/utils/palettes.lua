@@ -2,6 +2,8 @@
 --
 -- palettes inspired or taken by several systems.
 
+-- TODO:[nice2have] Add more palettes :)
+
 local Palettes = {}
 
 Palettes.BW = 	{
