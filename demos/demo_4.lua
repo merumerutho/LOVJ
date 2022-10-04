@@ -54,69 +54,69 @@ function patch.init()
 end
 
 
-function recalculateRects()
+--- @private recalculateRects empty drawList and populate with new list of random rectangles
+local function recalculateRects()
 	local t = cfg_timers.globalTimer.T
 
-	-- empty list
+	-- erase content of list (garbage collector takes care of this... right?)
 	patch.drawList = {}
 
-	-- add new elements
+	-- add new rectangles
 	for i = -1, patch.n-1 do
-		-- type: outer or inner rectangle
-		local c = math.random(2)
 		local iw = screen.InternalRes.W
 		local ih = screen.InternalRes.H
-		-- x coordinate
-		local x = math.random(iw / 2)
-		-- random height offset
-		local r = math.random(20) + 1
-		-- y1 = top of rectangle
-		-- y2 = bottom of rectangle
-		local y1 = ((ih / patch.n) * i) - r / 2 - 5 -- + (t * 20) % (ih / patch.n)
-		local y2 = y1 + (ih / patch.n)  + r / 2 + 5 -- + (t * 20) % (ih / patch.n)
-		-- add to the table
+		local c = math.random(2)					 -- random inner or outer rectangle
+		local x = math.random(iw / 2)                -- random x coordinate
+		local r = math.random(20) + 1                -- random height offset
+		local y1 = ((ih / patch.n) * i) - r / 2 - 5  -- top of rectangle
+		local y2 = y1 + (ih / patch.n)  + r / 2 + 5  -- bottom of rectangle
+
 		table.insert(patch.drawList, {x = x, y1 = y1, y2 = y2, c = c})
 	end
 end
 
 
-function updateRects()
+--- @private updateRects move rectangles according to some defined behaviour
+local function updateRects()
 	local t = cfg_timers.globalTimer.T
+	local dt = cfg_timers.globalTimer:dt()  -- use this to make the code fps-independent!
+
 	for k,v in pairs(patch.drawList) do
-		v.y1 = v.y1 + math.sin(t + v.y1 / screen.InternalRes.H) * 2
-		v.y2 = v.y2 + math.sin(t*1.5) + 5 * math.atan(v.x/v.y2)
-		v.x = v.x + math.cos(t*3 - v.y1/screen.InternalRes.H) * 3
+		v.y1 = v.y1 + (math.sin(t + v.y1 / screen.InternalRes.H)) * 20 * dt
+		v.y2 = v.y2 + (math.sin(t*1.5) + math.atan(v.x/v.y2))     * 50 * dt
+		v.x  = v.x  + (math.cos(t*3 - v.y1/screen.InternalRes.H)) * 30 * dt
 	end
+
 end
 
 
+--- @public patch.draw draw the patch
 function patch.draw()
-	patch:drawSetup()
+	patch:drawSetup()  -- call parent setup function
 
 	local t = cfg_timers.globalTimer.T
 
-	love.graphics.clear()
+	local transparency = patch.env:Calculate(t)     -- transparency set according to patch.env Envelope
 
-	local transparency = patch.env:Calculate(t)
-	if patch.freeRunning then transparency = 1 end
-	local inversion = patch.invert and 1 or 0  -- convert bool to int
+	if patch.freeRunning then transparency = 1 end  -- in free running, transparency disabled
+	local inversion = patch.invert and 1 or 0       -- convert "inversion" bool to int
 
+	-- draw all rectangles
 	for k,v in pairs(patch.drawList) do
+		local color = palettes.getColor(patch.palette, 2-inversion)
 		if v.c == 1 then
-			local color = patch.palette[2 - inversion]
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", v.x, v.y1, screen.InternalRes.W - (2 * v.x), v.y2 - v.y1)
 		else
-			local color = patch.palette[2 - inversion]
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", 0, v.y1, screen.InternalRes.W, v.y2 - v.y1)
-			color = patch.palette[1 + inversion]
+			color = palettes.getColor(patch.palette, 1 + inversion)		-- swap color
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", v.x, v.y1, screen.InternalRes.W - (2 * v.x), v.y2 - v.y1)
 		end
 	end
 
-	patch:drawExec()
+	patch:drawExec()  -- call parent rendering function
 end
 
 
@@ -127,15 +127,15 @@ function patch.update()
 	-- Upon bpm timer trigger, update envelope trigger
 	patch.env:UpdateTrigger(patch.timers.bpm:Activated())
 
-	-- Upon bpm timer trigger, recalculate rectangles
+	-- Upon bpm timer trigger, also update rectangles
 	if patch.timers.bpm:Activated() then
 		recalculateRects()
 	else
 		updateRects()
 	end
 
-		-- update parameters with patch controls
-		if not cmd.isOpen then patch.patchControls() end
-	end
+	-- update parameters with patch controls
+	if not cmd.isOpen then patch.patchControls() end
+end
 
 return patch

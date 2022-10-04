@@ -52,4 +52,9 @@ function Timer:reset()
 end
 
 
+function Timer:dt()
+	return love.timer.getDelta()
+end
+
+
 return Timer
