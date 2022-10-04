@@ -78,14 +78,16 @@ function patch.updatePoints(l)
 	local p = resources.parameters
 
 	local t = cfg_timers.globalTimer.T
+	local dt = cfg_timers.globalTimer:dt()
+
 	local r = math.random
 	local cos = math.cos
 	local sin = math.sin
 	local pi = math.pi
 
 	for k, v in pairs(l) do
-		v.y = v.y + r() * cos(2 * pi * (t / (p:getByIdx(2) * 3) + v.i / #l)) + v.dy * (cos(pi * t * 2)) ^ 3
-		v.x = v.x + r() * sin(2 * pi * (t / (p:getByIdx(1) * 3) + v.i / #l)) + v.dx * (sin(pi * t * 2)) ^ 3
+		v.y = v.y + (r() * cos(2 * pi * (t / (p:getByIdx(2) * 3) + v.i / #l)) + v.dy * (cos(pi * t * 2)) ^ 3) * dt * 50
+		v.x = v.x + (r() * sin(2 * pi * (t / (p:getByIdx(1) * 3) + v.i / #l)) + v.dx * (sin(pi * t * 2)) ^ 3) * dt * 50
 	end
 end
 

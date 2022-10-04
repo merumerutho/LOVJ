@@ -45,7 +45,10 @@ end
 --- @private ballUpdate update ball status and position in ballList
 local function ballUpdate(idx, ball)
 	local p = resources.parameters
-	ball.w = ball.w + ball.s + ball.w * p:getByIdx(1) / 10
+	local dt = cfg_timers.globalTimer:dt()
+
+	ball.w = ball.w + (ball.s + ball.w * p:getByIdx(1) / 10 ) * dt * 50
+
 	local largestSide = math.max(screen.InternalRes.W, screen.InternalRes.H)
 	if ball.w > largestSide / 2 * math.sqrt(2) then
 		table.remove(patch.ballList, idx)

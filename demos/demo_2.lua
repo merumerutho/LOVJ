@@ -43,9 +43,11 @@ end
 
 
 local function ballTrajectory(k, b)
-  b.x = b.x + b.ax
-  b.y = b.y + b.ay
-  b.z = b.z + 0.05 * b.az
+	local dt = cfg_timers.globalTimer:dt() -- keep it fps independent
+
+	b.x = b.x + b.ax 		* dt * 50
+	b.y = b.y + b.ay 		* dt * 50
+	b.z = b.z + 0.05 * b.az * dt * 50
   
   if b.z < 0 then b.z = 0 end
   if (b.x < -b.z or 
