@@ -120,12 +120,12 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	if not cmd.isOpen then patch.patchControls() end
-	if cfg_timers.fpsTimer:Activated() then
-		-- update balls
-		for k, b in pairs(patch.ballList) do
-			ballUpdate(k, b)
-		end
+
+	-- update balls
+	for k, b in pairs(patch.ballList) do
+		ballUpdate(k, b)
 	end
+
 end
 
 return patch

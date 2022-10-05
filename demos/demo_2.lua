@@ -118,14 +118,14 @@ end
 function patch.update()
 	-- update parameters with patch controls
 	if not cmd.isOpen then patch.patchControls() end
-	if cfg_timers.fpsTimer:Activated() then
-		-- update balls
-		for k, b in pairs(patch.ballList) do
-			ballTrajectory(k, b)
-		end
-		-- re-order balls
-		orderZ(patch.ballList)
+
+	-- update balls
+	for k, b in pairs(patch.ballList) do
+		ballTrajectory(k, b)
 	end
+	-- re-order balls
+	orderZ(patch.ballList)
+
 end
 
 return patch
