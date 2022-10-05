@@ -4,6 +4,7 @@ local kp = require "lib/utils/keypress"
 local cmd = require "lib/utils/cmdmenu"
 local Timer = require "lib/timer"
 local cfg_timers = require "lib/cfg/cfg_timers"
+local Envelope = require "lib/automations/envelope"
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8
@@ -52,6 +53,13 @@ function patch.init()
 	patch:setCanvases()
 	init_params()
 	patch:assignDefaultDraw()
+
+	patch.bpm = 170
+
+	patch.timers = {}
+	patch.timers.bpm = Timer:new(60 / patch.bpm )  -- 60 are seconds in 1 minute, 4 are sub-beats
+
+	patch.env = Envelope:new(0.005, 0, 1, 0.5)
 end
 
 --- @public patch.draw draw routine
@@ -79,7 +87,7 @@ function patch.draw()
 			col = palettes.getColor(PALETTE, (math.floor(col) % 16) + 1)
 			-- add to list of points to draw
 			if inScreen(px, py) then
-				table.insert(points_list, {px, py, col[1], col[2], col[3], 1})
+				table.insert(points_list, {px, py, col[1], col[2], col[3], patch.env:Calculate(t)})
 			end
 		end
 	end
@@ -93,6 +101,10 @@ end
 function patch.update()
 	-- apply keyboard patch controls
 	if not cmd.isOpen then patch.patchControls() end
+
+	patch.timers.bpm:update()
+
+	patch.env:UpdateTrigger(patch.timers.bpm:Activated())
 end
 
 
