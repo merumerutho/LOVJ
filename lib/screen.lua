@@ -1,7 +1,7 @@
 -- screen.lua
 --
 -- Graphical settings
-local screen_settings = lovjRequire("lib/cfg/cfg_screen")
+local screen_settings = require("lib/cfg/cfg_screen")
 
 local screen = {}
 
