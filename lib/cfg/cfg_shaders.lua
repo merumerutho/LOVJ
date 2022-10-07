@@ -1,4 +1,4 @@
-local shaders = require "lib/shaders"
+local shaders = lovjRequire("lib/shaders")
 
 local cfg_shaders = {}
 

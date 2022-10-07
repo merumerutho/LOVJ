@@ -4,7 +4,7 @@
 -- A dedicated process (UDP_thread) is used to manage the communication.
 
 local Connections = {}
-local cfg = require "lib/cfg/cfg_connections"
+local cfg = lovjRequire("lib/cfg/cfg_connections")
 
 function Connections.init()
   -- initialize list of udp threads and channels (request, response)

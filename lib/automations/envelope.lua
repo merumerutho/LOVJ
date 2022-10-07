@@ -1,5 +1,5 @@
-local Automation = require "lib/automations/automation"
-local amath = require "lib/automations/automation_math"
+local Automation = lovjRequire("lib/automations/automation")
+local amath = lovjRequire("lib/automations/automation_math")
 
 local Envelope = {}
 Envelope.__index = Envelope

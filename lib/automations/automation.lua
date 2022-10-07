@@ -1,5 +1,5 @@
-amath = require "lib/automations/automation_math"
-cfg_timers = require "lib/cfg/cfg_timers"
+amath = lovjRequire("lib/automations/automation_math")
+cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
 local Automation = {}
 Automation.__index = Automation

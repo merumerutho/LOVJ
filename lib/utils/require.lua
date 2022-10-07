@@ -1,3 +1,20 @@
+requirements = {}
+
+requirements.globalReset = {}
+requirements.patchReset = {}
+
+requirements.HARD_RESET = "Hard reset"
+
+requirements.PATCH_RESET = "Patch reset"
+
+-- TODO:refactor move this function to somewhere else!
+function table.contains(list, element)
+    for k,v in pairs(list) do
+        if v == element then return true end
+    end
+    return false
+end
+
 ---
 --- The require function in lua is pretty much equivalent, in its purpose, to the include statement in languages like
 --- C and C++, or the import statement in python. However, require is a function.
@@ -18,7 +35,24 @@
 --- thus keeping intact the livecode experience without frequent hard resets.
 
 --- @public lickrequire wrapper function for require, allows for livecoding features
-function lickrequire(modname)
-    require(modname)
-    -- TODO:[livecoding] implement lick integration
+function lovjRequire(component, resetType)
+    resetType = resetType or requirements.HARD_RESET  -- default value
+
+    local ret = require(component)  -- require the component
+
+    -- Add to specified requirements lists
+    if resetType == requirements.HARD_RESET then
+        if table.contains(requirements.globalReset, component) then return ret end
+        table.insert(requirements.globalReset, component)
+    elseif resetType == requirements.PATCH_RESET then
+        if table.contains(requirements.patchReset, component) then return ret end
+        table.insert(requirements.patchReset, component)
+    end
+
+    logInfo("Added " .. component .. " to " .. resetType .." list.")
+
+    return ret
 end
+
+
+return requirements

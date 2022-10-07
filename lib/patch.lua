@@ -1,5 +1,5 @@
-local screen_settings = require "lib/cfg/cfg_screen"
-local cfg_patches = require "lib/cfg/cfg_patches"
+local screen_settings = lovjRequire("lib/cfg/cfg_screen")
+local cfg_patches = lovjRequire("lib/cfg/cfg_patches")
 
 local Patch = {}
 

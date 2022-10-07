@@ -1,6 +1,6 @@
 local CmdMenu = {}
 local utf8 = require "utf8"
-local kp = require "lib/utils/keypress"
+local kp = lovjRequire("lib/utils/keypress")
 
 -- default state
 CmdMenu.isOpen = false

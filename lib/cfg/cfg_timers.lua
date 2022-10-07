@@ -1,4 +1,4 @@
-local Timer = require "lib/timer"
+local Timer = lovjRequire("lib/timer")
 local cfg_timers = {}
 
 cfg_timers.timers_list = {}

@@ -3,7 +3,7 @@
 -- dispatch the content of a received msg to relative section
 
 local losc = require "losc"
-local resources = require "lib/resources"
+local resources = lovjRequire("lib/resources")
 
 local dispatcher = {}
 
