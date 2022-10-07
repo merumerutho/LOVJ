@@ -1,12 +1,12 @@
-local Patch = require "lib/patch"
-local palettes = require "lib/utils/palettes"
-local controls = require "lib/controls"
-local kp = require "lib/utils/keypress"
-local cmd = require "lib/utils/cmdmenu"
-local screen_settings = require "lib/cfg/cfg_screen"
-local shaders = require "lib/shaders"
-local Timer = require "lib/timer"
-local cfg_timers = require "lib/cfg/cfg_timers"
+local Patch = lovjRequire("lib/patch")
+local palettes = lovjRequire("lib/utils/palettes")
+local controls = lovjRequire("lib/controls")
+local kp = lovjRequire("lib/utils/keypress")
+local cmd = lovjRequire("lib/utils/cmdmenu")
+local screen_settings = lovjRequire("lib/cfg/cfg_screen")
+local shaders = lovjRequire("lib/shaders")
+local Timer = lovjRequire("lib/timer")
+local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
 
 -- import palette

@@ -1,10 +1,9 @@
-local Patch = require "lib/patch"
-local palettes = require "lib/utils/palettes"
-local screen = require "lib/screen"
-local cmd = require "lib/utils/cmdmenu"
-local Timer = require "lib/timer"
-local cfg_timers = require "lib/cfg/cfg_timers"
-
+local Patch = lovjRequire ("lib/patch")
+local palettes = lovjRequire ("lib/utils/palettes")
+local screen = lovjRequire ("lib/screen")
+local cmd = lovjRequire ("lib/utils/cmdmenu")
+local Timer = lovjRequire ("lib/timer")
+local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
 
 local PALETTE = palettes.PICO8
 
@@ -19,7 +18,7 @@ function patch.patchControls()
 end
 
 
-local function addBall(ball_list, sx, sy)
+local function addBall(sx, sy)
 	ball = {}
   -- ball starting position
 	ball.x = sx
@@ -56,7 +55,7 @@ local function ballTrajectory(k, b)
       b.y > screen.InternalRes.H + b.z) then
       
       table.remove(patch.ballList, k)
-      addBall(ball_list, screen.InternalRes.W / 2, screen.InternalRes.H / 2)
+      addBall(screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   end
 end
 
@@ -76,7 +75,7 @@ function patch.init()
   	patch.ballList = {}
   	-- generate balls
   	for i = 1, patch.nBalls do
-    	addBall(patch.ballList, screen.InternalRes.W / 2, screen.InternalRes.H / 2)
+    	addBall(screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   	end
 
 	patch:assignDefaultDraw()

@@ -1,22 +1,25 @@
-debug = require "debug"
+debug = require("debug")
+lick = require("lib/lick")
+requirements = require("lib/utils/require")
+log = require("lib/utils/logging")
 
-lick = require "lib/lick"
-res = require "lib/resources"
-screen = require "lib/screen"
-timer = require "lib/timer"
-resources = require "lib/resources"
-controls = require "lib/controls"
-connections = require "lib/connections"
-dispatcher = require "lib/dispatcher"
+logging.setLogLevel({ logging.LOG_ERROR,
+					  logging.LOG_INFO })
 
-cfg_patches = require "lib/cfg/cfg_patches"
-cfg_shaders = require "lib/cfg/cfg_shaders"
-cfg_automations = require "lib/cfg/cfg_automations"
-cfg_timers = require "lib/cfg/cfg_timers"
+screen = lovjRequire("lib/screen")
+timer = lovjRequire("lib/timer")
+resources = lovjRequire("lib/resources")
+controls = lovjRequire("lib/controls")
+connections = lovjRequire("lib/connections")
+dispatcher = lovjRequire("lib/dispatcher")
+
+cfg_patches = lovjRequire("lib/cfg/cfg_patches")
+cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+cfg_automations = lovjRequire("lib/cfg/cfg_automations")
+cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
 local defaultPatch = cfg_patches.defaultPatch
-patch = require(defaultPatch)
-lick.updateCurrentlyLoadedPatch( defaultPatch .. ".lua")
+patch = lovjRequire(defaultPatch)
 
 local fps
 -- lick reset enable

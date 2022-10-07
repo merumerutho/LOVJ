@@ -1,10 +1,10 @@
-local Patch = require "lib/patch"
-local palettes = require "lib/utils/palettes"
-local screen = require "lib/screen"
-local kp = require "lib/utils/keypress"
-local cmd = require "lib/utils/cmdmenu"
-local Timer = require "lib/timer"
-local cfg_timers = require "lib/cfg/cfg_timers"
+local Patch = lovjRequire("lib/patch")
+local palettes = lovjRequire("lib/utils/palettes")
+local screen = lovjRequire("lib/screen")
+local kp = lovjRequire("lib/utils/keypress")
+local cmd = lovjRequire("lib/utils/cmdmenu")
+local Timer = lovjRequire("lib/timer")
+local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
 
 -- import pico8 palette
