@@ -19,11 +19,7 @@ patch = Patch:new()
 function patch:setCanvases()
 	Patch.setCanvases(patch)  -- call parent function
 	-- patch-specific execution (trail canvas)
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		patch.canvases.trail = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-	else
-		patch.canvases.trail = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	end
+	patch.canvases.trail = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 end
 
 
