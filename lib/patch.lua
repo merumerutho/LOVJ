@@ -1,5 +1,6 @@
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local cfg_patches = lovjRequire("lib/cfg/cfg_patches")
+local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}
 
@@ -60,6 +61,12 @@ function Patch:drawExec()
 	if cfg_shaders.enabled then cfg_shaders.applyShader() end
 	-- draw cmd menu canvas on top
 	love.graphics.draw(self.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+end
+
+
+function Patch:mainUpdate()
+	-- apply keyboard patch controls
+	if not cmd.isOpen then self.patchControls() end
 end
 
 return Patch

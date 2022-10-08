@@ -1,7 +1,6 @@
 local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local videoutils = lovjRequire("lib/utils/video")
-local cmd = lovjRequire("lib/utils/cmdmenu")
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local shaders = lovjRequire("lib/shaders")
 local Timer = lovjRequire("lib/timer")
@@ -101,8 +100,7 @@ end
 
 
 function patch.update()
-    -- apply keyboard patch controls
-    if not cmd.isOpen then patch.patchControls() end
+    patch:mainUpdate()
 
     -- handle loop
     videoutils.handleLoop(patch.video)

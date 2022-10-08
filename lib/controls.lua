@@ -3,7 +3,7 @@
 -- Handle general controls (non patch-specific)
 --
 local kp = lovjRequire("lib/utils/keypress")
-local cmd = lovjRequire("lib/utils/cmdmenu")
+local cmd = lovjRequire("lib/cmdmenu")
 
 local controls = {}
 

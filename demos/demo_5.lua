@@ -2,7 +2,6 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local controls = lovjRequire("lib/controls")
 local kp = lovjRequire("lib/utils/keypress")
-local cmd = lovjRequire("lib/utils/cmdmenu")
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local shaders = lovjRequire("lib/shaders")
 local Timer = lovjRequire("lib/timer")
@@ -196,8 +195,8 @@ end
 
 --- @public update Updates the patch
 function patch.update()
-	-- update parameters with local patch controls
-	if not cmd.isOpen then patch.patchControls() end
+	patch:mainUpdate()
+
 	-- update points positions
 	if cfg_timers.fpsTimer:Activated() then
 		patch.updatePoints(patch.points)

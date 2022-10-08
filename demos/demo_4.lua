@@ -2,7 +2,6 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local screen = lovjRequire("lib/screen")
 local kp = lovjRequire("lib/utils/keypress")
-local cmd = lovjRequire("lib/utils/cmdmenu")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local Envelope = lovjRequire("lib/automations/envelope")
@@ -120,6 +119,8 @@ end
 
 
 function patch.update()
+	patch:mainUpdate()
+
 	-- Update bpm timer
 	patch.timers.bpm:update()
 
@@ -132,9 +133,6 @@ function patch.update()
 	else
 		updateRects()
 	end
-
-	-- update parameters with patch controls
-	if not cmd.isOpen then patch.patchControls() end
 end
 
 return patch

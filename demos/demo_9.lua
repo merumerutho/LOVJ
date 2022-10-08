@@ -1,7 +1,6 @@
 local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local kp = lovjRequire("lib/utils/keypress")
-local cmd = lovjRequire("lib/utils/cmdmenu")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 local Timer = lovjRequire("lib/timer")
@@ -87,10 +86,11 @@ end
 
 
 function patch.update()
+
+	patch:mainUpdate()
+
 	local t = cfg_timers.globalTimer.T
 
-	-- apply keyboard patch controls
-	if not cmd.isOpen then patch.patchControls() end
 	patch.hang = not kp.isDown("r")
 
 	-- update triggers

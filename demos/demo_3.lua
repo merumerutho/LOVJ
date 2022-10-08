@@ -2,7 +2,6 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local screen = lovjRequire("lib/screen")
 local kp = lovjRequire("lib/utils/keypress")
-local cmd = lovjRequire("lib/utils/cmdmenu")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
@@ -118,8 +117,7 @@ end
 
 --- @public update update patch function
 function patch.update()
-	-- update parameters with patch controls
-	if not cmd.isOpen then patch.patchControls() end
+	patch:mainUpdate()
 
 	-- update balls
 	for k, b in pairs(patch.ballList) do

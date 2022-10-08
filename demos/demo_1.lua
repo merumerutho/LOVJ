@@ -1,6 +1,5 @@
 local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
-local cmd = lovjRequire("lib/utils/cmdmenu")
 local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
@@ -99,9 +98,7 @@ end
 
 
 function patch.update()
-	-- apply keyboard patch controls
-	if not cmd.isOpen then patch.patchControls() end
-
+	patch:mainUpdate()
 	patch.timers.bpm:update()
 
 	patch.env:UpdateTrigger(patch.timers.bpm:Activated())
