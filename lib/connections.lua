@@ -4,7 +4,7 @@
 -- A dedicated process (UDP_thread) is used to manage the communication.
 
 local Connections = {}
-local cfg = lovjRequire("lib/cfg/cfg_connections")
+local cfg = require("lib/cfg/cfg_connections")
 
 function Connections.init()
   -- initialize list of udp threads and channels (request, response)
@@ -32,7 +32,7 @@ function Connections.sendRequests()
 
   for k,rspCh in pairs(Connections.RspChannels) do
     table.insert(responses, rspCh:demand(cfg.TIMEOUT_TIME))  -- expect response from all channels
-    rspCh:push(cfg.ackMsg)  -- send ACK
+    Connections.ReqChannels[k]:push(cfg.ackMsg)  -- send ACK
   end
 
   return responses

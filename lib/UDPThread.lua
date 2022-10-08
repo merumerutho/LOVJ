@@ -65,7 +65,7 @@ local function parseRequest()
 		-- and the actual messages as content
 		rspChannel:push(msg)
 
-		local ack = nil
+		local ack
 		while ack ~= cfg.ackMsg do  -- wait for acknowledgement
 		  ack = reqChannel:pop()
 		end
@@ -76,9 +76,10 @@ local function parseRequest()
     
 	elseif req == cfg.quitMsg then	-- if QUIT request present
 		udp:close()
-		rspChannel:push("clear")
+		rspChannel:push(cfg.ackQuit)
 		listening = false
 	end
+
 	req = nil  -- remove request
 end
 

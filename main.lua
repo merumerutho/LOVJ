@@ -21,6 +21,8 @@ cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local defaultPatch = cfg_patches.defaultPatch
 patch = lovjRequire(defaultPatch)
 
+local test
+
 local fps
 -- lick reset enable
 lick.reset = true

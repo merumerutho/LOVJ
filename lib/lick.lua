@@ -1,14 +1,12 @@
+local log = require("lib/utils/logging")
+
 -- lick.lua
+-- credits to usysrc
 --
--- simple LIVECODING environment for Löve
+-- simple LIVECODING library for Löve
 -- overwrites love.run, pressing all errors to the terminal/console
 
--- added modification to close UDP thread if present
-
--- TODO:[livecoding] Restore livecoding feature, by checking for lists of files.
 -- TODO:[reformat] Reformat and cleanup code
-
-local log = require("lib/utils/logging")
 
 local lick = {}
 
@@ -23,18 +21,15 @@ lick.files = {"main.lua", "main.lua"}
 --   resetType: "type of reset to apply"
 -- }
 -- by default contains the main.lua
+
 lick.resetList = {{name="main",
                    modtime=love.filesystem.getInfo("main.lua").modtime,
                    resetType=lick.HARD_RESET}}
-
 
 lick.debug = false
 lick.reset = false
 lick.clearFlag = false
 lick.sleepTime = love.graphics.newCanvas and 0.0001 or 1
-
-connections = {}
-connections.UDP_thread = nil
 
 
 --- @private handle Handle error in lick
@@ -83,6 +78,7 @@ local function update(dt)
             logInfo("Reloaded")
             lick.debugoutput = nil
         end
+
         if lick.reset then
             loadok, err = xpcall(love.load, handle)
             if not loadok and not loadok_old then
@@ -99,7 +95,7 @@ local function update(dt)
 
     updateok, err = pcall(love.update,dt)
     if not updateok and not updateok_old then 
-        print("ERROR: "..tostring(err))
+        logError(tostring(err))
         if lick.debugoutput then
             lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" ) 
         else
@@ -113,7 +109,7 @@ end
 local function draw()
     drawok, err = xpcall(love.draw, handle)
     if not drawok and not drawok_old then 
-        print(tostring(err))
+        logError(tostring(err))
         if lick.debugoutput then
             lick.debugoutput = (lick.debugoutput .. err .. "\n" ) 
         else
@@ -174,15 +170,28 @@ function love.run()
 end
 
 function closeUDPThread()
-	-- If there is a "UDP_thread"
-	if connections.UDP_thread then
-		print("[LICK] - Closing UDP thread...")
-		assert(love.thread.getChannel("UDP_REQUEST"):push("quit"))
-		resp = love.thread.getChannel("UDP_SYSTEM_INFO"):demand()
-		if resp == "clear" then
-			connections.UDP_thread:release()
-			print("[LICK] - UDP Thread released.")
-		end
+    local Connections = require("lib/connections")
+    local cfg_connections = require("lib/cfg/cfg_connections")
+    -- If there are "UDP_threads" ...
+    if Connections.UdpThreads == nil then return end
+
+    -- send quitMsg to all threads
+	for k,reqCh in pairs(Connections.ReqChannels) do
+        logInfo("Closing UDP thread #" .. k)
+        reqCh:push(cfg_connections.quitMsg)  -- send request to all channels
+    end
+
+    -- expect quitAck from each thread
+    local responses = {}
+	for k,rspCh in pairs(Connections.RspChannels) do
+        table.insert(responses, rspCh:demand(cfg_connections.TIMEOUT_TIME))  -- expect response from all channels
+    end
+
+    for k,resp in pairs(responses) do
+        if resp == cfg_connections.ackQuit then
+            Connections.UdpThreads[k]:release()
+            logInfo("UDP Thread #".. k .. " released.")
+        end
 	end
 end
 
