@@ -44,7 +44,7 @@ function patch.init()
 
 	patch.timers = {}
 	patch.timers.bpm = Timer:new(60 / patch.bpm )  -- 60 are seconds in 1 minute, 4 are sub-beats
-	patch.env = Envelope:new(0.005, 0, 1, 0.5)
+	patch.env = Envelope:new(0, 0, 1, 0.5)
 	patch.drawList = {}
 
 	init_params()
