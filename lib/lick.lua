@@ -6,61 +6,87 @@
 -- added modification to close UDP thread if present
 
 -- TODO:[livecoding] Restore livecoding feature, by checking for lists of files.
--- TODO:[shenanigans] Reformat and cleanup code
+-- TODO:[reformat] Reformat and cleanup code
+
+local log = require("lib/utils/logging")
 
 local lick = {}
-local socks_cfg = require "lib/cfg/cfg_connections"
+
+-- reset types
+lick.HARD_RESET = "Hard reset"
+lick.PATCH_RESET = "Patch reset"
 
 lick.files = {"main.lua", "main.lua"}
+-- list containing structures as:
+-- { name: "filename",
+--   modtime: "last modification time",
+--   resetType: "type of reset to apply"
+-- }
+-- by default contains the main.lua
+lick.resetList = {{name="main",
+                   modtime=love.filesystem.getInfo("main.lua").modtime,
+                   resetType=lick.HARD_RESET}}
+
+
 lick.debug = false
 lick.reset = false
 lick.clearFlag = false
-lick.sleepTime = love.graphics.newCanvas and 0.001 or 1
+lick.sleepTime = love.graphics.newCanvas and 0.0001 or 1
 
-local last_modified = 0
 connections = {}
 connections.UDP_thread = nil
 
+
+--- @private handle Handle error in lick
 local function handle(err)
   return "ERROR: " .. err
 end
 
--- Initialization
-local function load()
-  last_modified_main = 0
-  last_modified_patch = 0
+
+--- @private checkReset Check list of components for modifications to trigger reset if necessary
+local function checkReset()
+    for k, v in pairs(lick.resetList) do
+        -- Check if file has changed by looking at filesystem modification time
+        local modtime = love.filesystem.getInfo(v.name .. ".lua").modtime
+        if modtime ~= v.time then
+            v.time = modtime
+            return v.resetType
+        end
+    end
+    return nil
 end
 
+
 local function update(dt)
-    local info_main = love.filesystem.getInfo(lick.files[1])
-	local info_patch = love.filesystem.getInfo(lick.files[2])
-    if (info_main and info_patch) and (last_modified_main < info_main.modtime or last_modified_patch < info_patch.modtime) then
-        last_modified_main = info_main.modtime
-		last_modified_patch = info_patch.modtime
+    local typedReset = checkReset()
+    local info_main = love.filesystem.getInfo("main.lua")
+    if typedReset == lick.HARD_RESET then
 		-- Close UDP socket and thread
 		closeUDPThread()
-        success, chunk = pcall(love.filesystem.load, lick.files[1])
+        success, chunk = pcall(love.filesystem.load, "main.lua")  -- TODO:[refactor] shouldnt be a static name
+
         if not success then
-            print(tostring(chunk))
+            logError(tostring(chunk))
             lick.debugoutput = chunk .. "\n"
         end
         ok,err = xpcall(chunk, handle)
 
         if not ok then 
-            print(tostring(err))
+            logError(tostring(err))
+
             if lick.debugoutput then
                 lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" )
             else 
                 lick.debugoutput =  err .. "\n" 
             end 
         else
-            print("[LICK] - Reloaded\n")
+            logInfo("Reloaded")
             lick.debugoutput = nil
         end
         if lick.reset then
             loadok, err = xpcall(love.load, handle)
             if not loadok and not loadok_old then
-                print("ERROR: "..tostring(err))
+                logError(tostring(err))
                 if lick.debugoutput then
                     lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" ) 
                 else
@@ -106,7 +132,6 @@ end
 function love.run()
     math.randomseed(os.time())
     math.random() math.random()
-    load()
 
     local dt = 0
 
@@ -161,8 +186,5 @@ function closeUDPThread()
 	end
 end
 
-function lick.updateCurrentlyLoadedPatch(patchPath)
-	lick.files = {"main.lua", patchPath}
-end
 
 return lick
