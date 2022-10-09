@@ -22,9 +22,9 @@ lick.files = {"main.lua", "main.lua"}
 -- }
 -- by default contains the main.lua
 
-lick.resetList = {{name="main",
-                   modtime=love.filesystem.getInfo("main.lua").modtime,
-                   resetType=lick.HARD_RESET}}
+lick.resetList = {}
+lick.resetList["main"] = {modtime=love.filesystem.getInfo("main.lua").modtime,
+                          resetType=lick.HARD_RESET}
 
 lick.debug = false
 lick.reset = false
@@ -42,7 +42,7 @@ end
 local function checkReset()
     for k, v in pairs(lick.resetList) do
         -- Check if file has changed by looking at filesystem modification time
-        local modtime = love.filesystem.getInfo(v.name .. ".lua").modtime
+        local modtime = love.filesystem.getInfo(k .. ".lua").modtime
         if modtime ~= v.time then
             v.time = modtime
             return v.resetType
@@ -54,9 +54,9 @@ end
 
 local function update(dt)
     local typedReset = checkReset()
-    local info_main = love.filesystem.getInfo("main.lua")
     if typedReset == lick.PATCH_RESET then
-        logInfo("Patch reset.")
+        logInfo(currentPatchName .. " reset.")
+        lovjUnrequire(currentPatchName)
         patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
         patch.init()
     elseif typedReset == lick.HARD_RESET then
