@@ -4,6 +4,7 @@
 --
 local kp = lovjRequire("lib/utils/keypress")
 local cmd = lovjRequire("lib/cmdmenu")
+local lick = lovjRequire("lib/lick")
 
 local controls = {}
 
@@ -55,7 +56,8 @@ function controls.handleGeneralControls()
 	-- load patch from associated quick-slot
 	for k,v in pairs(controls.slots) do
 		if kp.keypressOnRelease(v) and not cmd.isOpen then
-			patch = require(cfg_patches.patches[k])
+			currentPatchName = cfg_patches.patches[k]
+			patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
 			patch.init()
 		end
 	end

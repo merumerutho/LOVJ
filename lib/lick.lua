@@ -55,7 +55,11 @@ end
 local function update(dt)
     local typedReset = checkReset()
     local info_main = love.filesystem.getInfo("main.lua")
-    if typedReset == lick.HARD_RESET then
+    if typedReset == lick.PATCH_RESET then
+        logInfo("Patch reset.")
+        patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
+        patch.init()
+    elseif typedReset == lick.HARD_RESET then
 		-- Close UDP socket and thread
 		closeUDPThread()
         success, chunk = pcall(love.filesystem.load, "main.lua")  -- TODO:[refactor] shouldnt be a static name

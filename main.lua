@@ -18,10 +18,10 @@ cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 cfg_automations = lovjRequire("lib/cfg/cfg_automations")
 cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
-local defaultPatch = cfg_patches.defaultPatch
-patch = lovjRequire(defaultPatch)
 
-local test
+currentPatchName = cfg_patches.defaultPatch
+patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
+
 
 local fps
 -- lick reset enable

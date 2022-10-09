@@ -6,9 +6,6 @@ local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local Envelope = lovjRequire("lib/automations/envelope")
 
--- import pico8 palette
-PALETTE = palettes.BW
-
 patch = Patch:new()
 
 function patch.patchControls()
@@ -33,7 +30,6 @@ end
 
 
 function patch.init()
-	patch.palette = PALETTE
 	patch.invert = false
 
 	patch:setCanvases()
@@ -69,7 +65,7 @@ local function recalculateRects()
 		local y1 = ((ih / patch.n) * i) - r / 2 - 5  -- top of rectangle
 		local y2 = y1 + (ih / patch.n)  + r / 2 + 5  -- bottom of rectangle
 
-		table.insert(patch.drawList, {x = x, y1 = y1, y2 = y2, c = c})
+		table.insert(patch.drawList, { x = x, y1 = y1, y2 = y2, c = c})
 	end
 end
 
@@ -101,14 +97,14 @@ function patch.draw()
 
 	-- draw all rectangles
 	for k,v in pairs(patch.drawList) do
-		local color = palettes.getColor(patch.palette, 2-inversion)
+		local color = palettes.getColor(palettes.BW, 2-inversion)
 		if v.c == 1 then
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", v.x, v.y1, screen.InternalRes.W - (2 * v.x), v.y2 - v.y1)
 		else
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", 0, v.y1, screen.InternalRes.W, v.y2 - v.y1)
-			color = palettes.getColor(patch.palette, 1 + inversion)		-- swap color
+			color = palettes.getColor(palettes.BW, 1 + inversion)		-- swap color
 			love.graphics.setColor(color[1], color[2], color[3], transparency)
 			love.graphics.rectangle("fill", v.x, v.y1, screen.InternalRes.W - (2 * v.x), v.y2 - v.y1)
 		end
