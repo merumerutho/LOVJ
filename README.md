@@ -14,7 +14,6 @@ Here, the VJ may handle the controls and on top, dynamically select and "wire" t
 ## TODOs
 - Make current patch, and other major functions, controllable by resources->general variables
 - Add external patch load, add configuration save etc.
-- A raymarching demo would be cool :)
 
 ## Requires
 - [LÖVE](https://love2d.org/) version 11.3
@@ -46,6 +45,18 @@ They must be Patches objects, similarly to any LÖVE2D script:
 - A patch.init() method called upon love.load()
 - A patch.draw() method called upon love.draw()
 - A patch.update() method called upon love.update()
+
+## Demos
+- Demo 01: algorithmically controlled colorful pixel grid
+- Demo 02: A "fountain" of balls
+- Demo 03: A spinning "tunnel" of balls
+- Demo 04: Flashy random rectangles
+- Demo 05: Escaping points joint by lines, with a trace effect.
+- Demo 06: Animated grid of moving sprites
+- Demo 07: Video playback with chroma key
+- Demo 08: 80s vector grid effect
+- Demo 09: LFO and envelope showcase
+- Demo 10: GLSL Raymarcher
 
 
 ## MIDI to OSC
