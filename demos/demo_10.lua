@@ -13,9 +13,14 @@ local shader_code = [[
 	extern float time;
 	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
 	{
-        vec2 c =  texture_coords;
-        float i = abs(cos(time - c.y)) - (mod(c.x, c.y));
-        return vec4(i, 0.1, i, 1);
+        vec2 c =  (texture_coords-.5)/3;
+        float i = (mod(time, abs(sin(time/15+(c.y*c.y)+(c.x*c.x)))
+        			  +(c.x*c.x/c.y*c.y)
+        			 // + c.y/10
+        			 - 0.2 * mod(c.x/100, c.y/100)
+        			 ))
+        			 +0.25*sin(c.x+time*5);
+        return vec4(i+c.x, i-0.2*abs(sin(time)), i-c.x, 1);
 	}
 ]]
 

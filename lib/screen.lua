@@ -27,7 +27,7 @@ end
 function screen.updateScreenOptions()
 	love.window.setMode(screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setDefaultFilter("linear", "nearest")
-	love.window.setVSync(false)
+	love.window.setVSync(true)
 	love.window.setFullscreen(screen.isFullscreen)
 end
 
