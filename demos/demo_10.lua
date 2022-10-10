@@ -10,17 +10,58 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local PALETTE
 
 local shader_code = [[
-	extern float time;
+	#pragma language glsl3
+	uniform float _time;
+
+	// Constants
+	#define PI 3.1415925359
+	#define TWO_PI 6.2831852
+	#define MAX_STEPS 100
+	#define MAX_DIST 100.
+	#define SURFACE_DIST .01
+
+	vec3 pMod2(inout vec3 p, float size){
+		float halfsize = size*0.5;
+		vec3 c = floor((p+halfsize)/size);
+		p = mod(p+halfsize,size)-halfsize;
+		return c;
+	}
+
+	float GetDist(vec3 p)
+	{
+		vec3 coords = vec3(1. , 1.+.3*sin(_time), 2.);
+		vec4 s = vec4(coords, .5+.3*sin(_time*3+p.z+p.x/10+p.y)); //Sphere. xyz is position w is radius
+		float sphereDist = length(mod(p-_time, 2.5)-s.xyz) - s.w;
+		//float planeDist = p.y;
+		//float d = min(sphereDist,planeDist);
+		float d = sphereDist;
+		return d;
+	}
+
+	float RayMarch(vec3 ro, vec3 rd)
+	{
+		float dO = 0.; //Distane Origin
+		for(int i=0;i<MAX_STEPS;i++)
+		{
+			vec3 p = ro + rd * dO;
+			float ds = GetDist(p); // ds is Distance Scene
+			dO += ds;
+			if(dO > MAX_DIST || ds < SURFACE_DIST) break;
+		}
+		return dO;
+	}
+
 	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
 	{
-        vec2 c =  (texture_coords-.5)/3;
-        float i = (mod(time, abs(sin(time/15+(c.y*c.y)+(c.x*c.x)))
-        			  +(c.x*c.x/c.y*c.y)
-        			 // + c.y/10
-        			 - 0.2 * mod(c.x/100, c.y/100)
-        			 ))
-        			 +0.25*sin(c.x+time*5);
-        return vec4(i+c.x, i-0.2*abs(sin(time)), i-c.x, 1);
+        vec2 uv = (texture_coords - .5);
+
+        vec3 ro = vec3(0,1,0); // Camera position
+        vec3 rd = normalize(vec3(uv.x, uv.y, 1));
+        float d = RayMarch(ro,rd);
+        d /= 50.;
+        vec3 output_color = vec3(d);
+
+        return vec4(output_color, 1.);
 	}
 ]]
 
@@ -67,7 +108,7 @@ local function draw_stuff()
 	if cfg_shaders.enabled then
 		shader = love.graphics.newShader(shader_code)
 		love.graphics.setShader(shader)
-		shader:send("time", t)
+		shader:send("_time", t)
 	end
 
 	love.graphics.setCanvas(patch.canvases.main)
