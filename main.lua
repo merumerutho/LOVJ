@@ -18,10 +18,13 @@ cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 cfg_automations = lovjRequire("lib/cfg/cfg_automations")
 cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
+version = require("lib/cfg/cfg_version")
 
 currentPatchName = cfg_patches.defaultPatch
 patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
 
+-- Set title with LOVJ version
+love.window.setTitle("LOVJ v" ..  version)
 
 local fps
 -- lick reset enable
@@ -67,7 +70,7 @@ function love.update()
 	cfg_timers.update()  -- update timers
 	-- Console management
 	if cfg_timers.consoleTimer:Activated() then
-		print("FPS:", fps)
+		logInfo("FPS: " .. fps)
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls

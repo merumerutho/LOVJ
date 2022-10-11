@@ -30,7 +30,7 @@ end
 
 --- @private cmdMenu_flush execute command
 local function cmdMenu_flush()
-	print("Flushing " .. CmdMenu.buffer) -- TODO implement actual execution
+	logDebug("Flushing " .. CmdMenu.buffer) -- TODO implement actual execution
 	for k,v in pairs(CmdMenu.commands) do
 		if CmdMenu.buffer == v[1] then
 			loadstring(v[2])

@@ -2,6 +2,7 @@ logging = {}
 
 logging.LOG_ERROR = bit.lshift(1, 1)
 logging.LOG_INFO = 	bit.lshift(1, 2)
+logging.LOG_DEBUG = bit.lshift(1, 3)
 
 logging.logLevel = 0
 
@@ -29,3 +30,10 @@ function logError(msg)
 	end
 end
 
+--- @public logDebug provide log debug printing also the component name
+function logError(msg)
+	if bit.band(logging.logLevel, logging.LOG_DEBUG) then
+		filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
+		print("DEBUG ["..filename.."] "..msg)
+	end
+end

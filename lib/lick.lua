@@ -14,7 +14,6 @@ local lick = {}
 lick.HARD_RESET = "Hard reset"
 lick.PATCH_RESET = "Patch reset"
 
-lick.files = {"main.lua", "main.lua"}
 -- list containing structures as:
 -- { name: "filename",
 --   modtime: "last modification time",
@@ -45,13 +44,41 @@ local function checkReset()
         local modtime = love.filesystem.getInfo(k .. ".lua").modtime
         if modtime ~= v.time then
             v.time = modtime
+            lovjUnrequire(k)
             return v.resetType
         end
     end
     return nil
 end
 
+--- @private closeUDPThread used to close the UDP threads (if present)
+local function closeUDPThread()
+    local Connections = require("lib/connections")
+    local cfg_connections = require("lib/cfg/cfg_connections")
+    if Connections.UdpThreads == nil then return end
 
+    -- If there are UDP_threads open, send them "quitMsg"
+	for k,reqCh in pairs(Connections.ReqChannels) do
+        logInfo("Closing UDP thread #" .. k)
+        reqCh:push(cfg_connections.quitMsg)  -- send request to all channels
+    end
+
+    -- Expect quitAck from each thread
+    local responses = {}
+	for k,rspCh in pairs(Connections.RspChannels) do
+        table.insert(responses, rspCh:demand(cfg_connections.TIMEOUT_TIME))  -- expect response from all channels
+    end
+
+    -- Release thread
+    for k,resp in pairs(responses) do
+        if resp == cfg_connections.ackQuit then
+            Connections.UdpThreads[k]:release()
+            logInfo("UDP Thread #".. k .. " released.")
+        end
+	end
+end
+
+--- @private update Call update, also check for modifications of components and eventually resets
 local function update(dt)
     local typedReset = checkReset()
     if typedReset == lick.PATCH_RESET then
@@ -85,19 +112,18 @@ local function update(dt)
 
         if lick.reset then
             loadok, err = xpcall(love.load, handle)
-            if not loadok and not loadok_old then
+            if not loadok then
                 logError(tostring(err))
                 if lick.debugoutput then
                     lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" ) 
                 else
                     lick.debugoutput =  err .. "\n"
                 end
-                loadok_old = not loadok
             end
         end
     end
 
-    updateok, err = pcall(love.update,dt)
+    updateok, err = pcall(love.update, dt)
     if not updateok and not updateok_old then 
         logError(tostring(err))
         if lick.debugoutput then
@@ -106,10 +132,11 @@ local function update(dt)
             lick.debugoutput =  err .. "\n"
         end
   end
-  
   updateok_old = not updateok
 end
 
+
+--- @private draw Call draw
 local function draw()
     drawok, err = xpcall(love.draw, handle)
     if not drawok and not drawok_old then 
@@ -125,17 +152,18 @@ local function draw()
         love.graphics.setColor(1,1,1,0.8)
         love.graphics.printf(lick.debugoutput, (love.graphics.getWidth()/2)+50, 0, 400, "right")
     end
+
     drawok_old = not drawok
 end
 
-
+--- @public love.run main cycle execution
 function love.run()
     math.randomseed(os.time())
     math.random() math.random()
 
     local dt = 0
 
-    -- Main loop time.
+    -- Main loop
     while true do
         -- Process events.
         if love.event then
@@ -149,7 +177,6 @@ function love.run()
                 return
                 end
             end
-
             love.handlers[e](a,b,c,d)
         end
     end
@@ -168,35 +195,8 @@ function love.run()
         if draw then draw() end
     end
 
-    if love.timer then love.timer.sleep(lick.sleepTime) end
     if love.graphics then love.graphics.present() end
   end
-end
-
-function closeUDPThread()
-    local Connections = require("lib/connections")
-    local cfg_connections = require("lib/cfg/cfg_connections")
-    -- If there are "UDP_threads" ...
-    if Connections.UdpThreads == nil then return end
-
-    -- send quitMsg to all threads
-	for k,reqCh in pairs(Connections.ReqChannels) do
-        logInfo("Closing UDP thread #" .. k)
-        reqCh:push(cfg_connections.quitMsg)  -- send request to all channels
-    end
-
-    -- expect quitAck from each thread
-    local responses = {}
-	for k,rspCh in pairs(Connections.RspChannels) do
-        table.insert(responses, rspCh:demand(cfg_connections.TIMEOUT_TIME))  -- expect response from all channels
-    end
-
-    for k,resp in pairs(responses) do
-        if resp == cfg_connections.ackQuit then
-            Connections.UdpThreads[k]:release()
-            logInfo("UDP Thread #".. k .. " released.")
-        end
-	end
 end
 
 
