@@ -1,24 +1,24 @@
 debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")
+version = require("lib/cfg/cfg_version")
+
 log = lovjRequire("lib/utils/logging")
+screen = lovjRequire("lib/screen")
 
 logging.setLogLevel({ logging.LOG_ERROR,
 					  logging.LOG_INFO })
 
-screen = lovjRequire("lib/screen")
-timer = lovjRequire("lib/timer")
-resources = lovjRequire("lib/resources")
-controls = lovjRequire("lib/controls")
-connections = lovjRequire("lib/connections")
-dispatcher = lovjRequire("lib/dispatcher")
+timer = lovjRequire("lib/timer", lick.SOFT_RESET)
+resources = lovjRequire("lib/resources", lick.SOFT_RESET)
+controls = lovjRequire("lib/controls", lick.SOFT_RESET)
+connections = lovjRequire("lib/connections", lick.SOFT_RESET)
+dispatcher = lovjRequire("lib/dispatcher", lick.SOFT_RESET)
 
-cfg_patches = lovjRequire("lib/cfg/cfg_patches")
-cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
-cfg_automations = lovjRequire("lib/cfg/cfg_automations")
-cfg_timers = lovjRequire("lib/cfg/cfg_timers")
-
-version = require("lib/cfg/cfg_version")
+cfg_patches = lovjRequire("lib/cfg/cfg_patches", lick.SOFT_RESET)
+cfg_shaders = lovjRequire("lib/cfg/cfg_shaders", lick.SOFT_RESET)
+cfg_automations = lovjRequire("lib/cfg/cfg_automations", lick.SOFT_RESET)
+cfg_timers = lovjRequire("lib/cfg/cfg_timers", lick.SOFT_RESET)
 
 currentPatchName = cfg_patches.defaultPatch
 patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
@@ -27,10 +27,8 @@ patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
 love.window.setTitle("LOVJ v" ..  version)
 
 local fps
--- lick reset enable
-lick.reset = true
 
---  hot reload
+--- @public love.load reload function
 function love.load()
 	-- Init screen
 	screen.init()

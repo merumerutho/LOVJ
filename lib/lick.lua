@@ -10,9 +10,12 @@ local log = require("lib/utils/logging")
 
 local lick = {}
 
+local MAIN_FILE = "main.lua"
+
 -- reset types
-lick.HARD_RESET = "Hard reset"
-lick.PATCH_RESET = "Patch reset"
+lick.HARD_RESET = "HARD RESET"
+lick.SOFT_RESET = "SOFT RESET"
+lick.PATCH_RESET = "PATCH RESET"
 
 -- list containing structures as:
 -- { name: "filename",
@@ -22,11 +25,10 @@ lick.PATCH_RESET = "Patch reset"
 -- by default contains the main.lua
 
 lick.resetList = {}
-lick.resetList["main"] = {modtime=love.filesystem.getInfo("main.lua").modtime,
+lick.resetList["main"] = {time=0,
                           resetType=lick.HARD_RESET}
 
 lick.debug = false
-lick.reset = false
 lick.clearFlag = false
 lick.sleepTime = love.graphics.newCanvas and 0.0001 or 1
 
@@ -45,10 +47,10 @@ local function checkReset()
         if modtime ~= v.time then
             v.time = modtime
             lovjUnrequire(k)
-            return v.resetType
+            return {name=k, time=v.time, resetType=v.resetType}
         end
     end
-    return nil
+    return {}
 end
 
 --- @private closeUDPThread used to close the UDP threads (if present)
@@ -78,65 +80,81 @@ local function closeUDPThread()
 	end
 end
 
---- @private update Call update, also check for modifications of components and eventually resets
-local function update(dt)
-    local typedReset = checkReset()
-    if typedReset == lick.PATCH_RESET then
-        logInfo(currentPatchName .. " reset.")
-        lovjUnrequire(currentPatchName)
-        patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
-        patch.init()
-    elseif typedReset == lick.HARD_RESET then
-		-- Close UDP socket and thread
-		closeUDPThread()
-        success, chunk = pcall(love.filesystem.load, "main.lua")  -- TODO:[refactor] shouldnt be a static name
 
-        if not success then
-            logError(tostring(chunk))
-            lick.debugoutput = chunk .. "\n"
-        end
-        ok,err = xpcall(chunk, handle)
+--- @public lick.hardReset Perform hard reset of the program
+function lick.hardReset(component)
+    logInfo("Hard reset.")
+    -- Close UDP socket and thread
+    closeUDPThread()
+    -- re-load main file
+    success, chunk = pcall(love.filesystem.load, MAIN_FILE)
+    if not success then
+        logError(tostring(chunk))
+        lick.debugoutput = chunk .. "\n"
+    end
+    ok,err = xpcall(chunk, handle)
 
-        if not ok then 
-            logError(tostring(err))
-
-            if lick.debugoutput then
-                lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" )
-            else 
-                lick.debugoutput =  err .. "\n" 
-            end 
+    if not ok then
+        logError(tostring(err))
+        if lick.debugoutput then
+            lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" )
         else
-            logInfo("Reloaded")
-            lick.debugoutput = nil
+            lick.debugoutput =  err .. "\n"
         end
-
-        if lick.reset then
-            loadok, err = xpcall(love.load, handle)
-            if not loadok then
-                logError(tostring(err))
-                if lick.debugoutput then
-                    lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" ) 
-                else
-                    lick.debugoutput =  err .. "\n"
-                end
-            end
-        end
+    else
+        logInfo("Reloaded")
+        lick.debugoutput = nil
     end
 
+    loadok, err = xpcall(love.load, handle)
+    if not loadok then
+        logError(tostring(err))
+        if lick.debugoutput then
+            lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" )
+        else
+            lick.debugoutput =  err .. "\n"
+        end
+    end
+end
+
+
+--- @private checkForModifications check if required file were modified, and apply related reset + optional callback
+local function checkForModifications()
+    local resetComponent = checkReset()
+    if resetComponent.resetType == lick.PATCH_RESET then
+        logInfo(resetComponent.name .. " - patch reset.")
+        lovjUnrequire(resetComponent.name)
+        patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
+        -- if it's also current patch, reset
+        if resetComponent.name == currentPatchName then
+            patch.init()
+        end
+    elseif resetComponent.resetType == lick.SOFT_RESET then
+        -- TODO:[livecoding] find a way to reset everything without resetting the window/screen
+        logInfo(resetComponent.name .. " - soft reset.")
+    elseif resetComponent.resetType == lick.HARD_RESET then
+        lick.hardReset(resetComponent)
+    end
+end
+
+
+--- @private update Update call, also check for modifications of components and eventually resets
+local function update(dt)
+    checkForModifications()
     updateok, err = pcall(love.update, dt)
     if not updateok and not updateok_old then 
         logError(tostring(err))
         if lick.debugoutput then
-            lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" ) 
+            lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" )
         else
             lick.debugoutput =  err .. "\n"
         end
-  end
-  updateok_old = not updateok
+    end
+    updateok_old = not updateok
 end
 
 
---- @private draw Call draw
+--- @private draw Draw call
 local function draw()
     drawok, err = xpcall(love.draw, handle)
     if not drawok and not drawok_old then 
@@ -148,9 +166,9 @@ local function draw()
         end 
     end
 
-    if lick.debug and lick.debugoutput then 
+    if lick.debugoutput then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.printf(lick.debugoutput, (love.graphics.getWidth()/2)+50, 0, 400, "right")
+        love.graphics.printf(lick.debugoutput, 0, 0, love.graphics.getWidth(), "left")
     end
 
     drawok_old = not drawok
@@ -162,7 +180,6 @@ function love.run()
     math.random() math.random()
 
     local dt = 0
-
     -- Main loop
     while true do
         -- Process events.
