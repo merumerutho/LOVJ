@@ -27,8 +27,9 @@ function lovjRequire(component, resetType)
     return ret
 end
 
-
+--- @public lovjUnrequire removes component from the list of loaded packages and the resetlist
 function lovjUnrequire(component)
+    logInfo("Unrequiring " .. component)
     package.loaded[component] = nil
     _G[component] = nil
     lick.resetList[component] = nil
