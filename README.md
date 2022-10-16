@@ -13,6 +13,7 @@ Here, the VJ may handle the controls and on top, dynamically select and "wire" t
 
 ## TODOs
 - Make patch load, savestate save, savestate load, and other major functions, controllable by resources->general variables
+- Implement livecoding soft-reset (don't reset screen but reset everything in the soft-reset and patches list).
 
 ## Requires
 - [LÖVE](https://love2d.org/) version 11.3
