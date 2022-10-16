@@ -12,8 +12,7 @@ Here, the VJ may handle the controls and on top, dynamically select and "wire" t
 
 
 ## TODOs
-- Make current patch, and other major functions, controllable by resources->general variables
-- Add external patch load, add configuration save etc.
+- Make patch load, savestate save, savestate load, and other major functions, controllable by resources->general variables
 
 ## Requires
 - [LÖVE](https://love2d.org/) version 11.3
