@@ -50,6 +50,19 @@ function controls.handleGeneralControls()
 		screen.changeUpscaling()
 	end
 
+
+	-- TODO: change this key combo to something that makes sense
+	-- TODO: make the filename something that makes sense
+--	if kp.isDown("lalt") and kp.keypressOnAttack("p") then
+--		rtmgr.saveResources(currentPatchName)
+--	end
+
+	-- TODO: change this key combo to something that makes sense
+	-- TODO: make the filename something that makes sense
+--	if kp.isDown("lalt") and kp.keypressOnAttack("o") then
+--		rtmgr.loadResources("savestates/demo_4.json")
+--	end
+
 	-- handle shaders
 	if not cmd.isOpen then handleShaderCommands() end
 
