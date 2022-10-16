@@ -9,12 +9,12 @@ local DEFAULT_SIZE = 128
 local Resource = {}
 
 -- functions
---- @public set setter for resource value by idx
+--- @public setByIdx setter for resource value by idx
 function Resource:setByIdx(idx, v)
     self[idx].value = v
 end
 
---- @public get setter for resource value by idx
+--- @public getByIdx setter for resource value by idx
 function Resource:getByIdx(idx)
     return self[idx].value
 end
@@ -37,12 +37,12 @@ function Resource:getIdxByName(name)
     return -1
 end
 
---- @public setByName setter for resource value by name
+--- @public set setter for resource value by name
 function Resource:set(name, n)
     return self:setByIdx(self:getIdxByName(name), n)
 end
 
---- @public getByName getter for resource value by name
+--- @public get getter for resource value by name
 function Resource:get(name)
     return self:getByIdx(self:getIdxByName(name))
 end
