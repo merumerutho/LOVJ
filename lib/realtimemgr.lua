@@ -19,18 +19,17 @@ end
 
 
 --- @public rtMgr.saveResources save current resources status as a JSON savestate
-function rtMgr.saveResources(filename)
+function rtMgr.saveResources(filename, idx)
 	local data = {}
 	data.patchName = currentPatchName
-
 	data.parameters = resources.parameters
 	data.globals = resources.globals
 	data.graphics = resources.graphics
-
 	local jsonEncoded = json.encode(data)
+
 	-- Assemble filepath
-	local filepath = ("savestates/" .. (filename .. ".json"):gsub(".*/", ""))
-	logInfo("Saving " .. filename)
+	local filepath = ("savestates/" .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	logInfo("Saving " .. filepath)
 	local f = assert(io.open(filepath, "w"))
 	f:write(jsonEncoded)
 	f:close()
@@ -38,10 +37,13 @@ end
 
 
 --- @public rtMgr.loadResources load JSON savestate onto resources
-function rtMgr.loadResources(filepath)
-	local f = assert(io.open(filepath))
+function rtMgr.loadResources(filename, idx)
+	local filepath = ("savestates/" .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	local f = io.open(filepath, "r")
+	if f == nil then logError("Couldn't open " .. filepath) return end
 	local jsonEncoded = f:read("a")
 	f:close()
+
 	local data = json.decode(jsonEncoded)
 	-- If the name of the patch is correct, load data
 	if currentPatchName == data.patchName then
