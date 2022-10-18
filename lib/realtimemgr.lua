@@ -9,6 +9,8 @@ resources = lovjRequire("lib/resources")
 
 local rtMgr = {}
 
+rtMgr.savestatePath = "savestates/"
+
 --- @public controls.loadPatch remove previous patch, load and init a new patch based on its relative path
 function rtMgr.loadPatch(patchName)
 	lovjUnrequire(currentPatchName)
@@ -28,7 +30,7 @@ function rtMgr.saveResources(filename, idx)
 	local jsonEncoded = json.encode(data)
 
 	-- Assemble filepath
-	local filepath = ("savestates/" .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	logInfo("Saving " .. filepath)
 	local f = assert(io.open(filepath, "w"))
 	f:write(jsonEncoded)
@@ -38,7 +40,7 @@ end
 
 --- @public rtMgr.loadResources load JSON savestate onto resources
 function rtMgr.loadResources(filename, idx)
-	local filepath = ("savestates/" .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	local f = io.open(filepath, "r")
 	if f == nil then logError("Couldn't open " .. filepath) return end
 	local jsonEncoded = f:read("a")
@@ -66,7 +68,6 @@ function rtMgr.loadResources(filename, idx)
 	else
 		logError("Cannot load " .. filepath .. " savestate to patch " .. currentPatchName)
 	end
-	print(resources.globals[3].name, resources.globals[3].value)
 end
 
 return rtMgr
