@@ -10,9 +10,12 @@ local controls = {}
 
 controls.slots = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
 
+local MODKEY_PRIMARY = "lctrl"
+local MODKEY_SECONDARY = "lshift"
+
 local function handleShaderCommands()
 	-- toggle shaders on / off
-	if kp.isDown("lctrl") and kp.keypressOnAttack("s") then
+	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
 		toggleShaders()
 	end
 	-- select main shader
@@ -41,12 +44,12 @@ function controls.handleGeneralControls()
 	end
 
 	-- toggle fullscreen
-	if kp.isDown("lalt") and kp.keypressOnAttack("return") then
+	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("return") then
 		screen.toggleFullscreen()
 	end
 
 	-- handle low-res/hi-res upscaling
-	if kp.isDown("lalt") and kp.keypressOnAttack("u") then
+	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("u") then
 		screen.changeUpscaling()
 	end
 
@@ -57,8 +60,8 @@ function controls.handleGeneralControls()
 	for k,v in pairs(controls.slots) do
 		if kp.keypressOnRelease(v) and not cmd.isOpen then
 			-- Load / Save states
-			if kp.isDown("lalt") then
-				if kp.isDown("lshift") then
+			if kp.isDown(MODKEY_PRIMARY) then
+				if kp.isDown(MODKEY_SECONDARY) then
 					-- SAVE with index F1...F12
 					rtmgr.saveResources(currentPatchName, k)
 				else
