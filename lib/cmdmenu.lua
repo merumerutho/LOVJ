@@ -1,3 +1,8 @@
+-- cmdmenu.lua
+--
+-- Handler of command menu
+--
+
 local CmdMenu = {}
 local utf8 = require "utf8"
 local kp = lovjRequire("lib/utils/keypress")

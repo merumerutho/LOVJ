@@ -1,3 +1,8 @@
+-- cfg_patches.lua
+--
+-- Configure and handle patches configuration
+--
+
 local cfg_patches = {}
 
 --- @public DEFAULT_PATCH default patch loaded at startup

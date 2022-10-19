@@ -1,29 +1,30 @@
 -- screen.lua
 --
--- Graphical settings
+-- Handle screen graphical settings
+
 local screen_settings = require("lib/cfg/cfg_screen")
 
 local screen = {}
 
--- set_internal_res(w,r):
--- assign internal resolution to be (w x h)
--- where h is calculated as w/r
-function SetInternalRes(w, r)
+---@private SetInternalRes
+--- assign internal resolution to be (w by h), where h is calculated as w/r
+local function SetInternalRes(w, r)
 	screen.InternalRes = {}
 	screen.InternalRes.W = w
 	screen.InternalRes.R = 1/r
 	screen.InternalRes.H = math.floor(w/r)
 end
 
-
-function SetExternalRes(w, r)
+--- @private SetExternalRes
+--- assign external resolution to be (w by h), where h is calculated as w/r
+local function SetExternalRes(w, r)
 	screen.ExternalRes = {}
 	screen.ExternalRes.W = w
 	screen.ExternalRes.R = 1/r
 	screen.ExternalRes.H = math.floor(w/r)
 end
 
-
+--- @public updateScreenOptions Update screen options to defaults
 function screen.updateScreenOptions()
 	love.window.setMode(screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setDefaultFilter("linear", "nearest")
@@ -31,7 +32,7 @@ function screen.updateScreenOptions()
 	love.window.setFullscreen(screen.isFullscreen)
 end
 
-
+--- @private calculateScaling calculate scaling proportions based on internal and external resolution
 local function calculateScaling()
 	screen.Scaling = {}
 	screen.Scaling.RatioX = screen.ExternalRes.W / screen.InternalRes.W
@@ -46,7 +47,7 @@ local function calculateScaling()
 
 end
 
--- Toggle fullscreen on / off
+--- @public toggleFullscreen toggle fullscreen option on/off
 function screen.toggleFullscreen()
 	screen.isFullscreen = (not screen.isFullscreen)
 	if screen.isFullscreen then
@@ -60,7 +61,7 @@ function screen.toggleFullscreen()
 	patch.init()
 end
 
---- @function changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
+--- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
 function screen.changeUpscaling()
 	screen_settings.UPSCALE_MODE = math.abs(screen_settings.UPSCALE_MODE - 1)  -- boolean inversion
 	-- calculate new scaling
@@ -69,7 +70,7 @@ function screen.changeUpscaling()
 	patch:setCanvases()
 end
 
-
+--- @public init Initialize screen, setting resolutions, calculating scaling and updating options
 function screen.init()
 	-- Set internal resolution and screen scaling settings
 	local ss = screen_settings
@@ -81,7 +82,7 @@ function screen.init()
 	return screen
 end
 
-
+--- @public isUpscalingHiRes return whether the upscaling mode is hi-res or lo-res
 function screen.isUpscalingHiRes()
 	return (screen.Scaling.Upscale == screen_settings.HIGH_RES)
 end

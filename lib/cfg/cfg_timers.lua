@@ -1,3 +1,8 @@
+-- cfg_screen.lua
+--
+-- Configure and handle global timers
+--
+
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = {}
 

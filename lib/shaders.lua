@@ -1,3 +1,9 @@
+-- shaders.lua
+--
+-- List of shaders
+-- TODO: swap this with cfg_shaders.lua
+--
+
 local shaders = {}
 
 -- default shader (does nothing)

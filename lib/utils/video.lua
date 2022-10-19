@@ -1,5 +1,11 @@
+-- video.lua
+--
+-- Handler of video utilities
+--
+
 local videoutils = {}
 
+--- @public handleLoop Upon vide play termination, it rewinds and starts the video again, creating a loop.
 function videoutils.handleLoop(vid)
     -- loop video
     if vid.handle:tell() >= vid.pos then

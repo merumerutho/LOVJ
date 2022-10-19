@@ -1,7 +1,7 @@
--- controls.lua
+-- realtimemgr.lua
 --
--- Handle real-time management
--- i.e. loading / saving of patches and of parameter status
+-- Handle real-time management of patches
+-- i.e. loading patches, loading / saving parameter status
 --
 
 json = require("lib/json")

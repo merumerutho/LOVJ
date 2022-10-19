@@ -1,3 +1,8 @@
+-- require.lua
+--
+-- Functions for loading, unloading and reloading libraries
+--
+
 lick = require("lib/lick")
 
 requirements = {}
@@ -22,7 +27,6 @@ function lovjRequire(component, resetType)
     -- Otherwise add to lick reset list
     lick.resetList[component] = {time = love.filesystem.getInfo(component .. ".lua").modtime ,
                                  resetType = resetType }
-
     logInfo("Added " .. component .. " to " .. resetType .." list.")
     return ret
 end

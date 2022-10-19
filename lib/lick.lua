@@ -1,12 +1,12 @@
-require("lib/utils/logging")
-
 -- lick.lua
 -- credits to usysrc
 --
 -- simple LIVECODING library for Löve
+-- defines reset functions which are called when the code is modified
 -- overwrites love.run, pressing all errors to the terminal/console
+--
 
--- TODO:[reformat] Reformat and cleanup code
+require("lib/utils/logging")
 
 local lick = {}
 

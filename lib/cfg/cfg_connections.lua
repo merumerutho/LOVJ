@@ -1,3 +1,8 @@
+-- cfg_connections.lua
+--
+-- Configure and handle list of connections to open and maintain
+--
+
 local cfg_connections = {}
 
 cfg_connections.TIMEOUT_TIME = 1000  -- [ms]

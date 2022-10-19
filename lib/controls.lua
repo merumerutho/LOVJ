@@ -1,7 +1,8 @@
 -- controls.lua
 --
--- Handle general controls (non patch-specific)
+-- Handle general keyboard controls (non patch-specific)
 --
+
 local kp = lovjRequire("lib/utils/keypress")
 local cmd = lovjRequire("lib/cmdmenu")
 local rtmgr = lovjRequire("lib/realtimemgr")
@@ -13,6 +14,8 @@ controls.slots = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
+-- TODO: move this function somewhere in the cfg_shaders, maybe?
+--- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands()
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
@@ -34,7 +37,7 @@ local function handleShaderCommands()
 	end
 end
 
-
+--- @public handleGeneralControls Main function to handle general keyboard controls (patch-independent)
 function controls.handleGeneralControls()
 	g = resources.globals
 
