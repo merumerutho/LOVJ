@@ -9,6 +9,7 @@ resources = lovjRequire("lib/resources")
 
 local rtMgr = {}
 
+-- TODO: move this to cfg_rtmgr
 rtMgr.savestatePath = "savestates/"
 
 --- @public controls.loadPatch remove previous patch, load and init a new patch based on its relative path

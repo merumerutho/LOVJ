@@ -1,3 +1,10 @@
+-- automation.lua
+--
+-- Automation class:
+-- defines a generic automation as an event with an attack instant (trigger)
+-- and a release instant (trigger release) dependent on a boolean condition.
+--
+
 amath = lovjRequire("lib/automations/automation_math")
 cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 

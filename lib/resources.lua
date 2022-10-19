@@ -4,6 +4,7 @@
 --
 
 local resources = {}
+-- TODO: Move this to cfg_resources
 local DEFAULT_SIZE = 128
 
 local Resource = {}

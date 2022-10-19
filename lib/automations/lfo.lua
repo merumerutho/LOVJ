@@ -1,3 +1,10 @@
+-- lfo.lua
+--
+-- LFO class (has Automation as parent)
+-- Defines a generic LFO with frequency and phase parameter
+-- The same LFO may have multiple shapes depending on the output function called
+--
+
 local Automation = lovjRequire("lib/automations/automation")
 local amath = lovjRequire("lib/automations/automation_math")
 
