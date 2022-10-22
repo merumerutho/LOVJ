@@ -27,8 +27,6 @@ patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
 -- Set title with LOVJ version
 love.window.setTitle("LOVJ v" ..  version)
 
-local fps
-
 --- @public love.load love load function callback
 function love.load()
 	screen.init()  -- Init screen
