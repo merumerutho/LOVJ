@@ -29,6 +29,11 @@ local function handleShaderCommands()
 		if kp.keypressOnAttack("up") then g:set("_segmentParameter", (g:get("_segmentParameter")+1)) end
 		if kp.keypressOnAttack("down") then g:set("_segmentParameter", (g:get("_segmentParameter")-1)) end
 	end
+	-- blur
+	if kp.isDown("g") then
+		if kp.isDown("up") then g:set("_blurOffset", (g:get("_blurOffset")+0.001)) end
+		if kp.isDown("down") then g:set("_blurOffset", (g:get("_blurOffset")-0.001)) end
+	end
 end
 
 

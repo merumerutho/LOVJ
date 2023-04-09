@@ -4,13 +4,15 @@ local cfg_shaders = {}
 
 cfg_shaders.enabled = true
 --- @public shaders list of shaders
-cfg_shaders.shaders = {shaders.default,
-                       shaders.h_mirror,
-                       shaders.wh_mirror,
-                       shaders.w_mirror,
-                       shaders.warp,
-                       shaders.kaleido,
-                       shaders.diag_cut}
+cfg_shaders.shaders = {	shaders.default,
+                       	shaders.h_mirror,
+                       	shaders.wh_mirror,
+                       	shaders.w_mirror,
+                       	shaders.warp,
+                       	shaders.kaleido,
+                       	shaders.diag_cut,
+                       	shaders.blur,
+						shaders.glitch }
 
 --- @public toggleShaders enable / disable shaders
 function toggleShaders()
@@ -24,6 +26,9 @@ function cfg_shaders.assignGlobals()
 	g:setName(3, "_segmentParameter")	g:set("_segmentParameter", 3)
 	g:setName(4, "_chromaColor")		g:set("_chromaColor", {0,0,0,0})
 	g:setName(5, "_chromaTolerance")	g:set("_chromaTolerance", {0.05, 0.1})
+	g:setName(6, "_blurOffset")			g:set("_blurOffset", 0.01)
+	g:setName(7, "_glitchOffset")		g:set("_glitchOffset", 0.00)
+	g:setName(8, "_glitchSize")			g:set("_glitchSize", -2000)
 end
 
 --- @public selectShader select the shader to apply
@@ -39,6 +44,9 @@ function cfg_shaders.selectShader()
 	end
 	if shader_script == shaders.kaleido then
 		shader:send("_segmentParameter", g:get("_segmentParameter"))
+	end
+	if shader_script == shaders.blur then
+		shader:send("_blurOffset", g:get("_blurOffset"))
 	end
 	return shader
 end

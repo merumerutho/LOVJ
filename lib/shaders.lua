@@ -127,4 +127,32 @@ shaders.diag_cut = [[
     }
 ]]
 
+shaders.blur = [[
+    extern float _blurOffset;
+    vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
+    {
+        color = vec4(Texel(tex, texture_coords));
+        vec4 color2 = vec4(Texel(tex, texture_coords - _blurOffset));
+        vec4 color3 = vec4(Texel(tex, texture_coords + _blurOffset));
+        return (color+color2+color3)/3;
+    }
+]]
+
+shaders.glitch = [[
+    extern float _glitchOffset;
+    extern float _glitchSize;
+    float random(vec2 v)
+    {
+        return fract(sin(dot(v, vec2(12.9898,78.233)))*43758.5453123);
+    }
+
+    vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
+    {
+
+        color = vec4(Texel(tex, fract(texture_coords + _glitchOffset*random(mod(texture_coords, _glitchSize)))));
+        return color;
+    }
+
+]]
+
 return shaders
