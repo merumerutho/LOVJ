@@ -107,4 +107,9 @@ function patch.update()
 
 end
 
+
+function patch.commands(s)
+
+end
+
 return patch

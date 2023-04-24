@@ -6,6 +6,9 @@ local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local Envelope = lovjRequire("lib/automations/envelope")
 
+-- declaring function
+local function bpmSet(s)  end
+
 patch = Patch:new()
 
 function patch.patchControls()
@@ -13,7 +16,6 @@ function patch.patchControls()
 	if kp.isDown("lctrl") then
 		-- Inverter
 		patch.invert = kp.isDown("x")
-
 		patch.freeRunning = kp.isDown("f")
   	end
 	
@@ -45,6 +47,9 @@ function patch.init()
 
 	init_params()
 	patch:assignDefaultDraw()
+
+	-- set bpm to 120
+	patch.commands("bpm = 120")
 end
 
 
@@ -128,6 +133,24 @@ function patch.update()
 		recalculateRects()
 	else
 		updateRects()
+	end
+end
+
+--- @public patch.commands evaluate commands executed by command line
+function patch.commands(s)
+	if bpmSet(s) then return true end
+end
+
+
+--- @private bpmSet set bpm value based on string instruction
+local function bpmSet(s)
+	-- BPM setter
+	local value = string.match(s, "bpm%s*=%s*(.*)")
+	if tonumber(value) then
+		logInfo("Setting bpm to " .. value)
+		patch.bpm = tonumber(value)
+		patch.timers.bpm = Timer:new(60 / patch.bpm )
+		return true
 	end
 end
 

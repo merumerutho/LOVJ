@@ -100,4 +100,9 @@ function patch.update()
 	return
 end
 
+function patch.commands(s)
+
+end
+
+
 return patch

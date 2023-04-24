@@ -12,13 +12,15 @@ local PALETTE
 local shader_code = [[
 	#pragma language glsl3
 	uniform float _time;
+	extern float _colorInversion;
+	extern vec3 _cameraMovement;
 
 	// Constants
 	#define PI 3.1415925359
 	#define TWO_PI 6.2831852
-	#define MAX_STEPS 100
-	#define MAX_DIST 100.
-	#define SURFACE_DIST .01
+	#define MAX_STEPS 30
+	#define MAX_DIST 20.
+	#define SURFACE_DIST .1
 
 	vec3 pMod2(inout vec3 p, float size){
 		float halfsize = size*0.5;
@@ -29,9 +31,9 @@ local shader_code = [[
 
 	float GetDist(vec3 p)
 	{
-		vec3 coords = vec3(1. , 1.+.3*sin(_time), 2.);
+		vec3 coords = vec3(1. , 1. , 2.);
 		vec4 s = vec4(coords, .5+.3*sin(_time*3+p.z+p.x/10+p.y)); //Sphere. xyz is position w is radius
-		float sphereDist = length(mod(p-_time, 2.5)-s.xyz) - s.w;
+		float sphereDist = length(mod(p, 2.5)-s.xyz) - s.w;
 		//float planeDist = p.y;
 		//float d = min(sphereDist,planeDist);
 		float d = sphereDist;
@@ -40,7 +42,7 @@ local shader_code = [[
 
 	float RayMarch(vec3 ro, vec3 rd)
 	{
-		float dO = 0.; //Distane Origin
+		float dO = 0.; // Distance Origin
 		for(int i=0;i<MAX_STEPS;i++)
 		{
 			vec3 p = ro + rd * dO;
@@ -59,13 +61,14 @@ local shader_code = [[
         vec3 rd = normalize(vec3(uv.x, uv.y, 1));
         float d = RayMarch(ro,rd);
         d /= 50.;
-        vec3 output_color = vec3(d);
+        vec3 output_color = vec3(d + (1.-2*d)*_colorInversion);
 
         return vec4(output_color, 1.);
 	}
 ]]
 
 patch = Patch:new()
+local colorInversion = 0;
 
 --- @private init_params initialize patch parameters
 local function init_params()
@@ -109,13 +112,11 @@ local function draw_stuff()
 		shader = love.graphics.newShader(shader_code)
 		love.graphics.setShader(shader)
 		shader:send("_time", t)
+		shader:send("_colorInversion", colorInversion)
 	end
 
 	love.graphics.setCanvas(patch.canvases.main)
 	love.graphics.draw(c)
-
-
-
 
 end
 
@@ -131,7 +132,18 @@ end
 
 
 function patch.update()
+	-- update the colorInversion parameter
+	if kp.isDown("up") then colorInversion = colorInversion+.01 end
+	if kp.isDown("down") then colorInversion = colorInversion-.01 end
+	-- clamp colorInversion between 0 and 1
+	colorInversion = math.min(math.max(colorInversion, 0), 1)
+
 	patch:mainUpdate()
+end
+
+
+function patch.commands(s)
+
 end
 
 return patch
