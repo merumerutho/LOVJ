@@ -1,11 +1,15 @@
 -- connections.lua
 --
--- Several communications can be managed (lists specified in the configuration).
--- A dedicated process (UDP_thread) is used to manage the communication.
+-- Handler of exchange of UDP / OSC packets from/to different peers
+-- Several connections can be managed specifying the list through cfg_connections.lua
+-- A dedicated process (UDP_thread) is used to manage the communication for each entry.
+--
 
 local Connections = {}
 local cfg = require("lib/cfg/cfg_connections")
 
+
+--- @public init Initialize connections (open UDP threads and req / rsp channels for communicating)
 function Connections.init()
   -- initialize list of udp threads and channels (request, response)
   Connections.UdpThreads = {}
@@ -23,6 +27,7 @@ function Connections.init()
 end
 
 
+--- @public sendRequests return responses after sending requests to all req channels.
 function Connections.sendRequests()
   local responses = {}
 
@@ -34,9 +39,7 @@ function Connections.sendRequests()
     table.insert(responses, rspCh:demand(cfg.TIMEOUT_TIME))  -- expect response from all channels
     Connections.ReqChannels[k]:push(cfg.ackMsg)  -- send ACK
   end
-
   return responses
-
 end
 
 

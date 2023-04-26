@@ -1,3 +1,8 @@
+-- cfg_shaders.lua
+--
+-- Configure and handle shader settings
+--
+
 local shaders = lovjRequire("lib/shaders")
 
 local cfg_shaders = {}

@@ -1,3 +1,8 @@
+-- cmdmenu.lua
+--
+-- Handler of command menu
+--
+
 local CmdMenu = {}
 local utf8 = require "utf8"
 local kp = lovjRequire("lib/utils/keypress")
@@ -30,16 +35,22 @@ end
 
 --- @private cmdMenu_flush execute command
 local function cmdMenu_flush()
-	logDebug("Flushing " .. CmdMenu.buffer) -- TODO implement actual execution
+	logInfo("Flushing " .. CmdMenu.buffer) -- TODO implement actual execution
+	-- Check if command is in CmdMenu.commands
 	for k,v in pairs(CmdMenu.commands) do
 		if CmdMenu.buffer == v[1] then
 			loadstring(v[2])
 		end
 	end
+
+	-- Check if command is in patch.commands
+	patch.commands(CmdMenu.buffer)
+
 	-- add to history
 	table.insert(CmdMenu.history, CmdMenu.buffer)
 	CmdMenu.idx_history = 0  -- reset idx to 0
 	CmdMenu.buffer = "" -- delete buffer
+
 end
 
 --- @private cmdMenu_handleKeysHistory handle keys to browse command history

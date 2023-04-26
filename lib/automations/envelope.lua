@@ -1,3 +1,9 @@
+-- envelope.lua
+--
+-- Envelope class (has Automation as parent)
+-- Defines a generic linear ADSR Envelope Automation
+--
+
 local Automation = lovjRequire("lib/automations/automation")
 local amath = lovjRequire("lib/automations/automation_math")
 

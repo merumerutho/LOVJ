@@ -1,6 +1,6 @@
 -- palettes.lua
 --
--- palettes inspired or taken by several systems.
+-- Table of palettes inspired by or taken from several systems.
 
 -- TODO:[nice2have] Add more palettes :)
 

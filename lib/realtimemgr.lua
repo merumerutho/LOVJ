@@ -1,13 +1,16 @@
--- controls.lua
+-- realtimemgr.lua
 --
--- Handle real-time management
--- i.e. loading / saving of patches and of parameter status
+-- Handle real-time management of patches
+-- i.e. loading patches, loading / saving parameter status
 --
 
 json = require("lib/json")
 resources = lovjRequire("lib/resources")
 
 local rtMgr = {}
+
+-- TODO: move this to cfg_rtmgr
+rtMgr.savestatePath = "savestates/"
 
 --- @public controls.loadPatch remove previous patch, load and init a new patch based on its relative path
 function rtMgr.loadPatch(patchName)
@@ -28,7 +31,7 @@ function rtMgr.saveResources(filename, idx)
 	local jsonEncoded = json.encode(data)
 
 	-- Assemble filepath
-	local filepath = ("savestates/" .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	logInfo("Saving " .. filepath)
 	local f = assert(io.open(filepath, "w"))
 	f:write(jsonEncoded)
@@ -38,7 +41,7 @@ end
 
 --- @public rtMgr.loadResources load JSON savestate onto resources
 function rtMgr.loadResources(filename, idx)
-	local filepath = ("savestates/" .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	local f = io.open(filepath, "r")
 	if f == nil then logError("Couldn't open " .. filepath) return end
 	local jsonEncoded = f:read("a")
@@ -66,7 +69,6 @@ function rtMgr.loadResources(filename, idx)
 	else
 		logError("Cannot load " .. filepath .. " savestate to patch " .. currentPatchName)
 	end
-	print(resources.globals[3].name, resources.globals[3].value)
 end
 
 return rtMgr

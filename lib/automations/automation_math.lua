@@ -1,3 +1,8 @@
+-- automation_math.lua
+--
+-- Math utility functions to handle automations
+--
+
 local Amath = {}
 
 --- @public sign get sign of number

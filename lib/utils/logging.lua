@@ -1,3 +1,8 @@
+-- logging.lua
+--
+-- Handler for log messages
+--
+
 logging = {}
 
 logging.LOG_ERROR = bit.lshift(1, 1)
@@ -14,7 +19,7 @@ function logging.setLogLevel(levels)
 	end
 end
 
---- @public logInfo provide log info printing also the component name
+--- @public logInfo provide log info, printing also the component name
 function logInfo(msg)
 	if bit.band(logging.logLevel, logging.LOG_INFO) then
 		filename = debug.getinfo(2)["short_src"]:match("[^/]*.lua")
@@ -22,7 +27,7 @@ function logInfo(msg)
 	end
 end
 
---- @public logError provide log error printing also the component name
+--- @public logError provide log error, printing also the component name
 function logError(msg)
 	if bit.band(logging.logLevel, logging.LOG_ERROR) then
 		filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
@@ -30,7 +35,7 @@ function logError(msg)
 	end
 end
 
---- @public logDebug provide log debug printing also the component name
+--- @public logDebug provide log debug, printing also the component name
 function logError(msg)
 	if bit.band(logging.logLevel, logging.LOG_DEBUG) then
 		filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")

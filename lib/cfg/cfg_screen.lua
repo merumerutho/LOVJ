@@ -1,3 +1,8 @@
+-- cfg_screen.lua
+--
+-- Configure and handle configurable screen settings
+--
+
 local cfg_screen = {}
 
 cfg_screen.INTERNAL_RES_WIDTH = 240

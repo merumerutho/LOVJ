@@ -1,3 +1,8 @@
+-- patch.lua
+--
+-- Patch class including common elements shared among all patches
+--
+
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local cfg_patches = lovjRequire("lib/cfg/cfg_patches")
 local cmd = lovjRequire("lib/cmdmenu")
@@ -34,7 +39,7 @@ function Patch:assignDefaultDraw()
 end
 
 
---- @public drawSetup setup the draw procedure
+--- @public drawSetup Draw setup shared across all patches
 function Patch:drawSetup()
 	-- reset color
 	love.graphics.setColor(1,1,1,1)
@@ -49,7 +54,7 @@ function Patch:drawSetup()
 end
 
 
---- @public drawExec execute the draw procedure
+--- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec()
 	-- reset Canvas
 	love.graphics.setCanvas()
@@ -63,7 +68,7 @@ function Patch:drawExec()
 	love.graphics.draw(self.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
-
+--- @public mainUpdate Update procedures shared across all patches
 function Patch:mainUpdate()
 	-- apply keyboard patch controls
 	if not cmd.isOpen then self.patchControls() end

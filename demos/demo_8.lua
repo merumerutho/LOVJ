@@ -93,4 +93,9 @@ function patch.update()
 	patch:mainUpdate()
 end
 
+
+function patch.commands(s)
+
+end
+
 return patch

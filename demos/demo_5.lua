@@ -199,4 +199,9 @@ function patch.update()
 	end
 end
 
+
+function patch.commands(s)
+
+end
+
 return patch

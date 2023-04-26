@@ -1,12 +1,12 @@
-local log = require("lib/utils/logging")
-
 -- lick.lua
 -- credits to usysrc
 --
 -- simple LIVECODING library for Löve
+-- defines reset functions which are called when the code is modified
 -- overwrites love.run, pressing all errors to the terminal/console
+--
 
--- TODO:[reformat] Reformat and cleanup code
+require("lib/utils/logging")
 
 local lick = {}
 
@@ -118,20 +118,28 @@ function lick.hardReset(component)
 end
 
 
---- @private checkForModifications check if required file were modified, and apply related reset + optional callback
+--- @private checkForModifications call checkReset, and apply related reset
 local function checkForModifications()
     local resetComponent = checkReset()
     if resetComponent.resetType == lick.PATCH_RESET then
         logInfo(resetComponent.name .. " - patch reset.")
         lovjUnrequire(resetComponent.name)
         patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
-        -- if it's also current patch, reset
+        -- if it's also current patch, reset (this condition shall always verify, but check for safety)
         if resetComponent.name == currentPatchName then
             patch.init()
         end
     elseif resetComponent.resetType == lick.SOFT_RESET then
-        -- TODO:[livecoding] find a way to reset everything without resetting the window/screen
         logInfo(resetComponent.name .. " - soft reset.")
+        for component, t in pairs(lick.resetList) do
+            if (t.resetType == lick.SOFT_RESET or
+                t.resetType == lick.PATCH_RESET) then
+                lovjUnrequire(component)
+                -- TODO: find a way to do this:
+                -- local c = component:gsub(".*/", "")
+                -- _G[c] = lovjRequire(component, t.resetType)
+            end
+        end
     elseif resetComponent.resetType == lick.HARD_RESET then
         lick.hardReset(resetComponent)
     end

@@ -28,7 +28,7 @@ local function init_params()
 	g = resources.graphics
 	p = resources.parameters
 
-    g:setName(1, "video")           g:set("video", "data/demo_7/demo.ogg")
+    g:setName(1, "video")           g:set("video", "data/demo_11/output.ogg")
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -70,22 +70,13 @@ function patch.draw()
 
 	local t = cfg_timers.globalTimer.T
 
-	-- select shader and apply chroma keying
-	local col = {t * 0.2 % 1, t * 0.4 % 1, t * 0.1 % 1}
-	love.graphics.clear(col)
+	love.graphics.clear()
 
-	if cfg_shaders.enabled then
-		chroma = love.graphics.newShader(shaders.chromakey)
-		chroma:send("_chromaColor", g:get("_chromaColor"))
-		chroma:send("_chromaTolerance", g:get("_chromaTolerance"))
-	end
 	-- set canvas
 	love.graphics.setCanvas(patch.canvases.video)
 
 	-- render graphics
 	love.graphics.draw(patch.video.handle, 0, 0, 0, patch.video.scaleX, patch.video.scaleY)
-	-- apply chroma keying
-	if cfg_shaders.enabled then cfg_shaders.applyShader(chroma) end
 	-- set main canvas
 	love.graphics.setCanvas(patch.canvases.main)
 	-- draw video w/ chroma keying
@@ -94,17 +85,14 @@ function patch.draw()
 	else
 		love.graphics.draw(patch.canvases.video)
 	end
-
 	patch:drawExec()
 end
 
 
 function patch.update()
     patch:mainUpdate()
-
     -- handle loop
-    videoutils.handleLoop(patch.video)
-
+    videoutils.handleLoop(patch.video, 0, 3.9)  -- loop between 0 and 6
 end
 
 
