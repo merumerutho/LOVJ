@@ -93,7 +93,7 @@ local function encode_table(val, stack)
       table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
     end
     stack[val] = nil
-    return "{" .. table.concat(res, ",") .. "}"
+    return "\n{" .. table.concat(res, ",") .. "}"
   end
 end
 
