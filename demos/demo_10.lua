@@ -68,21 +68,23 @@ local shader_code = [[
 ]]
 
 patch = Patch:new()
-local colorInversion = 0;
 
 --- @private init_params initialize patch parameters
 local function init_params()
 	g = resources.graphics
 	p = resources.parameters
 
-    -- insert here your patch parameters
+	p:setName(1, "colorInversion") p:set("colorInversion", 0)
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
 	p = resources.parameters
-
-    -- insert here your patch controls
+	-- update the colorInversion parameter
+	if kp.isDown("up") then p:set("colorInversion", p:get("colorInversion")+.01) end
+	if kp.isDown("down") then p:set("colorInversion", p:get("colorInversion")-.01) end
+	-- clamp colorInversion between 0 and 1
+	p:set("colorInversion", math.min(math.max(p:get("colorInversion"), 0), 1) )
 end
 
 
@@ -112,7 +114,7 @@ local function draw_stuff()
 		shader = love.graphics.newShader(shader_code)
 		love.graphics.setShader(shader)
 		shader:send("_time", t)
-		shader:send("_colorInversion", colorInversion)
+		shader:send("_colorInversion", p:get("colorInversion"))
 	end
 
 	love.graphics.setCanvas(patch.canvases.main)
@@ -132,11 +134,6 @@ end
 
 
 function patch.update()
-	-- update the colorInversion parameter
-	if kp.isDown("up") then colorInversion = colorInversion+.01 end
-	if kp.isDown("down") then colorInversion = colorInversion-.01 end
-	-- clamp colorInversion between 0 and 1
-	colorInversion = math.min(math.max(colorInversion, 0), 1)
 
 	patch:mainUpdate()
 end
