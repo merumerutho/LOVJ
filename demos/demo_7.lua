@@ -52,6 +52,9 @@ function patch.init()
     patch.video.pos = 0
 	patch.video.scaleX = screen.InternalRes.W / patch.video.handle:getWidth()
 	patch.video.scaleY = screen.InternalRes.H / patch.video.handle:getHeight()
+	patch.video.loopStart = 0
+	patch.video.loopEnd = 10
+	patch.video.playbackSpeed = 1
     patch.video.handle:play()
 
 	patch:assignDefaultDraw()

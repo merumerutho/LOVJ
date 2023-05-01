@@ -19,7 +19,8 @@ cfg_patches.patches = {"demos/demo_1",
                        "demos/demo_8",
                        "demos/demo_9",
                        "demos/demo_10",
-                       "demos/demo_11"
+                       "demos/demo_11",
+                       "demos/demo_12"
 }
 
 

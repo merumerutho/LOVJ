@@ -28,7 +28,7 @@ local function init_params()
 	g = resources.graphics
 	p = resources.parameters
 
-    g:setName(1, "video")           g:set("video", "data/demo_11/output.ogg")
+    g:setName(1, "video")           g:set("video", "data/demo_11/evil_eyes.ogg")
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -52,6 +52,9 @@ function patch.init()
     patch.video.pos = 0
 	patch.video.scaleX = screen.InternalRes.W / patch.video.handle:getWidth()
 	patch.video.scaleY = screen.InternalRes.H / patch.video.handle:getHeight()
+	patch.video.loopStart = 0
+	patch.video.loopEnd = 2
+	patch.video.playbackSpeed = 1
     patch.video.handle:play()
 
 	patch:assignDefaultDraw()
@@ -92,7 +95,7 @@ end
 function patch.update()
     patch:mainUpdate()
     -- handle loop
-    videoutils.handleLoop(patch.video, 0, 3.9)  -- loop between 0 and 6
+    videoutils.handleLoop(patch.video)
 end
 
 
