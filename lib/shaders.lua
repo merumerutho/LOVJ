@@ -161,4 +161,17 @@ shaders.glitch = [[
 
 ]]
 
+
+shaders.circleWindow = [[
+    #pragma language glsl3
+
+    vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
+    {
+        float dist = length(texture_coords - vec2(0.5));
+        color = vec4(Texel(tex, texture_coords));
+        color = color * smoothstep(0.01, 0.99, (1.-dist));
+        return color;
+    }
+]]
+
 return shaders

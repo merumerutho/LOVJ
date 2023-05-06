@@ -53,12 +53,11 @@ function screen.toggleFullscreen()
 	if screen.isFullscreen then
 		screen.ExternalRes.W, screen.ExternalRes.H = love.window.getDesktopDimensions()
 	else
-		local ss = screen_settings
-		SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
+		SetExternalRes(screen_settings.OUTER_RES_WIDTH, screen_settings.OUTER_RES_RATIO)
 	end
 	calculateScaling()
 	screen.updateScreenOptions()
-	patch.init()
+	patch:setCanvases()
 end
 
 --- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)

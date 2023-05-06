@@ -1,8 +1,10 @@
 local Patch = lovjRequire ("lib/patch")
 local palettes = lovjRequire ("lib/utils/palettes")
 local screen = lovjRequire ("lib/screen")
+local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Timer = lovjRequire ("lib/timer")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
+local shaders = lovjRequire("lib/shaders")
 
 local PALETTE = palettes.BW
 
@@ -35,6 +37,7 @@ local function addBall(sx, sy)
   	ball.az = (math.abs(ball.ax) + math.abs(ball.ay))
   	-- readjust ay
   	ball.ax = (ball.ax / ball.dx - ball.dy * ball.ay / 10) * ball.dx
+
 	ball.lifetime = 150+math.random(300)
   	-- add ball to list
 	table.insert(patch.ballList, ball)
@@ -66,6 +69,17 @@ end
 --- @private init_params Initialize parameters for this patch
 local function init_params()
 	p = resources.parameters
+end
+
+--- @public setCanvases (re)set canvases for this patch
+function patch:setCanvases()
+	Patch.setCanvases(patch)  -- call parent function
+	-- patch-specific execution (window canvas)
+	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
+		patch.canvases.window = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.window = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
 end
 
 
@@ -106,10 +120,41 @@ end
 
 function patch.draw()
 	patch:drawSetup()
-  	-- draw balls
-  	for k,b in pairs(patch.ballList) do
-    	drawBall(b)
-  	end
+
+	love.graphics.setCanvas(patch.canvases.window)
+	-- draw balls
+	for k,b in pairs(patch.ballList) do
+		drawBall(b)
+	end
+
+	local scalingX
+	local scalingY
+
+	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
+		scalingX = 1
+		scalingY = 1
+	else
+		scalingX = screen.Scaling.X
+		scalingY = screen.Scaling.Y
+	end
+
+	if cfg_shaders.enabled then
+		patch.shader_window = love.graphics.newShader(shaders.circleWindow) -- set/update circle window shader
+		love.graphics.setShader(patch.shader_window) -- apply shader
+		patch.canvases.main:renderTo(
+			function()
+				-- draw content of window buffer onto main buffer
+				love.graphics.draw(patch.canvases.window,
+						0, 0, 0, scalingX, scalingY)
+				love.graphics.setShader() -- remove shader
+			end)
+	else
+		love.graphics.setCanvas(patch.canvases.main)
+		love.graphics.draw(patch.canvases.window, 0, 0, 0, scalingX, scalingY)
+	end
+
+	-- remove canvas
+	love.graphics.setCanvas()
 	patch:drawExec()
 end
 
