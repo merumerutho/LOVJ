@@ -5,6 +5,7 @@ local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Timer = lovjRequire ("lib/timer")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
 local shaders = lovjRequire("lib/shaders")
+local Lfo = lovjRequire("lib/automations/lfo")
 
 local PALETTE = palettes.BW
 
@@ -97,6 +98,9 @@ function patch.init()
 		addBall(cx, cy)
   	end
 
+	-- Lfo
+	patch.lfo = Lfo:new(0.1, 0) -- frequency = 1, phase = 0
+
 	patch:assignDefaultDraw()
 end
 
@@ -127,6 +131,14 @@ function patch.draw()
 		drawBall(b)
 	end
 
+	local t = cfg_timers.globalTimer.T
+	local alpha_pulse = patch.lfo:Sine(t)
+
+	love.graphics.setColor(1,1,1, 1-math.abs(alpha_pulse))
+	love.graphics.circle("line", screen.InternalRes.W/2, screen.InternalRes.H/2,
+							alpha_pulse * screen.InternalRes.W/2)
+	love.graphics.setColor(1,1,1,1)
+
 	local scalingX
 	local scalingY
 
@@ -147,6 +159,7 @@ function patch.draw()
 				love.graphics.draw(patch.canvases.window,
 						0, 0, 0, scalingX, scalingY)
 				love.graphics.setShader() -- remove shader
+
 			end)
 	else
 		love.graphics.setCanvas(patch.canvases.main)
@@ -179,6 +192,8 @@ function patch.update()
 	end
 	-- re-order balls
 	orderZ(patch.ballList)
+
+	patch.lfo:UpdateTrigger(true)
 
 end
 
