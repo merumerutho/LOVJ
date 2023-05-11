@@ -165,11 +165,12 @@ shaders.glitch = [[
 shaders.circleWindow = [[
     #pragma language glsl3
 
+    extern float _windowSize;
+
     vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
     {
         float dist = length(texture_coords - vec2(0.5));
-        color = vec4(Texel(tex, texture_coords));
-        color = color * step(0.75, (1.-dist));
+        color = vec4(Texel(tex, texture_coords).xyz, 0.4 + 0.6 * step(_windowSize, 1.-dist));
         return color;
     }
 ]]

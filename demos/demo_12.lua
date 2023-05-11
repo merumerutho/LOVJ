@@ -2,7 +2,7 @@ local Patch = lovjRequire ("lib/patch")
 local palettes = lovjRequire ("lib/utils/palettes")
 local screen = lovjRequire ("lib/screen")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
-local Timer = lovjRequire ("lib/timer")
+local kp = lovjRequire("lib/utils/keypress")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
 local shaders = lovjRequire("lib/shaders")
 local Lfo = lovjRequire("lib/automations/lfo")
@@ -10,6 +10,9 @@ local Lfo = lovjRequire("lib/automations/lfo")
 local PALETTE = palettes.BW
 
 patch = Patch:new()
+
+local LAIN_WIDTH = 140
+local LAIN_HEIGHT = 175
 
 --- @private patchControls handle controls for current patch
 function patch.patchControls()
@@ -46,6 +49,7 @@ end
 
 
 local function ballTrajectory(k, b)
+	local t = cfg_timers.globalTimer.T
 	local dt = cfg_timers.globalTimer:dt() -- keep it fps independent
 
 	b.x = b.x + b.ax 		 * dt * 50
@@ -67,9 +71,31 @@ local function ballTrajectory(k, b)
 end
 
 
+--- @private get_bg get background graphics based on resources
+local function get_lain()
+	patch.graphics = {}
+	patch.graphics.lain = {}
+	patch.graphics.lain.image = love.graphics.newImage(g:get("lain"))
+	patch.graphics.lain.size = {x = LAIN_WIDTH, y = LAIN_HEIGHT}
+	patch.graphics.lain.frames = {}
+	for i=0,patch.graphics.lain.image:getWidth() / LAIN_WIDTH do
+		table.insert(patch.graphics.lain.frames, love.graphics.newQuad(	i*LAIN_WIDTH,				-- x
+																		0,							-- y
+																		LAIN_WIDTH,					-- width
+																		LAIN_HEIGHT,				-- height
+																		patch.graphics.lain.image))	-- img
+	end
+end
+
+
 --- @private init_params Initialize parameters for this patch
 local function init_params()
+	g = resources.graphics
 	p = resources.parameters
+
+	g:setName(1, "lain")		g:set("lain", "data/demo_12/lain.png")
+	get_lain()
+	p:setName(1, "windowSize") 	p:set("windowSize", 0.6)
 end
 
 --- @public setCanvases (re)set canvases for this patch
@@ -78,8 +104,10 @@ function patch:setCanvases()
 	-- patch-specific execution (window canvas)
 	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
 		patch.canvases.window = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+		patch.canvases.lain = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 	else
 		patch.canvases.window = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		patch.canvases.lain = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	end
 end
 
@@ -102,10 +130,12 @@ function patch.init()
 	patch.lfo = Lfo:new(0.1, 0) -- frequency = 1, phase = 0
 
 	patch:assignDefaultDraw()
+	init_params()
 end
 
 
 local function drawBall(b)
+	local t = cfg_timers.globalTimer.T
   	local border_col = palettes.getColor(PALETTE, 2)
   	love.graphics.setColor(	border_col[1] / 255,
 							border_col[2] / 255,
@@ -113,7 +143,7 @@ local function drawBall(b)
 							1)
   	love.graphics.circle("line", b.x, b.y, (b.z / 2) ^ 1.6, (b.z * 2) + 6)
   	-- filled circle
-  	love.graphics.setColor(	0.3 * b.lifetime * b.c[1] / 255,
+  	love.graphics.setColor(	0.4 * b.lifetime * b.c[1] / 255,
 							0.3 * b.lifetime * b.c[2] / 255,
 							0.3 * b.lifetime * b.c[3] / 255,
 							1)
@@ -150,24 +180,49 @@ function patch.draw()
 		scalingY = screen.Scaling.Y
 	end
 
-	if cfg_shaders.enabled then
+	if cfg_shaders.enabled and math.floor(t*10) % 3 ~=0 then
 		patch.shader_window = love.graphics.newShader(shaders.circleWindow) -- set/update circle window shader
 		love.graphics.setShader(patch.shader_window) -- apply shader
+		patch.shader_window:send("_windowSize", p:get("windowSize"))
 		patch.canvases.main:renderTo(
 			function()
 				-- draw content of window buffer onto main buffer
 				love.graphics.draw(patch.canvases.window,
 						0, 0, 0, scalingX, scalingY)
 				love.graphics.setShader() -- remove shader
-
+				love.graphics.setColor(1,1,1,math.abs(math.sin(t)))
+				love.graphics.ellipse("line", screen.InternalRes.W/2, screen.InternalRes.H/2,
+							screen.InternalRes.W * (1-p:get("windowSize")),
+							screen.InternalRes.H * (1-p:get("windowSize")), math.ceil(3+32*(1-p:get("windowSize"))))
 			end)
 	else
 		love.graphics.setCanvas(patch.canvases.main)
 		love.graphics.draw(patch.canvases.window, 0, 0, 0, scalingX, scalingY)
 	end
 
+	-- force selection of main canvas
+	love.graphics.setCanvas(patch.canvases.main)
+
+	-- draw lain
+	if math.floor(t*20) % 3 ~=0 then
+		love.graphics.setColor(1,1,1,math.abs(math.sin(t*5)))
+		love.graphics.draw(patch.graphics.lain.image, patch.graphics.lain.frames[math.floor(t*5) % 21 + 1],
+				LAIN_WIDTH*0.75, 10, 0, -0.75, 0.75)
+
+		love.graphics.draw(patch.graphics.lain.image, patch.graphics.lain.frames[math.floor(t*5) % 21 + 1],
+				screen.InternalRes.W - LAIN_WIDTH*0.75, 10, 0, 0.75, 0.75)
+	end
+
 	-- remove canvas
 	love.graphics.setCanvas()
+
+	-- draw flash
+	if math.floor(t*5) % 3 == 0  then
+		love.graphics.rectangle("fill", 0, 0, screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+
+	love.graphics.setColor(1,1,1,1)
+
 	patch:drawExec()
 end
 
@@ -190,10 +245,17 @@ function patch.update()
 	for k, b in pairs(patch.ballList) do
 		ballTrajectory(k, b)
 	end
+	
 	-- re-order balls
 	orderZ(patch.ballList)
 
 	patch.lfo:UpdateTrigger(true)
+
+	if kp.isDown("up") then p:set("windowSize", p:get("windowSize")+.01) end
+	if kp.isDown("down") then p:set("windowSize", p:get("windowSize")-.01) end
+
+	-- clamp colorInversion between 0 and 1
+	p:set("windowSize", math.min(math.max(p:get("windowSize"), 0), 1) )
 
 end
 
