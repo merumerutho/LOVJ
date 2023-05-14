@@ -22,6 +22,14 @@ function patch.patchControls()
 	if love.keyboard.isDown("r") then patch.init() end
 end
 
+--- @private get_bg get background graphics based on resources
+local function get_bg()
+	patch.graphics.bg = {}
+	patch.graphics.bg.love = love.graphics.newImage(g:get("love"))
+	patch.graphics.bg.size = {x = patch.graphics.bg.love:getPixelWidth(), y = patch.graphics.bg.love:getPixelHeight()}
+	patch.graphics.bg.frames = {}
+end
+
 
 local function addBall(sx, sy)
 	ball = {}
@@ -73,7 +81,6 @@ end
 
 --- @private get_bg get background graphics based on resources
 local function get_lain()
-	patch.graphics = {}
 	patch.graphics.lain = {}
 	patch.graphics.lain.image = love.graphics.newImage(g:get("lain"))
 	patch.graphics.lain.size = {x = LAIN_WIDTH, y = LAIN_HEIGHT}
@@ -93,8 +100,14 @@ local function init_params()
 	g = resources.graphics
 	p = resources.parameters
 
+	patch.graphics = {}
+
 	g:setName(1, "lain")		g:set("lain", "data/demo_12/lain.png")
 	get_lain()
+
+	g:setName(2, "love")		g:set("love", "data/graphics/love.png")
+	get_bg()
+
 	p:setName(1, "windowSize") 	p:set("windowSize", 0.6)
 end
 
@@ -105,9 +118,11 @@ function patch:setCanvases()
 	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
 		patch.canvases.window = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 		patch.canvases.lain = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+		patch.canvases.love = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 	else
 		patch.canvases.window = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 		patch.canvases.lain = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		patch.canvases.love = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	end
 end
 
@@ -155,18 +170,40 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local t = cfg_timers.globalTimer.T
+
+	love.graphics.setCanvas(patch.canvases.love)
+
+	local nX = math.ceil(screen.InternalRes.W / patch.graphics.bg.size.x)
+	local nY = math.ceil(screen.InternalRes.H / patch.graphics.bg.size.y)
+
+	if math.floor(t*10) % 7 == 0 then
+		love.graphics.setColor(1,1,1,0.3)
+		for cx = -1, nX do
+			for cy = -1, nY do
+				local x = cx * patch.graphics.bg.size.x + ((2 * (cy % 2)-1) * (t*100)) % patch.graphics.bg.size.x
+				local y = cy * patch.graphics.bg.size.y
+				love.graphics.draw(patch.graphics.bg.love, x, y)
+			end
+		end
+	end
+
 	love.graphics.setCanvas(patch.canvases.window)
+	if math.floor(t*10) % 7 == 0 then
+		love.graphics.draw(patch.canvases.love)
+
+	end
+
 	-- draw balls
 	for k,b in pairs(patch.ballList) do
 		drawBall(b)
 	end
 
-	local t = cfg_timers.globalTimer.T
 	local alpha_pulse = patch.lfo:Sine(t)
 
 	love.graphics.setColor(1,1,1, 1-math.abs(alpha_pulse))
 	love.graphics.circle("line", screen.InternalRes.W/2, screen.InternalRes.H/2,
-							alpha_pulse * screen.InternalRes.W/2)
+							alpha_pulse * screen.InternalRes.W/2, 3+math.ceil(t*10 % 5))
 	love.graphics.setColor(1,1,1,1)
 
 	local scalingX
@@ -188,12 +225,13 @@ function patch.draw()
 			function()
 				-- draw content of window buffer onto main buffer
 				love.graphics.draw(patch.canvases.window,
-						0, 0, 0, scalingX, scalingY)
+									0, 0, 0, scalingX, scalingY)
 				love.graphics.setShader() -- remove shader
 				love.graphics.setColor(1,1,1,math.abs(math.sin(t)))
 				love.graphics.ellipse("line", screen.InternalRes.W/2, screen.InternalRes.H/2,
-							screen.InternalRes.W * (1-p:get("windowSize")),
-							screen.InternalRes.H * (1-p:get("windowSize")), math.ceil(3+32*(1-p:get("windowSize"))))
+										screen.InternalRes.W * (1-p:get("windowSize")),
+										screen.InternalRes.H * (1-p:get("windowSize")),
+										math.ceil(3+32*(1-p:get("windowSize"))))
 			end)
 	else
 		love.graphics.setCanvas(patch.canvases.main)
@@ -217,7 +255,7 @@ function patch.draw()
 	love.graphics.setCanvas()
 
 	-- draw flash
-	if math.floor(t*5) % 3 == 0  then
+	if math.floor(t*5) % 7 == 0  then
 		love.graphics.rectangle("fill", 0, 0, screen.ExternalRes.W, screen.ExternalRes.H)
 	end
 
