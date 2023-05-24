@@ -46,7 +46,6 @@ local function checkReset()
         local modtime = love.filesystem.getInfo(k .. ".lua").modtime
         if modtime ~= v.time then
             v.time = modtime
-            lovjUnrequire(k)
             return {name=k, time=v.time, resetType=v.resetType}
         end
     end
@@ -121,6 +120,9 @@ end
 --- @private checkForModifications call checkReset, and apply related reset
 local function checkForModifications()
     local resetComponent = checkReset()
+    if not resetComponent.name then return end
+    -- test loading the component (checks if safe to proceed)
+    if not lovjTest(resetComponent.name) then return end
     if resetComponent.resetType == lick.PATCH_RESET then
         logInfo(resetComponent.name .. " - patch reset.")
         lovjUnrequire(resetComponent.name)
@@ -135,9 +137,6 @@ local function checkForModifications()
             if (t.resetType == lick.SOFT_RESET or
                 t.resetType == lick.PATCH_RESET) then
                 lovjUnrequire(component)
-                -- TODO: find a way to do this:
-                -- local c = component:gsub(".*/", "")
-                -- _G[c] = lovjRequire(component, t.resetType)
             end
         end
     elseif resetComponent.resetType == lick.HARD_RESET then

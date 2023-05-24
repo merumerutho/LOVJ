@@ -21,8 +21,8 @@ requirements = {}
 --- @return table
 function lovjRequire(component, resetType)
     resetType = resetType or lick.HARD_RESET  -- default value
+    local ret = require(component)  -- safe if protected by lovjTest
 
-    local ret = require(component)  -- require the component
     if lick.resetList[component] ~= nil then return ret end  -- if already present, skip
     -- Otherwise add to lick reset list
     lick.resetList[component] = {time = love.filesystem.getInfo(component .. ".lua").modtime ,
@@ -37,6 +37,20 @@ function lovjUnrequire(component)
     package.loaded[component] = nil
     _G[component] = nil
     lick.resetList[component] = nil
+end
+
+--- @public lovjTest test if a component can be loaded without issues
+function lovjTest(component)
+    if not component then return false end
+    local status, ret = pcall(love.filesystem.load, component..".lua")
+    -- if error found:
+    if not status then
+        logError(component.." - Check failed.")
+        logError(ret) -- print error
+        return false
+    end
+    logInfo(component.." - Check passed.")
+    return true
 end
 
 return requirements
