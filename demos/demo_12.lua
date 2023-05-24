@@ -59,6 +59,7 @@ end
 local function ballTrajectory(k, b)
 	local t = cfg_timers.globalTimer.T
 	local dt = cfg_timers.globalTimer:dt() -- keep it fps independent
+	local p = resources.parameters
 
 	b.x = b.x + b.ax 		 * dt * 50
 	b.y = b.y + b.ay 		 * dt * 50
@@ -74,7 +75,7 @@ local function ballTrajectory(k, b)
 		table.remove(patch.ballList, k)
 		local cx = screen.InternalRes.W / 2 - screen.InternalRes.W/5 + math.random(2/5*screen.InternalRes.W)
 		local cy = screen.InternalRes.H / 2 - screen.InternalRes.H/5 + math.random(2/5*screen.InternalRes.H)
-		addBall(cx, cy)
+		addBall(p:get("sceneCenterX"), p:get("sceneCenterY"))
 	end
 end
 
@@ -108,7 +109,14 @@ local function init_params()
 	g:setName(2, "love")		g:set("love", "data/graphics/love.png")
 	get_bg()
 
-	p:setName(1, "windowSize") 	p:set("windowSize", 0.6)
+	p:setName(1, "windowSize") 			p:set("windowSize", 0.6)
+	p:setName(2, "showLain")			p:set("showLain", true)
+	p:setName(3, "showLove")			p:set("showLove", true)
+	p:setName(4, "drawOutsideEllipse")	p:set("drawOutsideEllipse", true)
+	p:setName(5, "flash")				p:set("flash", true)
+
+	p:setName(6, "sceneCenterX")		p:set("sceneCenterX", screen.InternalRes.W/2)
+	p:setName(7, "sceneCenterY")		p:set("sceneCenterY", screen.InternalRes.H/2)
 end
 
 --- @public setCanvases (re)set canvases for this patch
@@ -152,17 +160,18 @@ end
 local function drawBall(b)
 	local t = cfg_timers.globalTimer.T
   	local border_col = palettes.getColor(PALETTE, 2)
+	local radius = (b.z/2) ^ 1.6
   	love.graphics.setColor(	border_col[1] / 255,
 							border_col[2] / 255,
 							border_col[3] / 255,
 							1)
-  	love.graphics.circle("line", b.x, b.y, (b.z / 2) ^ 1.6, (b.z * 2) + 6)
+  	love.graphics.circle("line", b.x, b.y, radius, (b.z * 2) + 6)
   	-- filled circle
   	love.graphics.setColor(	0.4 * b.lifetime * b.c[1] / 255,
 							0.3 * b.lifetime * b.c[2] / 255,
 							0.3 * b.lifetime * b.c[3] / 255,
 							1)
-	love.graphics.circle("fill", b.x, b.y, (b.z / 2) ^ 1.6, (b.z * 2) + 6)
+	love.graphics.circle("fill", b.x, b.y, radius, (b.z * 2) + 6)
 	love.graphics.setColor(1,1,1,1)
 end
 
@@ -172,26 +181,31 @@ function patch.draw()
 
 	local t = cfg_timers.globalTimer.T
 
+	local scx, scy = p:get("sceneCenterX"), p:get("sceneCenterY")
+
 	love.graphics.setCanvas(patch.canvases.love)
 
-	local nX = math.ceil(screen.InternalRes.W / patch.graphics.bg.size.x)
-	local nY = math.ceil(screen.InternalRes.H / patch.graphics.bg.size.y)
+	if p:get("showLove") then
+		local nX = math.ceil(screen.InternalRes.W / patch.graphics.bg.size.x)
+		local nY = math.ceil(screen.InternalRes.H / patch.graphics.bg.size.y)
 
-	if math.floor(t*10) % 7 == 0 then
-		love.graphics.setColor(1,1,1,0.3)
-		for cx = -1, nX do
-			for cy = -1, nY do
-				local x = cx * patch.graphics.bg.size.x + ((2 * (cy % 2)-1) * (t*100)) % patch.graphics.bg.size.x
-				local y = cy * patch.graphics.bg.size.y
-				love.graphics.draw(patch.graphics.bg.love, x, y)
+		if math.floor(t*10) % 3 == 0 then
+			love.graphics.setColor(1,1,1,0.3)
+			for cx = -1, nX do
+				for cy = -1, nY do
+					local x = cx * patch.graphics.bg.size.x + ((2 * (cy % 2)-1) * (t*50)) % patch.graphics.bg.size.x
+					local y = cy * patch.graphics.bg.size.y
+					love.graphics.draw(patch.graphics.bg.love, x, y)
+				end
 			end
 		end
+	else
+		love.graphics.clear()
 	end
 
 	love.graphics.setCanvas(patch.canvases.window)
-	if math.floor(t*10) % 7 == 0 then
+	if math.floor(t*10) % 3 == 0 then
 		love.graphics.draw(patch.canvases.love)
-
 	end
 
 	-- draw balls
@@ -202,7 +216,7 @@ function patch.draw()
 	local alpha_pulse = patch.lfo:Sine(t)
 
 	love.graphics.setColor(1,1,1, 1-math.abs(alpha_pulse))
-	love.graphics.circle("line", screen.InternalRes.W/2, screen.InternalRes.H/2,
+	love.graphics.circle("line", scx, scy,
 							alpha_pulse * screen.InternalRes.W/2, 3+math.ceil(t*10 % 5))
 	love.graphics.setColor(1,1,1,1)
 
@@ -217,10 +231,12 @@ function patch.draw()
 		scalingY = screen.Scaling.Y
 	end
 
-	if cfg_shaders.enabled and math.floor(t*10) % 3 ~=0 then
+	if cfg_shaders.enabled and math.floor(t*10) % 3 ~=0 or (not p:get("drawOutsideEllipse")) then
 		patch.shader_window = love.graphics.newShader(shaders.circleWindow) -- set/update circle window shader
 		love.graphics.setShader(patch.shader_window) -- apply shader
 		patch.shader_window:send("_windowSize", p:get("windowSize"))
+		patch.shader_window:send("_scx", scx / screen.InternalRes.W)
+		patch.shader_window:send("_scy", scy / screen.InternalRes.H)
 		patch.canvases.main:renderTo(
 			function()
 				-- draw content of window buffer onto main buffer
@@ -228,7 +244,7 @@ function patch.draw()
 									0, 0, 0, scalingX, scalingY)
 				love.graphics.setShader() -- remove shader
 				love.graphics.setColor(1,1,1,math.abs(math.sin(t)))
-				love.graphics.ellipse("line", screen.InternalRes.W/2, screen.InternalRes.H/2,
+				love.graphics.ellipse("line", scx, scy,
 										screen.InternalRes.W * (1-p:get("windowSize")),
 										screen.InternalRes.H * (1-p:get("windowSize")),
 										math.ceil(3+32*(1-p:get("windowSize"))))
@@ -242,7 +258,7 @@ function patch.draw()
 	love.graphics.setCanvas(patch.canvases.main)
 
 	-- draw lain
-	if math.floor(t*20) % 3 ~=0 then
+	if p:get("showLain") then
 		love.graphics.setColor(1,1,1,math.abs(math.sin(t*5)))
 		love.graphics.draw(patch.graphics.lain.image, patch.graphics.lain.frames[math.floor(t*5) % 21 + 1],
 				LAIN_WIDTH*0.75, 10, 0, -0.75, 0.75)
@@ -255,7 +271,7 @@ function patch.draw()
 	love.graphics.setCanvas()
 
 	-- draw flash
-	if math.floor(t*5) % 7 == 0  then
+	if math.floor(t*5) % 20 == 0 and p:get("flash") then
 		love.graphics.rectangle("fill", 0, 0, screen.ExternalRes.W, screen.ExternalRes.H)
 	end
 
@@ -289,8 +305,21 @@ function patch.update()
 
 	patch.lfo:UpdateTrigger(true)
 
-	if kp.isDown("up") then p:set("windowSize", p:get("windowSize")+.01) end
-	if kp.isDown("down") then p:set("windowSize", p:get("windowSize")-.01) end
+	if kp.isDown("x") then
+		if kp.isDown("up") then p:set("sceneCenterX", p:get("sceneCenterX")+1) end
+		if kp.isDown("down") then p:set("sceneCenterX", p:get("sceneCenterX")-1) end
+	elseif kp.isDown("y") then
+		if kp.isDown("up") then p:set("sceneCenterY", p:get("sceneCenterY")+1) end
+		if kp.isDown("down") then p:set("sceneCenterY", p:get("sceneCenterY")-1) end
+	else
+		if kp.isDown("up") then p:set("windowSize", p:get("windowSize")+.01) end
+		if kp.isDown("down") then p:set("windowSize", p:get("windowSize")-.01) end
+	end
+
+	if kp.keypressOnRelease("q") then p:set("showLain", not p:get("showLain")) end
+	if kp.keypressOnRelease("w") then p:set("showLove", not p:get("showLove")) end
+	if kp.keypressOnRelease("e") then p:set("drawOutsideEllipse", not p:get("drawOutsideEllipse")) end
+	if kp.keypressOnRelease("t") then p:set("flash", not p:get("flash")) end
 
 	-- clamp colorInversion between 0 and 1
 	p:set("windowSize", math.min(math.max(p:get("windowSize"), 0), 1) )
