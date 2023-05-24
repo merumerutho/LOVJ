@@ -12,14 +12,15 @@ local PALETTE
 local shader_code = [[
 	#pragma language glsl3
 	uniform float _time;
+	uniform float _ballSize;
 	extern float _colorInversion;
 	extern vec3 _cameraMovement;
 
 	// Constants
 	#define PI 3.1415925359
 	#define TWO_PI 6.2831852
-	#define MAX_STEPS 30
-	#define MAX_DIST 20.
+	#define MAX_STEPS 100
+	#define MAX_DIST 50.
 	#define SURFACE_DIST .1
 
 	vec3 pMod2(inout vec3 p, float size){
@@ -32,7 +33,7 @@ local shader_code = [[
 	float GetDist(vec3 p)
 	{
 		vec3 coords = vec3(1. , 1. , 2.);
-		vec4 s = vec4(coords, .5+.3*sin(_time*3+p.z+p.x/10+p.y)); //Sphere. xyz is position w is radius
+		vec4 s = vec4(coords, _ballSize+.3*sin(_time*3.+p.z+p.x/10+p.y)); //Sphere. xyz is position w is radius
 		float sphereDist = length(mod(p, 2.5)-s.xyz) - s.w;
 		//float planeDist = p.y;
 		//float d = min(sphereDist,planeDist);
@@ -57,11 +58,14 @@ local shader_code = [[
 	{
         vec2 uv = (texture_coords - .5);
 
-        vec3 ro = vec3(0,1,0); // Camera position
+		vec3 ro = vec3(-.2, 1., 0.);
+		ro += _cameraMovement;
+        ro += vec3(0.,_time*5, _time*20); // Camera position
+
         vec3 rd = normalize(vec3(uv.x, uv.y, 1));
         float d = RayMarch(ro,rd);
         d /= 50.;
-        vec3 output_color = vec3(d + (1.-2*d)*_colorInversion);
+        vec3 output_color = vec3(d + (1. - 2*d)*_colorInversion);
 
         return vec4(output_color, 1.);
 	}
@@ -75,16 +79,24 @@ local function init_params()
 	p = resources.parameters
 
 	p:setName(1, "colorInversion") p:set("colorInversion", 0)
+	p:setName(2, "ballSize") p:set("ballSize", .1)
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
 	p = resources.parameters
 	-- update the colorInversion parameter
-	if kp.isDown("up") then p:set("colorInversion", p:get("colorInversion")+.01) end
-	if kp.isDown("down") then p:set("colorInversion", p:get("colorInversion")-.01) end
+	if kp.isDown("up") then p:set("colorInversion", p:get("colorInversion")+.1) end
+	if kp.isDown("down") then p:set("colorInversion", p:get("colorInversion")-.1) end
 	-- clamp colorInversion between 0 and 1
 	p:set("colorInversion", math.min(math.max(p:get("colorInversion"), 0), 1) )
+
+	if kp.isDown("left") then p:set("ballSize", p:get("ballSize")-.01) end
+	if kp.isDown("right") then p:set("ballSize", p:get("ballSize")+.01) end
+	-- clamp colorInversion between 0 and 1
+	p:set("ballSize", math.min(math.max(p:get("ballSize"), 0), .7) )
+
+
 end
 
 
@@ -115,6 +127,8 @@ local function draw_stuff()
 		love.graphics.setShader(shader)
 		shader:send("_time", t)
 		shader:send("_colorInversion", p:get("colorInversion"))
+		shader:send("_ballSize", p:get("ballSize"))
+		shader:send("_cameraMovement", {t,0,0})
 	end
 
 	love.graphics.setCanvas(patch.canvases.main)
