@@ -3,6 +3,8 @@ local palettes = lovjRequire("lib/utils/palettes")
 local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
+local Lfo = lovjRequire("lib/automations/lfo")
 
 patch = Patch:new()
 
@@ -10,9 +12,9 @@ patch = Patch:new()
 local function get_bg()
 	patch.graphics = {}
 	patch.graphics.bg = {}
-	patch.graphics.bg.nasty = love.graphics.newImage(g:get("nasty"))
-	patch.graphics.bg.hot = love.graphics.newImage(g:get("hot"))
-	patch.graphics.bg.image = patch.graphics.bg.nasty
+	patch.graphics.bg.wired = love.graphics.newImage(g:get("wired"))
+	patch.graphics.bg.soul = love.graphics.newImage(g:get("soul"))
+	patch.graphics.bg.image = patch.graphics.bg.wired
 	patch.graphics.bg.size = {x = patch.graphics.bg.image:getPixelWidth(), y = patch.graphics.bg.image:getPixelHeight()}
 	patch.graphics.bg.frames = {}
 end
@@ -21,13 +23,15 @@ end
 local function init_params()
 	g = resources.graphics
 	p = resources.parameters
-	g:setName(1, "nasty")				g:set("nasty", "data/graphics/nasty.png")
-	g:setName(2, "hot")					g:set("hot", "data/graphics/hot.png")
+	g:setName(1, "wired")				g:set("wired", "data/graphics/wired.png")
+	g:setName(2, "soul")				g:set("soul", "data/graphics/soul.png")
 	get_bg()
 	p:setName(1, "bgSpeed")				p:set("bgSpeed", 10)
 	p:setName(2, "bgLayer1")			p:set("bgLayer1", 1)
 	p:setName(3, "bgLayer2")			p:set("bgLayer2", 1)
 	p:setName(4, "bgLayer3")			p:set("bgLayer3", 1)
+	p:setName(5, "dw")					p:set("dw", 0.83)
+	p:setName(6, "dh")					p:set("dh", 0.66)
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -41,6 +45,18 @@ function patch.patchControls()
 	if kp.keypressOnRelease("3") then p:set("bgLayer3", (1-p:get("bgLayer3"))) end
 end
 
+function patch:setCanvases()
+	Patch.setCanvases(patch)  -- call parent function
+	-- patch-specific execution (window canvas)
+	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
+		patch.canvases.balls = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+		patch.canvases.bg = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	else
+		patch.canvases.balls = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		patch.canvases.bg = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	end
+end
+
 
 --- @public init init routine
 function patch.init()
@@ -49,6 +65,8 @@ function patch.init()
 	patch:setCanvases()
 
 	init_params()
+
+	patch.push = Lfo:new(0.1, 0)
 
 	patch:assignDefaultDraw()
 end
@@ -60,8 +78,7 @@ local function draw_bg()
 	g = resources.graphics
 	p = resources.parameters
 
-	cx = 0
-	cy = 0
+	love.graphics.setCanvas(patch.canvases.bg)
 
 	local nX = math.ceil(screen.InternalRes.W / patch.graphics.bg.size.x)
 	local nY = math.ceil(screen.InternalRes.H / patch.graphics.bg.size.y)
@@ -70,30 +87,53 @@ local function draw_bg()
 	love.graphics.rectangle("fill", 0, 0, screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setColor(1,1,1,1)
 
+	local bg_alpha = 1 - ((t*2) % 1)
+
 	for cx = -1, nX do
 		for cy = -1, nY do
-			local x = cx * patch.graphics.bg.size.x + ((2 * (cy % 2)-1) * (t*20)) % patch.graphics.bg.size.x
-			local y = cy * patch.graphics.bg.size.y
-			if p:get("bgLayer1") == 1 and math.floor(t*10) % 5 == 0 then
-				love.graphics.setColor(1, (cy+1)/(nY+1), (cy+1)/(nY+1), 0.7)
+			local x = cx * patch.graphics.bg.size.x
+			local y = cy * patch.graphics.bg.size.y + ((2 * (cx % 2)-1) * (t*20)) % patch.graphics.bg.size.y
+			if p:get("bgLayer1") == 1 and bg_alpha then
+				love.graphics.setColor(1, (cy+1)/(nY+1), (cy+1)/(nY+1), bg_alpha)
 				love.graphics.draw(patch.graphics.bg.image, x, y)
-			end
-			if p:get("bgLayer2") == 1 and math.floor(t*10) % 5 == 0 then
-				love.graphics.setColor((cy+1)/(nY+1), 1, (cy+1)/(nY+1), 0.5)
-				love.graphics.draw(patch.graphics.bg.image, x+1, y)
-			end
-			if p:get("bgLayer3") == 1 and math.floor(t*10) % 5 == 0 then
-				love.graphics.setColor((cy+1)/(nY+1), (cy+1)/(nY+1), 1, 0.4)
-				love.graphics.draw(patch.graphics.bg.image, x, y-1)
 			end
 		end
 	end
+
+	love.graphics.setCanvas(patch.canvases.balls)
+	love.graphics.clear()
+
+	local nBalls = 30
+
+	local radiusX = 70
+	local radiusY = 50
+	local size = 7
+
+	local dw = p:get("dw")
+	local dh = p:get("dh")
+
+	local push = patch.push:Sine(t)
+
+	for i = 1, nBalls do
+		local cx = screen.InternalRes.W/2 + push * radiusX * math.sin(dw*(i/nBalls + t + math.sin(t))*2*math.pi)
+		local cy = screen.InternalRes.H/2 + push * radiusY * math.cos(dh*(i/nBalls + t)*2*math.pi)
+		local r = size + 3 * math.sin(3*(t*2+i/nBalls)*2*math.pi)
+
+		love.graphics.setColor(1,1,1,i/nBalls)
+		love.graphics.circle("fill", cx, cy, r, 8)
+	end
+
+	love.graphics.setColor(1,1,1,1)
+
+	love.graphics.setCanvas(patch.canvases.main)
+	love.graphics.draw(patch.canvases.bg)
+	love.graphics.draw(patch.canvases.balls)
 
 end
 
 --- @public patch.draw draw routine
 function patch.draw()
-	patch:drawSetup(hang)
+	patch:drawSetup(patch.hang)
 
 	-- clear main canvas
 	patch.canvases.main:renderTo(function()
@@ -110,19 +150,35 @@ end
 function patch.update()
 	local t = cfg_timers.globalTimer.T
 
+	local amount
+	if kp.isDown("lshift") then
+		amount = 0.01
+	else
+		amount = 0.001
+	end
+
+	if kp.isDown("up") then p:set("dh", p:get("dh")+amount) end
+	if kp.isDown("down") then p:set("dh", p:get("dh")-amount) end
+	if kp.isDown("right") then p:set("dw", p:get("dw")+amount) end
+	if kp.isDown("left") then p:set("dw", p:get("dw")-amount) end
+
 	if math.floor(t) % 2 == 0 then
-		patch.graphics.bg.image = patch.graphics.bg.nasty
+		patch.graphics.bg.image = patch.graphics.bg.wired
 		patch.graphics.bg.size = {x = patch.graphics.bg.image:getPixelWidth(), y = patch.graphics.bg.image:getPixelHeight()}
 	else
-		patch.graphics.bg.image = patch.graphics.bg.hot
+		patch.graphics.bg.image = patch.graphics.bg.soul
 		patch.graphics.bg.size = {x = patch.graphics.bg.image:getPixelWidth(), y = patch.graphics.bg.image:getPixelHeight()}
 	end
+
+	patch.push:UpdateTrigger(true)
 
 	patch:mainUpdate()
 end
 
 
 function patch.commands(s)
+
+
 
 end
 
