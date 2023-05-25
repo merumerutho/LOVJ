@@ -3,7 +3,7 @@
 
 <img src="doc/assets/animations/demo1.gif" alt="demo1" width="180"> <img src="doc/assets/animations/demo3.gif" alt="demo3" width="180"> <img src="doc/assets/animations/demo5.gif" alt="demo5" width="180"> <img src="doc/assets/animations/demo8.gif" alt="demo8" width="180">
 
-LOVJ (previously called [LOVELive2p](https://en.wikipedia.org/wiki/Love_Live!)) aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively through LUA scripts in order to create a live-coding VJing setting mainly targeted at live music performances.
+LOVJ aims to be a [LÖVE](https://love2d.org/) framework to create, explore, play interactively through LUA scripts in order to create a live-coding VJing setting mainly targeted at live music performances.
 
 Shall be flexible enough to support:
 - "1 player" scenarios, with the VJ handling entirely control of the visuals.
@@ -20,7 +20,8 @@ Here, the VJ may handle the controls and on top, dynamically select and "wire" t
 
 
 ## Credits
-- [usysrc](https://github.com/usysrc) for its *LICK* library (here, modified to close properly a UDP socket upon hot-reloading).
+- [usysrc](https://github.com/usysrc) for their original *LICK* library implementation.
+- [rxi](https://github.com/rxi) for their json library.
 
 
 ## Use
@@ -47,16 +48,19 @@ They must be Patches objects, similarly to any LÖVE2D script:
 - A patch.update() method called upon love.update()
 
 ## Demos
-- Demo 01: algorithmically controlled colorful pixel grid
+- Demo 01: Colorful pixel grid
 - Demo 02: A "fountain" of balls
 - Demo 03: A spinning "tunnel" of balls
 - Demo 04: Flashy random rectangles
 - Demo 05: Escaping points joint by lines, with a trace effect.
-- Demo 06: Animated grid of moving sprites
+- Demo 06: Animated grid of moving sprites + some new stuff
 - Demo 07: Video playback with chroma key
 - Demo 08: 80s vector grid effect
 - Demo 09: LFO and envelope showcase
 - Demo 10: GLSL Raymarcher
+- Demo 11: A video playback in loop forward/reverse
+- Demo 12: Flashy sprites + sprites + geometry + shaders (overall demo)
+- Demo 13: Some more sprites + balls
 
 
 ## MIDI to OSC
