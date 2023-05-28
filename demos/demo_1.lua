@@ -69,7 +69,7 @@ function patch.draw()
 
 	local points_list = {}
 	-- draw picture
-    for x = -20, 20, .25 do
+	for x = -20, 20, .25 do
 		for y = -20, 20, .25 do
 			-- calculate oscillating radius
 			local r = ((x * x) + (y * y)) + 10 * math.sin(t / 2.5)
@@ -86,12 +86,13 @@ function patch.draw()
 			col = palettes.getColor(PALETTE, (math.floor(col) % 16) + 1)
 			-- add to list of points to draw
 			if inScreen(px, py) then
-				table.insert(points_list, {px, py, col[1], col[2], col[3], patch.env:Calculate(t)})
+				--table.insert(points_list, {px, py, col[1], col[2], col[3], patch.env:Calculate(t)})
+				love.graphics.setColor(col[1], col[2], col[3], patch.env:Calculate(t))
+				love.graphics.rectangle("fill", px, py, 3,3)
 			end
 		end
 	end
-	-- draw pixels
-	love.graphics.points(points_list)
+
 
 	patch:drawExec()
 end
