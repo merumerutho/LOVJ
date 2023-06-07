@@ -90,6 +90,7 @@ local function draw_bg()
 	love.graphics.rectangle("fill",0,0,screen.InternalRes.W, screen.InternalRes.H)
 	love.graphics.setColor(1,1,1,math.abs(math.sin(t*10))*0.2)
 	local idx = (math.floor(t * p:get("bgSpeed") ) % (patch.graphics.bg.image:getWidth() / BG_SPRITE_SIZE) ) + 1
+	-- Generate background pic
 	for x = -patch.graphics.bg.size.x, screen.InternalRes.W, patch.graphics.bg.size.x do
 		for y = -patch.graphics.bg.size.y, screen.InternalRes.H, patch.graphics.bg.size.y do
 			local lx = x + (t*20)% BG_SPRITE_SIZE
@@ -101,6 +102,7 @@ local function draw_bg()
 			love.graphics.draw(patch.graphics.bg.image, patch.graphics.bg.frames[rIdx], lx, ly)
 		end
 	end
+	-- Generate balls :)
 	local offY = 50*math.sin(t*1.2)
 	local offX = 50*math.cos(t*1.9)
 
