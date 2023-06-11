@@ -1,7 +1,6 @@
 -- shaders.lua
 --
 -- List of shaders
--- TODO: swap this with cfg_shaders.lua
 --
 
 local shaders = {}
@@ -33,6 +32,48 @@ shaders.h_mirror = [[
         float lr = clamp(sign(texture_coords[0] - 0.5), 0., 1.);
         // flip on the x axis
         texture_coords[0] = texture_coords[0] - lr * (2*(texture_coords[0] - 0.5));
+        return vec4(Texel(tex, texture_coords));
+	}
+]]
+
+-- horizontal water mirror shader
+shaders.w_mirror_water = [[
+    //extern float _time;
+	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        // left or right side of screen.
+        float lr = clamp(sign(texture_coords[1] - 0.5), 0., 1.);
+        // water displacement on the y axis
+        texture_coords[0] = mod(texture_coords[0] + lr * .01*texture_coords[1]*sin(50*texture_coords[1]), 1);
+        // reflection on the x axis
+        texture_coords[1] = texture_coords[1] - lr * (2*(texture_coords[1] - 0.5));
+        return vec4(Texel(tex, texture_coords));
+	}
+]]
+
+-- underwater shader
+shaders.underwater = [[
+    extern float _time;
+	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        // left or right side of screen.
+        float lr = clamp(sign(texture_coords[1] - 0.5), 0., 1.);
+        // water displacement on the y axis
+        texture_coords[0] = mod(texture_coords[0] + .02*sin(10*texture_coords[1] + _time), 1);
+        // reflection on the x axis
+        texture_coords[1] = mod(texture_coords[1] + .01*sin(10*texture_coords[1] + _time), 1);
+        return vec4(Texel(tex, texture_coords));
+	}
+]]
+
+-- underwater shader
+shaders.glitch = [[
+    extern float _glitchDisplace;
+    extern float _glitchFreq;
+	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        texture_coords[0] += (0.01 + _glitchDisplace)*sin(texture_coords[0]*100*_glitchFreq);
+        texture_coords[0] = mod(texture_coords[0], 1);
         return vec4(Texel(tex, texture_coords));
 	}
 ]]
@@ -143,24 +184,6 @@ shaders.blur = [[
         return (color+color2+color3)/3;
     }
 ]]
-
-shaders.glitch = [[
-    extern float _glitchOffset;
-    extern float _glitchSize;
-    float random(vec2 v)
-    {
-        return fract(sin(dot(v, vec2(12.9898,78.233)))*43758.5453123);
-    }
-
-    vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
-    {
-
-        color = vec4(Texel(tex, fract(texture_coords + _glitchOffset*random(mod(texture_coords, _glitchSize)))));
-        return color;
-    }
-
-]]
-
 
 shaders.circleWindow = [[
     #pragma language glsl3
