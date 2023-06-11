@@ -25,15 +25,15 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
     g:setName(1, "video")           g:set("video", "data/demo_11/evil_eyes.ogg")
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 
     -- insert here your patch controls
 end
@@ -41,6 +41,8 @@ end
 
 --- @public init init routine
 function patch.init()
+	local g = resources.graphics
+
 	PALETTE = palettes.PICO8
 
 	patch.setCanvases()

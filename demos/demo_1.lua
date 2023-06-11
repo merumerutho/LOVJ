@@ -18,7 +18,7 @@ end
 
 --- @private init_params initialize parameters for this patch
 local function init_params()
-	p = resources.parameters
+	local p = resources.parameters
 	p:setName(1, "a")			p:set("a", 0.5)
 	p:setName(2, "b")			p:set("b", 1)
 end

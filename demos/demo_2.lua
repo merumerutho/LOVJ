@@ -18,7 +18,7 @@ end
 
 
 local function addBall(sx, sy)
-	ball = {}
+	local ball = {}
   -- ball starting position
 	ball.x = sx
 	ball.y = sy
@@ -61,7 +61,7 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	p = resources.parameters
+	local p = resources.parameters
 end
 
 

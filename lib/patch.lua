@@ -13,7 +13,7 @@ Patch.__index = Patch
 
 -- Constructor
 function Patch:new(p)
-    p = p or {}
+    local p = p or {}
     setmetatable(p, self)
 	p.shader = cfg_patches.defaultPatch
 	p.hang = false

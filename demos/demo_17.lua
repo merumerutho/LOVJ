@@ -77,8 +77,8 @@ patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	p:setName(1, "colorInversion") p:set("colorInversion", 0)
 	p:setName(2, "ballSize") p:set("ballSize", .1)
@@ -86,7 +86,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 	-- update the colorInversion parameter
 	if kp.isDown("up") then p:set("colorInversion", p:get("colorInversion")+.1) end
 	if kp.isDown("down") then p:set("colorInversion", p:get("colorInversion")-.1) end
@@ -117,8 +117,8 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_stuff()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	local t = cfg_timers.globalTimer.T
 

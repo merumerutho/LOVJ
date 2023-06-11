@@ -24,6 +24,7 @@ end
 
 --- @private get_bg get background graphics based on resources
 local function get_bg()
+	local g = resources.graphics
 	patch.graphics.bg = {}
 	patch.graphics.bg.love = love.graphics.newImage(g:get("love"))
 	patch.graphics.bg.size = {x = patch.graphics.bg.love:getPixelWidth(), y = patch.graphics.bg.love:getPixelHeight()}
@@ -82,6 +83,7 @@ end
 
 --- @private get_bg get background graphics based on resources
 local function get_lain()
+	local g = resources.graphics
 	patch.graphics.lain = {}
 	patch.graphics.lain.image = love.graphics.newImage(g:get("lain"))
 	patch.graphics.lain.size = {x = LAIN_WIDTH, y = LAIN_HEIGHT}
@@ -98,8 +100,8 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	patch.graphics = {}
 

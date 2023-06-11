@@ -12,7 +12,7 @@ local function bpmSet(s)  end
 patch = Patch:new()
 
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 	if kp.isDown("lctrl") then
 		-- Inverter
 		patch.invert = kp.isDown("x")
@@ -27,7 +27,7 @@ end
 
 
 local function init_params()
-	p = resources.parameters
+	local p = resources.parameters
 end
 
 

@@ -10,8 +10,8 @@ patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	p:setName(1, "numBranches")			p:set("numBranches", 10)
 	p:setName(2, "ampModulator")		p:set("ampModulator", 10)
@@ -24,7 +24,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -79,6 +79,7 @@ local function draw_eyeball(t, cx, cy)
 end
 
 local function draw_bg(t, cx, cy)
+	local p = resources.parameters 
 	love.graphics.setColor(1,1,1,.5)
 
 	local n = 300
@@ -98,9 +99,9 @@ local function draw_bg(t, cx, cy)
 	end
 end
 
-local function draw_static(t, cx, cy)
-		local off = 0 -- -50
 
+local function draw_static(t, cx, cy)
+	local off = 0 -- -50
 	local nStatics = 10
 	local s_sigma = 500 + 200*math.sin(t)
 	love.graphics.setColor(1,1,1,1)
@@ -161,12 +162,12 @@ function patch.draw()
 	-- draw picture
 	draw_scene()
 
-
 	patch:drawExec()
 end
 
 
 function patch.update()
+	local p = resources.parameters
 	local t = cfg_timers.globalTimer.T
 
 	if kp.keypressOnRelease("up") and kp.isDown("n") then p:set("numBranches", p:get("numBranches")+1) end

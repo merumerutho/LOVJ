@@ -38,15 +38,6 @@ function patch.patchControls()
 	if kp.isDown("lshift") and kp.isDown("r") then
 		patch.reset()
 	end
-	-- warp
-	if kp.isDown("w") then
-		if kp.isDown("up") then p:set("_warpParameter", (p:get("_warpParameter") + 0.1)) end
-		if kp.isDown("down") then p:set("_warpParameter", (p:get("_warpParameter") - 0.1)) end
-	end
-	if kp.isDown("k") then
-		if kp.keypressOnAttack("up") then p:set("_segmentParameter", (p:get("_segmentParameter")+1)) end
-		if kp.keypressOnAttack("down") then p:set("_segmentParameter", (p:get("_segmentParameter")-1)) end
-	end
 	-- hang
 	if kp.keypressOnAttack("x") then
 		patch.hang = not patch.hang
@@ -88,7 +79,7 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	p = resources.parameters
+	local p = resources.parameters
 
 	-- Initialize parameters
 	p:setName(1, "speed_x") 			p:set("speed_x", 20)

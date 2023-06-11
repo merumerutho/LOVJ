@@ -10,8 +10,8 @@ patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	p:setName(1, "numBranches")			p:set("numBranches", 40)
 	p:setName(2, "ampModulator")		p:set("ampModulator", 10)
@@ -24,7 +24,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -59,8 +59,8 @@ end
 local function draw_scene()
 	local t = cfg_timers.globalTimer.T
 
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	local cx = screen.InternalRes.W/2
 	local cy = screen.InternalRes.H/2

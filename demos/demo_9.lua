@@ -14,13 +14,13 @@ patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 
 	if kp.isDown("r") then
 		patch.init()
@@ -46,8 +46,8 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_stuff()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	local t = cfg_timers.globalTimer.T
 	love.graphics.setColor(1, 1, 1, 1)

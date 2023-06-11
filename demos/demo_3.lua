@@ -30,7 +30,7 @@ end
 --- @private newBall spawn new ball in ballList
 local function newBall()
 	local t = cfg_timers.globalTimer.T
-	ball = {}
+	local ball = {}
 	ball.n = 6 + math.random(16)
 	ball.s = math.random()
 	ball.cs = patch.bs + math.random()
@@ -62,7 +62,7 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	p = resources.parameters
+	local p = resources.parameters
 	p:setName(1, "acceleration")		p:set("acceleration", DEFAULT_ACCELERATION)
 end
 

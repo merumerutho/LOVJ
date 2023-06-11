@@ -25,15 +25,15 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
     g:setName(1, "video")           g:set("video", "data/demo_7/demo.ogg")
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 
     -- insert here your patch controls
 end
@@ -62,8 +62,8 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_stuff()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 end
 

@@ -23,66 +23,9 @@ function patch.patchControls()
 	if love.keyboard.isDown("r") then patch.init() end
 end
 
---- @private get_bg get background graphics based on resources
-local function get_bg()
-	patch.graphics.bg = {}
-	patch.graphics.bg.love = love.graphics.newImage(g:get("love"))
-	patch.graphics.bg.size = {x = patch.graphics.bg.love:getPixelWidth(), y = patch.graphics.bg.love:getPixelHeight()}
-	patch.graphics.bg.frames = {}
-end
-
-
-local function addBall(sx, sy)
-	ball = {}
-  -- ball starting position
-	ball.x = sx
-	ball.y = sy
-  -- ball z-depth (radius)
-	ball.z = math.random()
-  -- ball color
-	ball.c = palettes.getColor(PALETTE, 2)
-  -- ball direction is binary
-	ball.dx = (-1) ^ (1+math.random(2)) * 0.1
-	ball.dy = (-1) ^ (1+math.random(2)) * 0.1
-  -- ball speed 
-	ball.ax = ball.dx * ((math.random())*3 + 0.05)
-	ball.ay = ball.dy * ((math.random())*3 + 0.05 - ball.dx * ball.ax / 10)
-  	ball.az = (math.abs(ball.ax) + math.abs(ball.ay))
-  	-- readjust ay
-  	ball.ax = (ball.ax / ball.dx - ball.dy * ball.ay / 10) * ball.dx
-
-	ball.lifetime = 150+math.random(300)
-  	-- add ball to list
-	table.insert(patch.ballList, ball)
-end
-
-
-local function ballTrajectory(k, b)
-	local t = cfg_timers.globalTimer.T
-	local dt = cfg_timers.globalTimer:dt() -- keep it fps independent
-	local p = resources.parameters
-
-	b.x = b.x + b.ax 		 * dt * 50
-	b.y = b.y + b.ay 		 * dt * 50
-	b.z = b.z + 0.025 * b.az * dt * 50
-  
-	if b.z < 0 then b.z = 0 end
-
-	-- Decrease lifetime
-	b.lifetime = b.lifetime-1
-
-	if (b.lifetime <= 0) then
-
-		table.remove(patch.ballList, k)
-		local cx = screen.InternalRes.W / 2 - screen.InternalRes.W/5 + math.random(2/5*screen.InternalRes.W)
-		local cy = screen.InternalRes.H / 2 - screen.InternalRes.H/5 + math.random(2/5*screen.InternalRes.H)
-		addBall(p:get("sceneCenterX"), p:get("sceneCenterY"))
-	end
-end
-
-
---- @private get_bg get background graphics based on resources
+--- @private get_roach get roach :)
 local function get_roach()
+	local g = resources.graphics
 	patch.graphics.roach = {}
 	patch.graphics.roach.image = love.graphics.newImage(g:get("roach"))
 	patch.graphics.roach.size = {x = ROACH_WIDTH, y = ROACH_HEIGHT}
@@ -99,8 +42,8 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	patch.graphics = {}
 
@@ -108,7 +51,6 @@ local function init_params()
 	get_roach()
 
 	g:setName(2, "love")		g:set("love", "data/graphics/love.png")
-	get_bg()
 
 	p:setName(1, "windowSize") 			p:set("windowSize", 0.6)
 	p:setName(2, "showRoach")			p:set("showRoach", true)
@@ -140,17 +82,7 @@ function patch.init()
 	patch.hang = false
 	patch:setCanvases()
 	
-  	-- balls
-  	patch.nBalls = 500
-  	patch.ballList = {}
-  	-- generate balls
-  	for i = 1, patch.nBalls do
-		local cx = screen.InternalRes.W / 2 - screen.InternalRes.W/5 + math.random(2/5*screen.InternalRes.W)
-		local cy = screen.InternalRes.H / 2 - screen.InternalRes.H/5 + math.random(2/5*screen.InternalRes.H)
-		addBall(cx, cy)
-  	end
-
-	-- Lfo
+  	-- Lfo
 	patch.lfo = Lfo:new(0.1, 0) -- frequency = 1, phase = 0
 
 	patch:assignDefaultDraw()
@@ -180,6 +112,7 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local p = resources.parameters
 	local t = cfg_timers.globalTimer.T
 
 	local scx, scy = p:get("sceneCenterX"), p:get("sceneCenterY")
@@ -231,15 +164,8 @@ end
 
 
 function patch.update()
+	local p = resources.parameters
 	patch:mainUpdate()
-
-	-- update balls
-	for k, b in pairs(patch.ballList) do
-		ballTrajectory(k, b)
-	end
-	
-	-- re-order balls
-	orderZ(patch.ballList)
 
 	patch.lfo:UpdateTrigger(true)
 

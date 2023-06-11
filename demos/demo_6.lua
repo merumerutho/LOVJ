@@ -14,6 +14,7 @@ patch = Patch:new()
 
 --- @private get_bg get background graphics based on resources
 local function get_bg()
+	local g = resources.graphics
 	patch.graphics = {}
 	patch.graphics.bg = {}
 	patch.graphics.bg.image = love.graphics.newImage(g:get("bg"))
@@ -30,8 +31,8 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 	g:setName(1, "bg")				g:set("bg", "data/demo_6/bg.png")
 	get_bg()
 	p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
@@ -39,7 +40,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -81,8 +82,8 @@ end
 local function draw_bg()
 	local t = cfg_timers.globalTimer.T
 
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	love.graphics.setCanvas(patch.canvases.toShade)
 

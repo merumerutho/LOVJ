@@ -10,6 +10,8 @@ patch = Patch:new()
 
 --- @private get_bg get background graphics based on resources
 local function get_bg()
+	local g = resources.graphics
+
 	patch.graphics = {}
 	patch.graphics.bg = {}
 	patch.graphics.bg.wired = love.graphics.newImage(g:get("wired"))
@@ -21,8 +23,8 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 	g:setName(1, "wired")				g:set("wired", "data/graphics/wired.png")
 	g:setName(2, "soul")				g:set("soul", "data/graphics/soul.png")
 	get_bg()
@@ -36,7 +38,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 
@@ -75,8 +77,8 @@ end
 local function draw_bg()
 	local t = cfg_timers.globalTimer.T
 
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	love.graphics.setCanvas(patch.canvases.bg)
 
@@ -149,6 +151,7 @@ end
 
 function patch.update()
 	local t = cfg_timers.globalTimer.T
+	local p = resources.parameters
 
 	local amount
 	if kp.isDown("lshift") then
@@ -177,8 +180,6 @@ end
 
 
 function patch.commands(s)
-
-
 
 end
 

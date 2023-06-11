@@ -12,8 +12,8 @@ patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	p:setName(1, "speed")		p:set("speed", 100)
 
@@ -21,7 +21,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	p = resources.parameters
+	local p = resources.parameters
 
     -- insert here your patch controls
 end
@@ -41,8 +41,8 @@ end
 local function draw_stuff()
 	local t = cfg_timers.globalTimer.T
 
-	g = resources.graphics
-	p = resources.parameters
+	local g = resources.graphics
+	local p = resources.parameters
 
 	local w = screen.InternalRes.W
 	local h = screen.InternalRes.H
