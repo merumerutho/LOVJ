@@ -5,7 +5,7 @@
 --
 
 local Automation = lovjRequire("lib/automations/automation")
-local amath = lovjRequire("lib/automations/automation_math")
+local AMath = lovjRequire("lib/automations/automation_math")
 
 local Envelope = {}
 Envelope.__index = Envelope
@@ -36,7 +36,7 @@ function Envelope:Attack(t)
     -- exception case for no attack
     if Ta == 0 then return 0 end
 
-    return (t/Ta) * amath.rect((t-Ta/2)/Ta)  -- see doc in section "envelope", chapter "attack"
+    return (t/Ta) * AMath.rect((t-Ta/2)/Ta)  -- see doc in section "envelope", chapter "attack"
 end
 
 --- @public Decay calculate the decay value at time t
@@ -52,7 +52,7 @@ function Envelope:Decay(t, rlsCall)
     t = (t-Ta-Tt)  -- apply delay of Ta
     local m = (1 - s)/Td  -- angular coefficient
 
-    return (1-m*t) * amath.rect((t-Td/2)/Td) -- see doc in section "envelope", chapter "decay"
+    return (1-m*t) * AMath.rect((t-Td/2)/Td) -- see doc in section "envelope", chapter "decay"
 end
 
 --- @public Sustain calculate the sustain value at time t
@@ -63,7 +63,7 @@ function Envelope:Sustain(t)
     local Tt = self.trigger.atkInst  -- instant of attack of the trigger
 
     t = (t - Ta - Td - Tt)  -- apply delay of Ta + Td
-    return (s) * amath.step(t)  -- see doc in section "envelope", chapter "sustain"
+    return (s) * AMath.step(t)  -- see doc in section "envelope", chapter "sustain"
 end
 
 --- @public Release calculate the release value at time t
@@ -74,7 +74,7 @@ function Envelope:Release(t)
     local t = t - trg
 
     -- see doc in section "envelope", chapter "release"
-    return (y - y/Tr * t) * amath.rect((t-Tr/2)/Tr)
+    return (y - y/Tr * t) * AMath.rect((t-Tr/2)/Tr)
 end
 
 --- @public Calculate calculate the overall envelope at time t
@@ -82,7 +82,7 @@ function Envelope:Calculate(t)
     -- consider envelope as sum of four concatenated components
     -- attack + decay + release + release
     local tr = self:isTriggerActive()
-    return (self:Attack(t) + self:Decay(t) + self:Sustain(t)) * amath.b2n(tr) + self:Release(t) * amath.b2n(not tr)
+    return (self:Attack(t) + self:Decay(t) + self:Sustain(t)) * AMath.b2n(tr) + self:Release(t) * AMath.b2n(not tr)
 end
 
 return Envelope

@@ -15,7 +15,7 @@ Automation.__index = Automation
 function Automation:new()
     local self = setmetatable({}, Automation)
 
-    self.trigger = { atkInst = 0, rlsInst = 0 }  -- input trigger
+    self.trigger = { atkInst = 0, rlsInst = 0 }  -- input triggers
     self.output = nil  -- output control
 
     return self
@@ -26,15 +26,15 @@ function Automation:isTriggerActive()
     return (self.trigger.atkInst > self.trigger.rlsInst)
 end
 
---- @public UpdateTrigger update periodically the trigger
+--- @public UpdateTrigger periodically update the trigger
 function Automation:UpdateTrigger(trg)
     local globalTimer = cfg_timers.globalTimer
 
-    -- if trigger 0->1, save atkInst
+    -- if trigger 0->1, this is the atkInst
     if not self:isTriggerActive() and trg then
         self.trigger.atkInst = globalTimer.T
     end
-    -- if trigger 1->0, save rlsInst
+    -- if trigger 1->0, this is the rlsInst
     if self:isTriggerActive() and not trg then
         self.trigger.oldRlsInst = self.trigger.rlsInst
         self.trigger.rlsInst = globalTimer.T
