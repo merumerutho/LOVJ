@@ -1,13 +1,7 @@
 local Patch = lovjRequire ("lib/patch")
-local palettes = lovjRequire ("lib/utils/palettes")
 local screen = lovjRequire ("lib/screen")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
-local kp = lovjRequire("lib/utils/keypress")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
-local shaders = lovjRequire("lib/shaders")
-local Lfo = lovjRequire("lib/automations/lfo")
-
-local PALETTE = palettes.BW
 
 patch = Patch:new()
 
@@ -31,10 +25,10 @@ local function get_roach()
 	patch.graphics.roach.size = {x = ROACH_WIDTH, y = ROACH_HEIGHT}
 	patch.graphics.roach.frames = {}
 	for i=0,patch.graphics.roach.image:getWidth() / ROACH_WIDTH do
-		table.insert(patch.graphics.roach.frames, love.graphics.newQuad(	i*ROACH_WIDTH,				-- x
-																		0,							-- y
+		table.insert(patch.graphics.roach.frames, love.graphics.newQuad(i*ROACH_WIDTH,					-- x
+																		0,								-- y
 																		ROACH_WIDTH,					-- width
-																		ROACH_HEIGHT,				-- height
+																		ROACH_HEIGHT,					-- height
 																		patch.graphics.roach.image))	-- img
 	end
 end
@@ -47,10 +41,10 @@ local function init_params()
 
 	patch.graphics = {}
 
-	g:setName(1, "roach")		g:set("roach", "data/graphics/cockroach.png")
+	g:setName(1, "roach")				g:set("roach", "data/graphics/cockroach.png")
 	get_roach()
 
-	g:setName(2, "love")		g:set("love", "data/graphics/love.png")
+	g:setName(2, "love")				g:set("love", "data/graphics/love.png")
 
 	p:setName(1, "windowSize") 			p:set("windowSize", 0.6)
 	p:setName(2, "showRoach")			p:set("showRoach", true)
@@ -81,31 +75,9 @@ end
 function patch.init()
 	patch.hang = false
 	patch:setCanvases()
-	
-  	-- Lfo
-	patch.lfo = Lfo:new(0.1, 0) -- frequency = 1, phase = 0
 
 	patch:assignDefaultDraw()
 	init_params()
-end
-
-
-local function drawBall(b)
-	local t = cfg_timers.globalTimer.T
-  	local border_col = palettes.getColor(PALETTE, 2)
-	local radius = (b.z/2) ^ 1.6
-  	love.graphics.setColor(	border_col[1] / 255,
-							border_col[2] / 255,
-							border_col[3] / 255,
-							1)
-  	love.graphics.circle("line", b.x, b.y, radius, (b.z * 2) + 6)
-  	-- filled circle
-  	love.graphics.setColor(	0.4 * b.lifetime * b.c[1] / 255,
-							0.3 * b.lifetime * b.c[2] / 255,
-							0.3 * b.lifetime * b.c[3] / 255,
-							1)
-	love.graphics.circle("fill", b.x, b.y, radius, (b.z * 2) + 6)
-	love.graphics.setColor(1,1,1,1)
 end
 
 
@@ -115,79 +87,50 @@ function patch.draw()
 	local p = resources.parameters
 	local t = cfg_timers.globalTimer.T
 
-	local scx, scy = p:get("sceneCenterX"), p:get("sceneCenterY")
-
-	-- force selection of main canvas
 	love.graphics.setCanvas(patch.canvases.main)
 
+	-- background roaches stuff
 	local n = 20
 	local scaling = 0.1
-	local roachScaleW = scaling * ROACH_WIDTH
-	local roachScaleH = scaling * ROACH_HEIGHT
 
+	-- draw background
 	for i = -1, n do
-		for j = -2, n do
-			--love.graphics.setColor(.5+.5*math.sin(t),.5+.5*math.sin(t*3),.5+.5*math.sin(t*2),math.sin((2*math.pi)*(t+i/10+j/10)))
-			love.graphics.draw(patch.graphics.roach.image, patch.graphics.roach.frames[math.floor(t*25 + j + i) % NUM_FRAMES_ROACH + 1],
-					(screen.InternalRes.W / n)*i , (screen.InternalRes.H / n)*j, 0, scaling, scaling)
+		for j = -1, n do
+			love.graphics.draw(patch.graphics.roach.image,
+								patch.graphics.roach.frames[math.floor(t*25 + j + i) % NUM_FRAMES_ROACH + 1],
+								(screen.InternalRes.W / n)*i,
+								(screen.InternalRes.H / n)*j,
+								0,
+								scaling,
+								scaling)
 		end
 	end
 
+	-- Hue rotation
 	love.graphics.setColor(.5+.5*math.sin((2*math.pi)*t),.5+.5*math.sin((2*math.pi)*(t+.3333)),.5+.5*math.sin((2*math.pi)*(t+.6666)),1)
-	-- draw roach
-	if p:get("showRoach") then
-		love.graphics.draw(patch.graphics.roach.image, patch.graphics.roach.frames[math.floor(t*25) % NUM_FRAMES_ROACH + 1],
-				screen.InternalRes.W/2+ROACH_WIDTH*0.75/2, 10, 0, -0.75, 0.75)
 
-		--	love.graphics.draw(patch.graphics.roach.image, patch.graphics.roach.frames[math.floor(t*25) % NUM_FRAMES_ROACH + 1],
-		--			screen.InternalRes.W - ROACH_WIDTH*0.75, 10, 0, 0.75, 0.75)
+	-- Draw main roach
+	if p:get("showRoach") then
+		love.graphics.draw(patch.graphics.roach.image,
+							patch.graphics.roach.frames[math.floor(t*25) % NUM_FRAMES_ROACH + 1],
+							screen.InternalRes.W/2+ROACH_WIDTH*0.75/2,
+							10,
+							0,
+							-0.75,
+							0.75)
 	end
 
 	-- remove canvas
 	love.graphics.setCanvas()
-
+	-- reset color
 	love.graphics.setColor(1,1,1,1)
 
 	patch:drawExec()
 end
 
 
-local function orderZ(l)
-  for i = 1, #l do
-    local j = i
-    while j > 1 and l[j - 1].z > l[j].z do
-      l[j], l[j - 1] = l[j - 1], l[j]
-      j = j - 1
-    end
-  end
-end
-
-
 function patch.update()
-	local p = resources.parameters
 	patch:mainUpdate()
-
-	patch.lfo:UpdateTrigger(true)
-
-	if kp.isDown("x") then
-		if kp.isDown("up") then p:set("sceneCenterX", p:get("sceneCenterX")+1) end
-		if kp.isDown("down") then p:set("sceneCenterX", p:get("sceneCenterX")-1) end
-	elseif kp.isDown("y") then
-		if kp.isDown("up") then p:set("sceneCenterY", p:get("sceneCenterY")+1) end
-		if kp.isDown("down") then p:set("sceneCenterY", p:get("sceneCenterY")-1) end
-	else
-		if kp.isDown("up") then p:set("windowSize", p:get("windowSize")+.01) end
-		if kp.isDown("down") then p:set("windowSize", p:get("windowSize")-.01) end
-	end
-
-	if kp.keypressOnRelease("q") then p:set("showRoach", not p:get("showRoach")) end
-	if kp.keypressOnRelease("w") then p:set("showLove", not p:get("showLove")) end
-	if kp.keypressOnRelease("e") then p:set("drawOutsideEllipse", not p:get("drawOutsideEllipse")) end
-	if kp.keypressOnRelease("t") then p:set("flash", not p:get("flash")) end
-
-	-- clamp colorInversion between 0 and 1
-	p:set("windowSize", math.min(math.max(p:get("windowSize"), 0), 1) )
-
 end
 
 
