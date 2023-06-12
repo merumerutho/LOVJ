@@ -18,35 +18,34 @@ local MODKEY_SECONDARY = "lshift"
 -- TODO: move this function somewhere in the cfg_shaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands()
+	local s = resources.shaderext
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
 		toggleShaders()
 	end
 	-- select main shader
 	if kp.keypressOnAttack("s") then
-		g:set("selected_shader", (g:get("selected_shader") + 1) % #cfg_shaders.shaders)
+		s:set("selected_shader", (s:get("selected_shader") + 1) % #cfg_shaders.shaders)
 	end
 	-- warp
 	if kp.isDown("w") then
-		if kp.isDown("up") then g:set("_warpParameter", (g:get("_warpParameter") + 0.1)) end
-		if kp.isDown("down") then g:set("_warpParameter", (g:get("_warpParameter") - 0.1)) end
+		if kp.isDown("up") then s:set("_warpParameter", (s:get("_warpParameter") + 0.1)) end
+		if kp.isDown("down") then s:set("_warpParameter", (s:get("_warpParameter") - 0.1)) end
 	end
 	-- kaleido
 	if kp.isDown("k") then
-		if kp.keypressOnAttack("up") then g:set("_segmentParameter", (g:get("_segmentParameter")+1)) end
-		if kp.keypressOnAttack("down") then g:set("_segmentParameter", (g:get("_segmentParameter")-1)) end
+		if kp.keypressOnAttack("up") then s:set("_segmentParameter", (s:get("_segmentParameter")+1)) end
+		if kp.keypressOnAttack("down") then s:set("_segmentParameter", (s:get("_segmentParameter")-1)) end
 	end
 	-- blur
 	if kp.isDown("g") then
-		if kp.isDown("up") then g:set("_blurOffset", (g:get("_blurOffset")+0.001)) end
-		if kp.isDown("down") then g:set("_blurOffset", (g:get("_blurOffset")-0.001)) end
+		if kp.isDown("up") then s:set("_blurOffset", (s:get("_blurOffset")+0.001)) end
+		if kp.isDown("down") then s:set("_blurOffset", (s:get("_blurOffset")-0.001)) end
 	end
 end
 
 --- @public handleGeneralControls Main function to handle general keyboard controls (patch-independent)
 function controls.handleGeneralControls()
-	g = resources.globals
-
 	-- handle command menu
 	if kp.keypressOnRelease("escape") then
 		cmd.handleCmdMenu()

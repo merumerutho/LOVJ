@@ -70,6 +70,8 @@ function resources.init()
     resources.globals = Resource:new(nil, DEFAULT_SIZE)
     -- filepaths or data bound to graphics resources / sprites etc.
     resources.graphics = Resource:new(nil, DEFAULT_SIZE)
+    -- shader external control parameters
+    resources.shaderext = Resource:new(nil, DEFAULT_SIZE)
 end
 
 --- @public Update Updater for overall resources
