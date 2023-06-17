@@ -23,6 +23,11 @@ cfg_shaders.shaders =   {  shaders.default,
 						   shaders.diag_cut,
 						   shaders.blur}
 
+-- Post process shaders: at startup they are default
+cfg_shaders.PostProcessShaders = {shaders.default,
+								  shaders.default,
+								  shaders.default}
+
 --- @public toggleShaders enable / disable shaders
 function toggleShaders()
     cfg_shaders.enabled = not cfg_shaders.enabled

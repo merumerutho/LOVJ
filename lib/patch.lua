@@ -5,6 +5,7 @@
 
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local cfg_patches = lovjRequire("lib/cfg/cfg_patches")
+local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}
@@ -15,7 +16,6 @@ Patch.__index = Patch
 function Patch:new(p)
     local p = p or {}
     setmetatable(p, self)
-	p.shader = cfg_patches.defaultPatch
 	p.hang = false
     return p
 end
@@ -24,12 +24,22 @@ end
 --- @public setCanvases (re)set canvases for patch
 function Patch:setCanvases()
 	self.canvases = {}
+	self.canvases.ShaderCanvases = {}
+
+	local sizeX, sizeY
+	-- Calculate appropriate size
 	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		self.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+		sizeX, sizeY = screen.InternalRes.W, screen.InternalRes.H
 	else
-		self.canvases.main = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		sizeX, sizeY = screen.ExternalRes.W, screen.ExternalRes.H
 	end
-	self.canvases.cmd = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	-- Generate canvases with calculated size
+	self.canvases.main = love.graphics.newCanvas(sizeX, sizeY)
+	self.canvases.cmd = love.graphics.newCanvas(sizeX, sizeY)
+	for i = 1, #cfg_shaders.PostProcessShaders do
+		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H))
+	end
+
 end
 
 
@@ -47,23 +57,44 @@ function Patch:drawSetup()
 	if not self.hang then
 		self.canvases.main:renderTo(love.graphics.clear)
 	end
-	-- select shader
-	if cfg_shaders.enabled then self.shader = cfg_shaders.selectShader() end
+
+	-- select shaders
+	if cfg_shaders.enabled then
+		for i = 1, #cfg_shaders.PostProcessShaders do
+			cfg_shaders.PostProcessShaders[i] = cfg_shaders.selectShader()
+		end
+	end
+
 	-- set canvas
 	love.graphics.setCanvas(self.canvases.main)
-end
+	end
 
 
 --- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec()
-	-- reset Canvas
-	love.graphics.setCanvas()
-	-- apply shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader(self.shader) end
-	-- render picture
-	love.graphics.draw(self.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-	-- remove shader
-	if cfg_shaders.enabled then cfg_shaders.applyShader() end
+	-- cycle over shader canvases and apply shaders
+	if cfg_shaders.enabled then
+		for i = 1, #cfg_shaders.PostProcessShaders do
+			local srcCanvas, dstCanvas
+			if i == 1 then srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
+			else srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i] end
+			-- Set canvas, apply shader, draw and then remove shader
+			love.graphics.setCanvas(dstCanvas)
+			cfg_shaders.applyShader(cfg_shaders.PostProcessShaders[i])
+			love.graphics.draw(srcCanvas, 0, 0, 0, 1, 1)
+			love.graphics.setCanvas(srcCanvas)
+			love.graphics.clear(0,0,0,1)
+		end
+		-- Draw final layer on output (default) canvas
+		love.graphics.setCanvas()
+		cfg_shaders.applyShader()
+
+		love.graphics.draw(self.canvases.ShaderCanvases[#cfg_shaders.PostProcessShaders], 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	else
+		-- Draw normally
+		love.graphics.setCanvas()
+		love.graphics.draw(self.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	end
 	-- draw cmd menu canvas on top
 	love.graphics.draw(self.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
