@@ -72,6 +72,7 @@ function Patch:drawSetup()
 
 --- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec()
+	love.graphics.setColor(1,1,1,1)
 	-- cycle over shader canvases and apply shaders
 	if cfg_shaders.enabled then
 		for i = 1, #cfg_shaders.PostProcessShaders do
