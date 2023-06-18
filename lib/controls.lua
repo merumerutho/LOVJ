@@ -25,7 +25,7 @@ local function handleShaderCommands()
 	end
 	-- select main shader
 	if kp.keypressOnAttack("s") then
-		s:set("selected_shader", (s:get("selected_shader") + 1) % #cfg_shaders.shaders)
+		s:set("shaderSlot1", (s:get("shaderSlot1") + 1) % #cfg_shaders.shaders)
 	end
 	-- warp
 	if kp.isDown("w") then

@@ -35,26 +35,29 @@ end
 
 function cfg_shaders.assignGlobals()
 	local s = resources.shaderext
-	s:setName(1, "selected_shader")		s:set("selected_shader", 0)
-	s:setName(2, "_warpParameter")		s:set("_warpParameter", 2)
-	s:setName(3, "_segmentParameter")	s:set("_segmentParameter", 3)
-	s:setName(4, "_chromaColor")		s:set("_chromaColor", {0,0,0,0})
-	s:setName(5, "_chromaTolerance")	s:set("_chromaTolerance", {0.05, 0.1})
-	s:setName(6, "_blurOffset")			s:set("_blurOffset", 0.01)
-	s:setName(7, "_glitchOffset")		s:set("_glitchOffset", 0.00)
-	s:setName(8, "_glitchSize")			s:set("_glitchSize", -2000)
-	s:setName(9, "_glitchDisplace")		s:set("_glitchDisplace", 0)
-	s:setName(10, "_glitchFreq")		s:set("_glitchFreq", 1)
+	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
+	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
+	s:setName(3, "shaderSlot3")			s:set("shaderSlot3", 0)
+
+	s:setName(4, "_warpParameter")		s:set("_warpParameter", 2)
+	s:setName(5, "_segmentParameter")	s:set("_segmentParameter", 3)
+	s:setName(6, "_chromaColor")		s:set("_chromaColor", {0,0,0,0})
+	s:setName(7, "_chromaTolerance")	s:set("_chromaTolerance", {0.05, 0.1})
+	s:setName(8, "_blurOffset")			s:set("_blurOffset", 0.01)
+	s:setName(9, "_glitchOffset")		s:set("_glitchOffset", 0.00)
+	s:setName(10, "_glitchSize")		s:set("_glitchSize", -2000)
+	s:setName(11, "_glitchDisplace")	s:set("_glitchDisplace", 0)
+	s:setName(12, "_glitchFreq")		s:set("_glitchFreq", 1)
 end
 
 --- @public selectShader select the shader to apply
-function cfg_shaders.selectShader()
+function cfg_shaders.selectShader(i)
     local s = resources.shaderext
     -- select shader
 	local shader_script
 	local shader
 
-	shader_script = cfg_shaders.shaders[1 + s:get("selected_shader")]
+	shader_script = cfg_shaders.shaders[1 + s:get("shaderSlot" .. i)]
 	shader = love.graphics.newShader(shader_script)
 	if shader_script == shaders.warp then
 		shader:send("_warpParameter", s:get("_warpParameter"))

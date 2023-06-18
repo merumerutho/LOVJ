@@ -61,7 +61,7 @@ function Patch:drawSetup()
 	-- select shaders
 	if cfg_shaders.enabled then
 		for i = 1, #cfg_shaders.PostProcessShaders do
-			cfg_shaders.PostProcessShaders[i] = cfg_shaders.selectShader()
+			cfg_shaders.PostProcessShaders[i] = cfg_shaders.selectShader(i)
 		end
 	end
 
