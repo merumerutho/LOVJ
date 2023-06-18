@@ -37,7 +37,7 @@ function Patch:setCanvases()
 	self.canvases.main = love.graphics.newCanvas(sizeX, sizeY)
 	self.canvases.cmd = love.graphics.newCanvas(sizeX, sizeY)
 	for i = 1, #cfg_shaders.PostProcessShaders do
-		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H))
+		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(sizeX, sizeY))
 	end
 
 end
@@ -72,8 +72,17 @@ function Patch:drawSetup()
 
 --- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec()
+	-- Reset color
 	love.graphics.setColor(1,1,1,1)
-	-- cycle over shader canvases and apply shaders
+	-- Calculate scaling for post process shaders
+	local scalingX, scalingY
+	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+		scalingX, scalingY = 1,1
+	else
+		scalingX, scalingY = screen.Scaling.X, screen.Scaling.Y
+	end
+
+	-- Cycle amd apply post process shaders over relative canvases
 	if cfg_shaders.enabled then
 		for i = 1, #cfg_shaders.PostProcessShaders do
 			local srcCanvas, dstCanvas
@@ -82,17 +91,16 @@ function Patch:drawExec()
 			-- Set canvas, apply shader, draw and then remove shader
 			love.graphics.setCanvas(dstCanvas)
 			cfg_shaders.applyShader(cfg_shaders.PostProcessShaders[i])
-			love.graphics.draw(srcCanvas, 0, 0, 0, 1, 1)
+			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
 			love.graphics.setCanvas(srcCanvas)
 			love.graphics.clear(0,0,0,1)
 		end
-		-- Draw final layer on output (default) canvas
+		-- Draw final layer on default canvas
 		love.graphics.setCanvas()
 		cfg_shaders.applyShader()
-
 		love.graphics.draw(self.canvases.ShaderCanvases[#cfg_shaders.PostProcessShaders], 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	else
-		-- Draw normally
+		-- If shaders disabled, draw normally on default canvas
 		love.graphics.setCanvas()
 		love.graphics.draw(self.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	end
