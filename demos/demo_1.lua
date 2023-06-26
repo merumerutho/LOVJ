@@ -65,6 +65,8 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local p = resources.parameters
+
 	local t = cfg_timers.globalTimer.T
 
 	local points_list = {}
