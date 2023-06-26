@@ -11,6 +11,7 @@ local cfg_shaders = {}
 cfg_shaders.enabled = true
 --- @public shaders list of shaders
 cfg_shaders.shaders =   {  shaders.default,
+						   shaders.swirl,
 						   shaders.glitch,
 						   shaders.underwater,
 						   shaders.w_mirror_water,

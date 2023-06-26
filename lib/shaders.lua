@@ -13,6 +13,32 @@ shaders.default = [[
 	}
 ]]
 
+shaders.swirl = [[
+
+    //extern float _time;
+    vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        vec2 uv = texture_coords;
+
+        vec2 center = vec2(0.5, 0.5);
+
+        vec2 delta = uv - center;
+        float distance = length(delta);
+        float angle = atan(delta.y, delta.x);
+
+        //float swirlAmount = 0.5*(sin(_time) + 1);
+        float swirlAmount = 0.5;
+        float swirlRadius = 0.5;
+        float swirlAngle = swirlAmount * distance / swirlRadius;
+
+        vec2 distortedUV = center + 0.707*vec2(cos(angle + swirlAngle), sin(angle + swirlAngle)) * distance;
+
+        color = vec4(Texel(tex, distortedUV));
+        return color;
+	}
+]]
+
+
 -- 'trail' shader
 shaders.trail = [[
     extern vec4 _trailColor;
@@ -115,7 +141,7 @@ shaders.warp = [[
 
         //angle = min(angle, segmentAngle - angle);
 
-        texture_coords = (vec2(cos(angle), sin(angle)) * radius) + 0.5;
+        texture_coords = 0.707*(vec2(cos(angle), sin(angle)) * radius) + 0.5;
 
         //texture_coords = max(min(texture_coords, 2.0 - texture_coords), -texture_coords);
         //return vec4(angle, 0.0, 0.0, 1.0);
