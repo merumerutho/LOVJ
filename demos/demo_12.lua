@@ -181,6 +181,7 @@ end
 function patch.draw()
 	patch:drawSetup()
 
+	local p = resources.parameters
 	local t = cfg_timers.globalTimer.T
 
 	local scx, scy = p:get("sceneCenterX"), p:get("sceneCenterY")
@@ -296,6 +297,8 @@ end
 
 function patch.update()
 	patch:mainUpdate()
+
+	local p = resources.parameters
 
 	-- update balls
 	for k, b in pairs(patch.ballList) do

@@ -141,6 +141,7 @@ end
 
 function patch.update()
 	local t = cfg_timers.globalTimer.T
+	local p = resources.parameters
 
 	if kp.keypressOnRelease("up") and kp.isDown("n") then p:set("numBranches", p:get("numBranches")+1) end
 	if kp.keypressOnRelease("down") and kp.isDown("n") then p:set("numBranches", p:get("numBranches")-1) end
