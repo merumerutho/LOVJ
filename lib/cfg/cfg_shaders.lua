@@ -12,6 +12,7 @@ cfg_shaders.enabled = true
 --- @public shaders list of shaders
 cfg_shaders.shaders =   {  shaders.default,
 						   shaders.swirl,
+						   shaders.circleswirl,
 						   shaders.glitch,
 						   shaders.underwater,
 						   shaders.w_mirror_water,
@@ -49,6 +50,8 @@ function cfg_shaders.assignGlobals()
 	s:setName(10, "_glitchSize")		s:set("_glitchSize", -2000)
 	s:setName(11, "_glitchDisplace")	s:set("_glitchDisplace", 0)
 	s:setName(12, "_glitchFreq")		s:set("_glitchFreq", 1)
+	s:setName(13, "_swirlmodx")			s:set("_swirlmodx", 1)
+	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
 end
 
 --- @public selectShader select the shader to apply
@@ -60,6 +63,9 @@ function cfg_shaders.selectShader(i)
 
 	shader_script = cfg_shaders.shaders[1 + s:get("shaderSlot" .. i)]
 	shader = love.graphics.newShader(shader_script)
+	if shader_script == shaders.swirl or shader_script == shaders.circleswirl then
+		shader:send("_time", cfg_timers.globalTimer.T)
+	end
 	if shader_script == shaders.warp then
 		shader:send("_warpParameter", s:get("_warpParameter"))
 	end
