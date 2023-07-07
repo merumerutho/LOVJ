@@ -13,6 +13,19 @@ shaders.default = [[
 	}
 ]]
 
+shaders.blurzoom = [[
+    vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        vec2 new_texture_coords = (texture_coords / 2) + 0.25;
+        color = vec4(Texel(tex, texture_coords));
+        vec4 zoomed_color = vec4(Texel(tex, new_texture_coords));
+
+        vec4 total_color = mix(color, zoomed_color, 0.35);
+
+        return total_color;
+	}
+]]
+
 shaders.swirl = [[
 
     extern float _time;
@@ -26,9 +39,9 @@ shaders.swirl = [[
         float distance = length(delta);
         float angle = atan(delta.y, delta.x);
 
-        float swirlAmount = 0.5*(sin(_time) + 1);
+        float swirlAmount = (5*sin(_time*2) + 10);
         float swirlRadius = 0.5;
-        float swirlAngle = swirlAmount * distance / swirlRadius;
+        float swirlAngle = swirlAmount * distance;
 
         vec2 distortedUV = center + 0.707*vec2(cos(angle + swirlAngle), sin(angle + swirlAngle)) * distance;
 
@@ -59,6 +72,15 @@ shaders.circleswirl = [[
 
         color = vec4(Texel(tex, distortedUV));
         return color;
+	}
+]]
+
+shaders.test = [[
+    vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        vec2 distortedUv = texture_coords;
+        distortedUv.y = ((distortedUv.y-.5) * (distortedUv.y - .5));
+        return vec4(Texel(tex, distortedUv));
 	}
 ]]
 
@@ -100,18 +122,29 @@ shaders.w_mirror_water = [[
 	}
 ]]
 
--- underwater shader
-shaders.underwater = [[
+-- wiggly shader
+shaders.wiggly = [[
     extern float _time;
 	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
 	{
         // left or right side of screen.
         float lr = clamp(sign(texture_coords[1] - 0.5), 0., 1.);
         // water displacement on the y axis
-        texture_coords[0] = mod(texture_coords[0] + .02*sin(10*texture_coords[1] + _time), 1);
+        texture_coords[0] = mod(texture_coords[0] + .1*sin(10*texture_coords[1]*5 + _time), 1);
         // reflection on the x axis
         texture_coords[1] = mod(texture_coords[1] + .01*sin(10*texture_coords[1] + _time), 1);
         return vec4(Texel(tex, texture_coords));
+	}
+]]
+
+
+-- underwater shader
+shaders.pixelate = [[
+    extern float _pixres;
+	vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+        vec2 distortedUv = floor(texture_coords*_pixres) / _pixres;
+        return vec4(Texel(tex, distortedUv));
 	}
 ]]
 

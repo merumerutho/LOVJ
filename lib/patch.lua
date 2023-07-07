@@ -16,7 +16,6 @@ Patch.__index = Patch
 function Patch:new(p)
     local p = p or {}
     setmetatable(p, self)
-	p.hang = false
     return p
 end
 
@@ -53,10 +52,6 @@ end
 function Patch:drawSetup()
 	-- reset color
 	love.graphics.setColor(1,1,1,1)
-	-- clear background picture
-	if not self.hang then
-		self.canvases.main:renderTo(love.graphics.clear)
-	end
 
 	-- select shaders
 	if cfg_shaders.enabled then
@@ -67,11 +62,12 @@ function Patch:drawSetup()
 
 	-- set canvas
 	love.graphics.setCanvas(self.canvases.main)
-	end
+end
 
 
 --- @public drawExec Draw procedure shared across all patches
-function Patch:drawExec()
+function Patch:drawExec(hang)
+	hang = False or hang
 	-- Reset color
 	love.graphics.setColor(1,1,1,1)
 	-- Calculate scaling for post process shaders
@@ -93,7 +89,9 @@ function Patch:drawExec()
 			cfg_shaders.applyShader(cfg_shaders.PostProcessShaders[i])
 			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
 			love.graphics.setCanvas(srcCanvas)
-			love.graphics.clear(0,0,0,1)
+			if not hang then
+				love.graphics.clear(0,0,0,1)
+			end
 		end
 		-- Draw final layer on default canvas
 		love.graphics.setCanvas()

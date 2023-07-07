@@ -11,10 +11,13 @@ local cfg_shaders = {}
 cfg_shaders.enabled = true
 --- @public shaders list of shaders
 cfg_shaders.shaders =   {  shaders.default,
+						   shaders.blurzoom,
+						   shaders.pixelate,
+						   shaders.test,
 						   shaders.swirl,
 						   shaders.circleswirl,
 						   shaders.glitch,
-						   shaders.underwater,
+						   shaders.wiggly,
 						   shaders.w_mirror_water,
 						   shaders.w_mirror,
 						   shaders.h_mirror,
@@ -52,6 +55,8 @@ function cfg_shaders.assignGlobals()
 	s:setName(12, "_glitchFreq")		s:set("_glitchFreq", 1)
 	s:setName(13, "_swirlmodx")			s:set("_swirlmodx", 1)
 	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
+	s:setName(15, "_pixres")			s:set("_pixres", 64)
+
 end
 
 --- @public selectShader select the shader to apply
@@ -78,6 +83,9 @@ function cfg_shaders.selectShader(i)
 	if shader_script == shaders.glitch then
 		shader:send("_glitchDisplace", s:get("_glitchDisplace"))
 		shader:send("_glitchFreq", s:get("_glitchFreq"))
+	end
+	if shader_script == shaders.pixelate then
+		shader:send("_pixres", s:get("_pixres"))
 	end
 	return shader
 end
