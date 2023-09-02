@@ -36,12 +36,22 @@ local shader_code = [[
 	  return max(dot(c.xy,vec2(q,p.y)),-h-p.y);
 	}
 
-	float GetDist(vec3 p)
+	float GetDist_Weird(vec3 p)
 	{
 		float modSize = 5.;
-		vec3 coords = vec3(modSize/2 + .5 * sin(_time*sin(p.z/100)+abs(p.y-.5)), modSize/2 + .1 * cos(p.z) , modSize/2);
-		vec4 s = vec4(coords, .5 + .2 * cos(_time+p.z/10) + .5*sin(p.z/100 + abs(p.y/10))); //Sphere. xyz is position w is radius
-		float sphereDist = length(mod(p.xz, modSize)-s.xy) + .12 * sin(_osc*5+.1*p.z+p.x*10.+p.y*5.) - s.w;
+		vec3 coords = vec3(modSize/2 + .7 * sin(_time*sin(p.z/100)+abs(p.y-.5)), modSize/2 + .1 * cos(p.z) , modSize/2);
+		vec4 s = vec4(coords, .5 + .5 * cos(_time+p.z/100) + .5*sin(p.z/100 + abs(p.y/10))); //Sphere. xyz is position w is radius
+		float sphereDist = length(mod(p.xy, modSize + sin(_time))-s.xy) + .12 * sin(_osc*5+.1*p.z+p.x*10.+p.y*5.) - s.w;
+		return sphereDist;
+	}
+
+	float GetDist_Weirder(vec3 p)
+	{
+		vec3 coords = vec3(1. , 1. , 2.);
+		float modSize = 1.0;
+
+		vec4 s = vec4(coords, .5); //Sphere. xyz is position w is radius
+		float sphereDist = length(mod(p.xyz, 2.5) - s.y ) - s.w; // * mod(p.x, 2.5) * .1 * mod(p.y, 2.5);
 		return sphereDist;
 	}
 
@@ -51,7 +61,7 @@ local shader_code = [[
 		for(int i=0;i<MAX_STEPS;i++)
 		{
 			vec3 p = ro + rd * dO;
-			float ds = GetDist(p); // ds is Distance Scene
+			float ds = GetDist_Weird(p); // ds is Distance Scene
 			dO += ds;
 			if(dO > MAX_DIST || ds < SURFACE_DIST) break;
 		}
@@ -62,9 +72,14 @@ local shader_code = [[
 	{
         vec2 uv = (texture_coords - .5);
 
-		vec3 ro = vec3(.2*sin(_osc), 2*_time + cos(_osc), 10*_time + .2*_osc);
+		vec3 ro = vec3(.2*sin(_osc), 2*_time + cos(_osc), 10*_time);
 
         vec3 rd = normalize(vec3(uv.x, uv.y, 1.));
+        // Rotation
+        //rd.x = rd.x;
+		//rd.y = rd.y*cos(_time) - rd.z*sin(_time);
+		//rd.z = rd.y*sin(_time) + rd.z*cos(_time*2);
+
         float d = RayMarch(ro, rd);
         d = sqrt(d/100);
         vec3 output_color = vec3(d + (1. - 2*d)*_colorInversion);

@@ -8,7 +8,22 @@ local shaders = lovjRequire("lib/shaders")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 
-local BG_SPRITE_SIZE = 8
+-- aquamarine
+
+local waveShaderCode = [[
+	extern float _time;
+	vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
+	{
+		float c = 1. - abs(sin(_time + texture_coords.y + texture_coords.x * 5));
+		texture_coords.y = mod(texture_coords.x, c);
+		c = 1. - abs(sin(_time + texture_coords.y + texture_coords.x * 5));
+		texture_coords.x = mod(texture_coords.y, c);
+		c = 1. - abs(sin(_time + texture_coords.y + texture_coords.x * 5));
+
+        return vec4(.2 + .01 * sin(c+ _time), c * .8, .65 + .02 * sin(c*_time),1.);
+	}
+]]
+
 
 patch = Patch:new()
 
@@ -63,26 +78,52 @@ function patch.draw()
 
 	patch:drawSetup(hang)
 
-	-- clear main canvas
-	patch.canvases.main:renderTo(function()
-									love.graphics.clear(1,1,1,1)
-								end )
-
-	love.graphics.setCanvas(patch.canvases.main)
+	local c = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	love.graphics.setCanvas(c)
 	love.graphics.setColor(1,1,1,1)
 
-	for x = 0, screen.InternalRes.W, 3 do
-		for y = 0, screen.InternalRes.H, 3 do
-			local c = {1,
-					   math.abs(math.sin((2*math.pi)*(x+y+t*100)/ (screen.InternalRes.W + screen.InternalRes.H))),
-					   1,
-					   1}
-			love.graphics.setColor(c)
-			love.graphics.rectangle("fill",x,y,3,3)
+	local shader
+	if cfg_shaders.enabled then
+		shader = love.graphics.newShader(waveShaderCode)
+		love.graphics.setShader(shader)
+		shader:send("_time", t)
+	end
+
+	love.graphics.setCanvas(patch.canvases.main)
+	love.graphics.draw(c)
+	love.graphics.setShader()
+
+	love.graphics.setColor(1,1,1,1)
+
+	local cx, cy = screen.InternalRes.W / 2, screen.InternalRes.H / 2
+
+	local amp = .7 + .3 * math.abs(math.sin(2*math.pi * t / 2))
+	love.graphics.setColor(1,1,1,0.8)
+
+	for j = -2, 2 do
+		for i = 1, 10 do
+			love.graphics.circle("fill",
+					cx + amp * (50 + 10*(math.sin(2*math.pi*(t+j/5)))) * math.cos(2*math.pi*i/10 + t + j/4),
+					cy + amp * (30*j + 10) * math.sin(2*math.pi*i/10 + t + j/4),
+					math.abs(math.sin(i / 2 + t)) * 5 + 2)
+--			love.graphics.setColor(0,0,0,1)
+--			love.graphics.circle("line",
+--					cx + (40 + 10*(math.sin(2*math.pi*(t+j/5)))) * math.cos(2*math.pi*i/10 + t + j/4),
+--					20*j + cy + 10 * math.sin(2*math.pi*i/10 + t + j/4),
+--					7)
 		end
 	end
 
-	love.graphics.draw(patch.canvases.toShade)
+	local n = 16
+	love.graphics.setColor(1,1,1,.7)
+	for i = 0, n do
+		love.graphics.circle("fill",
+				cx + (100 + 10 * math.sin(2*math.pi*(t*2 + 4*i / n))) * math.cos(2*math.pi*(t/4 + i/n)),
+				cy + (100 + 10 * math.sin(2*math.pi*(t*2 + 4*i / n))) * math.sin(2*math.pi*(t/4 + i/n)),
+				7)
+	end
+
+	love.graphics.setColor(1,1,1,1)
 
 	patch:drawExec()
 end
