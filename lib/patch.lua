@@ -32,6 +32,7 @@ function Patch:setCanvases()
 	else
 		sizeX, sizeY = screen.ExternalRes.W, screen.ExternalRes.H
 	end
+    
 	-- Generate canvases with calculated size
 	self.canvases.main = love.graphics.newCanvas(sizeX, sizeY)
 	self.canvases.cmd = love.graphics.newCanvas(sizeX, sizeY)
@@ -67,7 +68,7 @@ end
 
 --- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec(hang)
-	hang = False or hang
+	hang = false or hang
 	-- Reset color
 	love.graphics.setColor(1,1,1,1)
 	-- Calculate scaling for post process shaders
@@ -89,6 +90,7 @@ function Patch:drawExec(hang)
 			cfg_shaders.applyShader(cfg_shaders.PostProcessShaders[i])
 			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
 			love.graphics.setCanvas(srcCanvas)
+            -- clear if not hanging
 			if not hang then
 				love.graphics.clear(0,0,0,1)
 			end
