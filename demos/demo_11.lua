@@ -2,7 +2,6 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local videoutils = lovjRequire("lib/utils/video")
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
-local shaders = lovjRequire("lib/shaders")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 

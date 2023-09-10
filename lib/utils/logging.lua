@@ -22,7 +22,8 @@ end
 --- @public logInfo provide log info, printing also the component name
 function logInfo(msg)
 	if bit.band(logging.logLevel, logging.LOG_INFO) then
-		filename = debug.getinfo(2)["short_src"]:match("[^/]*.lua")
+		local filename = debug.getinfo(2)["short_src"]:match("[^/]*.lua")
+		-- filename = "" or filename
 		print("INFO ["..filename.."] "..msg)
 	end
 end
@@ -30,7 +31,8 @@ end
 --- @public logError provide log error, printing also the component name
 function logError(msg)
 	if bit.band(logging.logLevel, logging.LOG_ERROR) then
-		filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
+		local filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
+		-- filename = "" or filename
 		print("ERROR ["..filename.."] "..msg)
 	end
 end
@@ -38,7 +40,8 @@ end
 --- @public logDebug provide log debug, printing also the component name
 function logError(msg)
 	if bit.band(logging.logLevel, logging.LOG_DEBUG) then
-		filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
+		local filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
+		-- filename = "" or filename
 		print("DEBUG ["..filename.."] "..msg)
 	end
 end

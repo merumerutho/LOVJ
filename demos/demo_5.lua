@@ -3,7 +3,6 @@ local palettes = lovjRequire("lib/utils/palettes")
 local controls = lovjRequire("lib/controls")
 local kp = lovjRequire("lib/utils/keypress")
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
-local shaders = lovjRequire("lib/shaders")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
@@ -132,7 +131,7 @@ function patch.draw()
 
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
 	if patch.hang and cfg_shaders.enabled then
-		patch.shader_trail = love.graphics.newShader(shaders.trail) -- set/update trail shader
+		patch.shader_trail = love.graphics.newShader(getShaderByName("trail")) -- set/update trail shader
 		patch.shader_trail:send("_trailColor", {
 												p:get("trail_color_red"),
 												p:get("trail_color_green"),

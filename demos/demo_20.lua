@@ -4,7 +4,6 @@ local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
-local shaders = lovjRequire("lib/shaders")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 

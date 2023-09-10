@@ -4,7 +4,6 @@ local screen = lovjRequire ("lib/screen")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local kp = lovjRequire("lib/utils/keypress")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
-local shaders = lovjRequire("lib/shaders")
 local Lfo = lovjRequire("lib/automations/lfo")
 
 local PALETTE = palettes.BW
@@ -235,7 +234,7 @@ function patch.draw()
 	end
 
 	if cfg_shaders.enabled and math.floor(t*10) % 3 ~=0 or (not p:get("drawOutsideEllipse")) then
-		patch.shader_window = love.graphics.newShader(shaders.circleWindow) -- set/update circle window shader
+		patch.shader_window = love.graphics.newShader(getShaderByName("circlewindow")) -- set/update circle window shader
 		love.graphics.setShader(patch.shader_window) -- apply shader
 		patch.shader_window:send("_windowSize", p:get("windowSize"))
 		patch.shader_window:send("_scx", scx / screen.InternalRes.W)

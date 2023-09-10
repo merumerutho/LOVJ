@@ -6,6 +6,7 @@
 local kp = lovjRequire("lib/utils/keypress")
 local cmd = lovjRequire("lib/cmdmenu")
 local rtmgr = lovjRequire("lib/realtimemgr")
+local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 
 local controls = {}
 
@@ -21,11 +22,11 @@ local function handleShaderCommands()
 	local s = resources.shaderext
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
-		toggleShaders()
+		cfg_shaders.toggleShaders()
 	end
 	-- select main shader
 	if kp.keypressOnAttack("s") then
-		s:set("shaderSlot1", (s:get("shaderSlot1") + 1) % #cfg_shaders.shaders)
+		s:set("shaderSlot1", (s:get("shaderSlot1") + 1) % #cfg_shaders.PostProcessShaders)
 	end
 	-- warp
 	if kp.isDown("w") then

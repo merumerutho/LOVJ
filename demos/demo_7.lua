@@ -2,7 +2,6 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local videoutils = lovjRequire("lib/utils/video")
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
-local shaders = lovjRequire("lib/shaders")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
@@ -78,7 +77,7 @@ function patch.draw()
 	love.graphics.clear(col)
 
 	if cfg_shaders.enabled then
-		chroma = love.graphics.newShader(shaders.chromakey)
+		chroma = love.graphics.newShader(getShaderByName("chromakey"))
 		chroma:send("_chromaColor", g:get("_chromaColor"))
 		chroma:send("_chromaTolerance", g:get("_chromaTolerance"))
 	end

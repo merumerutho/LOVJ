@@ -3,40 +3,52 @@
 -- Configure and handle shader settings
 --
 
-local shaders = lovjRequire("lib/shaders")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local logging = lovjRequire("lib/utils/logging")
+local resources = lovjRequire("lib/resources")
 
 local cfg_shaders = {}
 
+--- @public enabled boolean to enable or disable shaders
 cfg_shaders.enabled = true
---- @public shaders list of shaders
-cfg_shaders.shaders =   {  shaders.default,
-						   shaders.blurzoom,
-						   shaders.pixelate,
-						   shaders.test,
-						   shaders.swirl,
-						   shaders.circleswirl,
-						   shaders.glitch,
-						   shaders.wiggly,
-						   shaders.w_mirror_water,
-						   shaders.w_mirror,
-						   shaders.h_mirror,
-						   shaders.wh_mirror,
-						   shaders.w_mirror,
-						   shaders.warp,
-						   shaders.kaleido,
-						   shaders.diag_cut,
-						   shaders.blur}
 
--- Post process shaders: at startup they are default
-cfg_shaders.PostProcessShaders = {shaders.default,
-								  shaders.default,
-								  shaders.default}
+--- @public getShaderByName function to search shader based on its name
+function getShaderByName(partial_name, list)
+	if list == nil then list = cfg_shaders.PostProcessShaders end
+	for i=1,#list do
+		if list[i] ~= nil then
+			if string.find(list[i].name, partial_name) then return list[i].value end
+		end
+	end
+end
+
+--- @public PostProcessShaders list of shaders extracted from "lib/shaders/postProcess/" folder
+cfg_shaders.PostProcessShaders = {}
+local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
+for i=1, #input_files do
+	local shader = {}
+	shader.name = input_files[i]
+	shader.value = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
+	-- Get index from filename (e.g. "0_default.glsl" => 0)
+	shader.idx = tonumber(string.match(input_files[i], "%d+"))
+	cfg_shaders.PostProcessShaders[shader.idx+1] = shader  -- order by index
+end
+
+
+--- @private default The default shader
+local default = getShaderByName("default")
+--if not default then logging.logError("Could not load default.glsl shader") end
+--- @public CurrentShaders current shaders used for post processing canvas
+cfg_shaders.CurrentShaders = 	 { default,
+								   default,
+								   default }
+
 
 --- @public toggleShaders enable / disable shaders
-function toggleShaders()
+function cfg_shaders.toggleShaders()
     cfg_shaders.enabled = not cfg_shaders.enabled
 end
+
 
 function cfg_shaders.assignGlobals()
 	local s = resources.shaderext
@@ -59,34 +71,36 @@ function cfg_shaders.assignGlobals()
 
 end
 
---- @public selectShader select the shader to apply
-function cfg_shaders.selectShader(i)
-    local s = resources.shaderext
-    -- select shader
-	local shader_script
-	local shader
 
-	shader_script = cfg_shaders.shaders[1 + s:get("shaderSlot" .. i)]
-	shader = love.graphics.newShader(shader_script)
-	if shader_script == shaders.swirl or shader_script == shaders.circleswirl then
+--- @public selectShader select the shader to apply
+function cfg_shaders.selectPPShader(i)
+    local s = resources.shaderext
+
+    -- select shader
+	local sh_object = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. i)]
+	local shader = love.graphics.newShader(sh_object.value)
+
+	-- send parameters
+	if string.find(sh_object.name, "swirl") then
 		shader:send("_time", cfg_timers.globalTimer.T)
 	end
-	if shader_script == shaders.warp then
+	if string.find(sh_object.name, "warp") then
 		shader:send("_warpParameter", s:get("_warpParameter"))
 	end
-	if shader_script == shaders.kaleido then
+	if string.find(sh_object.name, "kaleido") then
 		shader:send("_segmentParameter", s:get("_segmentParameter"))
 	end
-	if shader_script == shaders.blur then
+	if string.find(sh_object.name, "gaussianblur") then
 		shader:send("_blurOffset", s:get("_blurOffset"))
 	end
-	if shader_script == shaders.glitch then
+	if string.find(sh_object.name, "glitch") then
 		shader:send("_glitchDisplace", s:get("_glitchDisplace"))
 		shader:send("_glitchFreq", s:get("_glitchFreq"))
 	end
-	if shader_script == shaders.pixelate then
+	if string.find(sh_object.name, "pixelate") then
 		shader:send("_pixres", s:get("_pixres"))
 	end
+
 	return shader
 end
 

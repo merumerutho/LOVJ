@@ -36,7 +36,7 @@ function Patch:setCanvases()
 	-- Generate canvases with calculated size
 	self.canvases.main = love.graphics.newCanvas(sizeX, sizeY)
 	self.canvases.cmd = love.graphics.newCanvas(sizeX, sizeY)
-	for i = 1, #cfg_shaders.PostProcessShaders do
+	for i = 1, #cfg_shaders.CurrentShaders do
 		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(sizeX, sizeY))
 	end
 
@@ -56,8 +56,8 @@ function Patch:drawSetup()
 
 	-- select shaders
 	if cfg_shaders.enabled then
-		for i = 1, #cfg_shaders.PostProcessShaders do
-			cfg_shaders.PostProcessShaders[i] = cfg_shaders.selectShader(i)
+		for i = 1, #cfg_shaders.CurrentShaders do
+			cfg_shaders.CurrentShaders[i] = cfg_shaders.selectPPShader(i)
 		end
 	end
 
@@ -81,13 +81,13 @@ function Patch:drawExec(hang)
 
 	-- Cycle amd apply post process shaders over relative canvases
 	if cfg_shaders.enabled then
-		for i = 1, #cfg_shaders.PostProcessShaders do
+		for i = 1, #cfg_shaders.CurrentShaders do
 			local srcCanvas, dstCanvas
 			if i == 1 then srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
 			else srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i] end
 			-- Set canvas, apply shader, draw and then remove shader
 			love.graphics.setCanvas(dstCanvas)
-			cfg_shaders.applyShader(cfg_shaders.PostProcessShaders[i])
+			cfg_shaders.applyShader(cfg_shaders.CurrentShaders[i])
 			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
 			love.graphics.setCanvas(srcCanvas)
             -- clear if not hanging
@@ -98,7 +98,8 @@ function Patch:drawExec(hang)
 		-- Draw final layer on default canvas
 		love.graphics.setCanvas()
 		cfg_shaders.applyShader()
-		love.graphics.draw(self.canvases.ShaderCanvases[#cfg_shaders.PostProcessShaders], 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+
+		love.graphics.draw(self.canvases.ShaderCanvases[#cfg_shaders.CurrentShaders], 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 	else
 		-- If shaders disabled, draw normally on default canvas
 		love.graphics.setCanvas()
