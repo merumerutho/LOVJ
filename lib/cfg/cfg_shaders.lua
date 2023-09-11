@@ -12,31 +12,21 @@ local cfg_shaders = {}
 --- @public enabled boolean to enable or disable shaders
 cfg_shaders.enabled = true
 
---- @public getShaderByName function to search shader based on its name
-function getShaderByName(partial_name, list)
-	if list == nil then list = cfg_shaders.PostProcessShaders end
-	for i=1,#list do
-		if list[i] ~= nil then
-			if string.find(list[i].name, partial_name) then return list[i].value end
-		end
-	end
-end
-
 --- @public PostProcessShaders list of shaders extracted from "lib/shaders/postProcess/" folder
 cfg_shaders.PostProcessShaders = {}
 local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
 for i=1, #input_files do
-	local shader = {}
-	shader.name = input_files[i]
-	shader.value = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
-	-- Get index from filename (e.g. "0_default.glsl" => 0)
-	shader.idx = tonumber(string.match(input_files[i], "%d+"))
-	cfg_shaders.PostProcessShaders[shader.idx+1] = shader  -- order by index
+	-- match pattern as '{idx}_{name}.glsl'
+	local idx, name = string.match(input_files[i], "(%d+)_(.*).glsl")
+	idx = tonumber(idx)
+	cfg_shaders.PostProcessShaders[idx+1] = {}
+	cfg_shaders.PostProcessShaders[idx+1].name = name
+	cfg_shaders.PostProcessShaders[idx+1].value = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
 end
 
 
 --- @private default The default shader
-local default = getShaderByName("default")
+local default = table.getValueByName("default", cfg_shaders.PostProcessShaders)
 --if not default then logging.logError("Could not load default.glsl shader") end
 --- @public CurrentShaders current shaders used for post processing canvas
 cfg_shaders.CurrentShaders = 	 { default,
