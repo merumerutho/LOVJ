@@ -1,3 +1,5 @@
+require("lib/utils/tableExtensions")
+
 debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")
