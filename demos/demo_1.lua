@@ -8,7 +8,7 @@ local Envelope = lovjRequire("lib/automations/envelope")
 -- import pico8 palette
 local PALETTE = palettes.PICO8
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @private inScreen Check if pixel in screen boundary
 local function inScreen(x, y)
@@ -18,14 +18,14 @@ end
 
 --- @private init_params initialize parameters for this patch
 local function init_params()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	p:setName(1, "a")			p:set("a", 0.5)
 	p:setName(2, "b")			p:set("b", 1)
 end
 
 --- @private patchControls handle controls for current patch
 function patch.patchControls()
-	p = resources.parameters
+	local p = patch.resources.parameters
 	
 	-- INCREASE
 	if kp.isDown("up") then
@@ -48,7 +48,9 @@ function patch.patchControls()
 end
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
+
 	patch:setCanvases()
 	init_params()
 	patch:assignDefaultDraw()
@@ -65,7 +67,7 @@ end
 function patch.draw()
 	patch:drawSetup()
 
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	local t = cfg_timers.globalTimer.T
 
@@ -95,8 +97,7 @@ function patch.draw()
 		end
 	end
 
-
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

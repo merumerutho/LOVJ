@@ -8,12 +8,12 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 -- import pico8 palette
 local PALETTE = palettes.TIC80
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	p:setName(1, "speed")		p:set("speed", 100)
 
@@ -21,15 +21,15 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
     -- insert here your patch controls
 end
 
 
 --- @public init init routine
-function patch.init()
-
+function patch.init(resources)
+	patch:assignResources(resources)
 	patch:setCanvases()
 
 	init_params()
@@ -41,8 +41,8 @@ end
 local function draw_stuff()
 	local t = cfg_timers.globalTimer.T
 
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	local w = screen.InternalRes.W
 	local h = screen.InternalRes.H
@@ -85,7 +85,7 @@ function patch.draw()
 	-- draw picture
 	draw_stuff()
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

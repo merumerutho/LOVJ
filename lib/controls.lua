@@ -80,7 +80,7 @@ function controls.handleGeneralControls()
 			else
 				-- Otherwise, load patch
 				local patchName = cfg_patches.patches[k]
-				rtmgr.loadPatch(patchName)
+				rtmgr.loadPatch(patchName, 2) -- TODO: change this (forcefully load on slot 2)
 			end
 		end
 	end

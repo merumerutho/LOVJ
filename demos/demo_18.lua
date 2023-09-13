@@ -3,23 +3,25 @@ local screen = lovjRequire ("lib/screen")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
 
-patch = Patch:new()
+local patch = Patch:new()
 
 local ROACH_WIDTH = 128
 local ROACH_HEIGHT = 165
 local NUM_FRAMES_ROACH = 35
+
+local PALETTE
 
 --- @private patchControls handle controls for current patch
 function patch.patchControls()
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
 	-- Reset
-	if love.keyboard.isDown("r") then patch.init() end
+	if love.keyboard.isDown("r") then patch.init(patch.resources) end
 end
 
 --- @private get_roach get roach :)
 local function get_roach()
-	local g = resources.graphics
+	local g = patch.resources.graphics
 	patch.graphics.roach = {}
 	patch.graphics.roach.image = love.graphics.newImage(g:get("roach"))
 	patch.graphics.roach.size = {x = ROACH_WIDTH, y = ROACH_HEIGHT}
@@ -36,8 +38,8 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	patch.graphics = {}
 
@@ -72,7 +74,8 @@ function patch:setCanvases()
 end
 
 
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	patch.hang = false
 	patch:setCanvases()
 
@@ -84,7 +87,7 @@ end
 function patch.draw()
 	patch:drawSetup()
 
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	local t = cfg_timers.globalTimer.T
 
 	love.graphics.setCanvas(patch.canvases.main)
@@ -125,7 +128,7 @@ function patch.draw()
 	-- reset color
 	love.graphics.setColor(1,1,1,1)
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

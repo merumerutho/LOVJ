@@ -9,7 +9,7 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 -- import pico8 palette
 local PALETTE
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @public setCanvases (re)set canvases for this patch
 function patch:setCanvases()
@@ -24,22 +24,23 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
     g:setName(1, "video")           g:set("video", "data/demo_7/demo.ogg")
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
     -- insert here your patch controls
 end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch.setCanvases()
@@ -61,8 +62,8 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_stuff()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 end
 
@@ -97,7 +98,7 @@ function patch.draw()
 		love.graphics.draw(patch.canvases.video)
 	end
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

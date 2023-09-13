@@ -25,9 +25,19 @@ for i=1, #input_files do
 end
 
 
+--- @public OtherShaders list of shaders extracted from "lib/shaders/other" folder
+cfg_shaders.OtherShaders = {}
+input_files = love.filesystem.getDirectoryItems("lib/shaders/other")
+for i=1,#input_files do
+	local name = string.match(input_files[i], "(.*).glsl")
+	cfg_shaders.OtherShaders[i] = {}
+	cfg_shaders.OtherShaders[i].name = name
+	cfg_shaders.OtherShaders[i].value = love.filesystem.read("lib/shaders/other/" .. input_files[i])
+end
+
+
 --- @private default The default shader
 local default = table.getValueByName("default", cfg_shaders.PostProcessShaders)
---if not default then logging.logError("Could not load default.glsl shader") end
 --- @public CurrentShaders current shaders used for post processing canvas
 cfg_shaders.CurrentShaders = 	 { default,
 								   default,

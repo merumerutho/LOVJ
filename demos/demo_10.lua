@@ -5,6 +5,7 @@ local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 
 -- declare palette
 local PALETTE
@@ -71,12 +72,12 @@ local shader_code = [[
 	}
 ]]
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	p:setName(1, "colorInversion") p:set("colorInversion", 0)
 	p:setName(2, "ballSize") p:set("ballSize", .1)
@@ -84,7 +85,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- update the colorInversion parameter
 	if kp.isDown("up") then p:set("colorInversion", p:get("colorInversion")+.1) end
 	if kp.isDown("down") then p:set("colorInversion", p:get("colorInversion")-.1) end
@@ -101,7 +102,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
@@ -113,8 +115,8 @@ end
 
 --- @private draw_bg draw background graphics
 local function draw_stuff()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	local t = cfg_timers.globalTimer.T
 
@@ -143,7 +145,7 @@ function patch.draw()
 	-- draw picture
 	draw_stuff()
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

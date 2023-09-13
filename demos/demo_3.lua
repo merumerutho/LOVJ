@@ -10,18 +10,18 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local PALETTE = palettes.PICO8
 local DEFAULT_ACCELERATION = 0.4
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @public patchControls handle controls for current patch
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	if kp.isDown("lctrl") then
 		-- Accelerator
 		if kp.isDown("a") then p:set("acceleration", DEFAULT_ACCELERATION+1) else p:set("acceleration", DEFAULT_ACCELERATION) end
   	end
 	-- Reset
 	if kp.isDown("r") then
-    	patch.init()
+    	patch.init(patch.resources)
 	end
 	-- hang
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
@@ -43,7 +43,7 @@ end
 
 --- @private ballUpdate update ball status and position in ballList
 local function ballUpdate(idx, ball)
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	local dt = cfg_timers.globalTimer:dt()
 
 	ball.w = ball.w + (ball.s + ball.w * p:getByIdx(1) / 10 ) * dt * 50
@@ -62,12 +62,13 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	p:setName(1, "acceleration")		p:set("acceleration", DEFAULT_ACCELERATION)
 end
 
 --- @public init initialization function for the patch
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 	patch:setCanvases()
 
@@ -112,7 +113,7 @@ function patch.draw()
 	for k, b in pairs(patch.ballList) do
 		drawBall(b)
 	end
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 --- @public update update patch function

@@ -6,14 +6,14 @@ local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
 
 local PALETTE = palettes.PICO8
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @private patchControls handle controls for current patch
 function patch.patchControls()
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
 	-- Reset
-	if love.keyboard.isDown("r") then patch.init() end
+	if love.keyboard.isDown("r") then patch.init(patch.resources) end
 end
 
 
@@ -61,11 +61,12 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 end
 
 
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	patch.hang = false
 	patch:setCanvases()
 	
@@ -98,7 +99,7 @@ function patch.draw()
   	for k,b in pairs(patch.ballList) do
     	drawBall(b)
   	end
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

@@ -3,11 +3,11 @@
 -- Generate and handle patch resources
 --
 
-local resources = {}
 -- TODO: Move this to cfg_resources
 local DEFAULT_SIZE = 128
 
 local Resource = {}
+local ResourceList = {}
 
 -- functions
 --- @public setByIdx setter for resource value by idx
@@ -62,26 +62,31 @@ function Resource:new(o, n)
     return o
 end
 
---- @public init Initializer for overall resources
-function resources.init()
+
+function ResourceList:new()
+    local res_list = {}
+    setmetatable(res_list, self)
+    self.__index = self
     -- used as parameters bound to elements in patches
-    resources.parameters = Resource:new(nil, DEFAULT_SIZE)
+    self.parameters = Resource:new(nil, DEFAULT_SIZE)
     -- shared globally: general option values, post-processing shaders, etc.
-    resources.globals = Resource:new(nil, DEFAULT_SIZE)
+    self.globals = Resource:new(nil, DEFAULT_SIZE)
     -- filepaths or data bound to graphics resources / sprites etc.
-    resources.graphics = Resource:new(nil, DEFAULT_SIZE)
+    self.graphics = Resource:new(nil, DEFAULT_SIZE)
     -- shader external control parameters
-    resources.shaderext = Resource:new(nil, DEFAULT_SIZE)
+    self.shaderext = Resource:new(nil, DEFAULT_SIZE)
+    return self
 end
 
+
 --- @public Update Updater for overall resources
-function resources.update(update_msg)
+function ResourceList:update(update_msg)
     for k, msg in pairs(update_msg) do
         local destination = msg[1] -- destination (osc)
         local content = msg[2] -- content of packet (osc)
-        if true then end -- pass
+        if true then end -- TODO: this must be filled
     end
-    return resources
+    return self
 end
 
-return resources
+return ResourceList

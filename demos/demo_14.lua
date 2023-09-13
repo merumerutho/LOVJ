@@ -6,12 +6,14 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Lfo = lovjRequire("lib/automations/lfo")
 
-patch = Patch:new()
+local patch = Patch:new()
+
+local PALETTE
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	p:setName(1, "numBranches")			p:set("numBranches", 40)
 	p:setName(2, "ampModulator")		p:set("ampModulator", 10)
@@ -24,7 +26,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -43,7 +45,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
@@ -59,8 +62,8 @@ end
 local function draw_scene()
 	local t = cfg_timers.globalTimer.T
 
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	local cx = screen.InternalRes.W/2
 	local cy = screen.InternalRes.H/2
@@ -135,13 +138,13 @@ function patch.draw()
 	draw_scene()
 
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 
 function patch.update()
 	local t = cfg_timers.globalTimer.T
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	if kp.keypressOnRelease("up") and kp.isDown("n") then p:set("numBranches", p:get("numBranches")+1) end
 	if kp.keypressOnRelease("down") and kp.isDown("n") then p:set("numBranches", p:get("numBranches")-1) end

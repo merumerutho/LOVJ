@@ -10,20 +10,22 @@ local ansi_table = {
 	"▀","▄","█","▌","▐","░","▒","▓"
 }
 
+local PALETTE
+
 local textSlideShow = {"greetings", "towards", "all", "of", "the", "scene"}
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -42,7 +44,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
@@ -106,8 +109,8 @@ end
 local function draw_scene()
 	local t = cfg_timers.globalTimer.T
 
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	local cx = screen.InternalRes.W/2
 	local cy = screen.InternalRes.H/2
@@ -147,7 +150,7 @@ function patch.draw()
 	-- draw picture
 	draw_scene()
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

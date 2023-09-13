@@ -6,14 +6,17 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
+local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 
 local BG_SPRITE_SIZE = 8
 
-patch = Patch:new()
+local PALETTE = palettes.PICO8
+
+local patch = Patch:new()
 
 --- @private get_bg get background graphics based on resources
 local function get_bg()
-	local g = resources.graphics
+	local g = patch.resources.graphics
 	patch.graphics = {}
 	patch.graphics.bg = {}
 	patch.graphics.bg.image = love.graphics.newImage(g:get("bg"))
@@ -30,8 +33,8 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 	g:setName(1, "bg")				g:set("bg", "data/demo_6/bg.png")
 	get_bg()
 	p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
@@ -39,7 +42,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -58,8 +61,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
-	PALETTE = palettes.PICO8
+function patch.init(resources)
+	patch:assignResources(resources)
 
 	patch:setCanvases()
 
@@ -74,15 +77,15 @@ function patch.init()
 	patch.env = Envelope:new(0.005, 0, 1, 0.5)
 	patch.lfo = Lfo:new(patch.bpm/60, 0)
 
-	patch.sym_shader = love.graphics.newShader(getShaderByName("quadmirror"))
+	patch.sym_shader = love.graphics.newShader(table.getValueByName("quadmirror", cfg_shaders.PostProcessShaders))
 end
 
 --- @private draw_bg draw background graphics
 local function draw_bg()
 	local t = cfg_timers.globalTimer.T
 
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	love.graphics.setCanvas(patch.canvases.toShade)
 
@@ -164,7 +167,7 @@ function patch.draw()
 	love.graphics.setColor(1,1,1,1)
 	love.graphics.draw(patch.canvases.toShade)
 
-	patch:drawExec()
+	return patch:drawExec()
 
 end
 

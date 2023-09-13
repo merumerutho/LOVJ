@@ -6,12 +6,14 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Lfo = lovjRequire("lib/automations/lfo")
 
-patch = Patch:new()
+local patch = Patch:new()
+
+local PALETTE
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	p:setName(1, "numBranches")			p:set("numBranches", 10)
 	p:setName(2, "ampModulator")		p:set("ampModulator", 10)
@@ -24,7 +26,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -43,7 +45,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
@@ -79,7 +82,7 @@ local function draw_eyeball(t, cx, cy)
 end
 
 local function draw_bg(t, cx, cy)
-	local p = resources.parameters 
+	local p = patch.resources.parameters
 	love.graphics.setColor(1,1,1,.5)
 
 	local n = 300
@@ -135,8 +138,8 @@ end
 local function draw_scene()
 	local t = cfg_timers.globalTimer.T
 
-	g = resources.graphics
-	p = resources.parameters
+	g = patch.resources.graphics
+	p = patch.resources.parameters
 
 	local cx = screen.InternalRes.W/2
 	local cy = screen.InternalRes.H/2
@@ -162,12 +165,12 @@ function patch.draw()
 	-- draw picture
 	draw_scene()
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 
 function patch.update()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	local t = cfg_timers.globalTimer.T
 
 	if kp.keypressOnRelease("up") and kp.isDown("n") then p:set("numBranches", p:get("numBranches")+1) end

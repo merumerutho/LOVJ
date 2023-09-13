@@ -4,11 +4,12 @@ local screen = lovjRequire ("lib/screen")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local kp = lovjRequire("lib/utils/keypress")
 local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
+local cfg_shaders = lovjRequire ("lib/cfg/cfg_shaders")
 local Lfo = lovjRequire("lib/automations/lfo")
 
 local PALETTE = palettes.BW
 
-patch = Patch:new()
+local patch = Patch:new()
 
 local LAIN_WIDTH = 140
 local LAIN_HEIGHT = 175
@@ -18,12 +19,12 @@ function patch.patchControls()
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
 	-- Reset
-	if love.keyboard.isDown("r") then patch.init() end
+	if love.keyboard.isDown("r") then patch.init(patch.resources) end
 end
 
---- @private get_bg get background graphics based on resources
+--- @private get_bg get background graphics based on patch.resources
 local function get_bg()
-	local g = resources.graphics
+	local g = patch.resources.graphics
 	patch.graphics.bg = {}
 	patch.graphics.bg.love = love.graphics.newImage(g:get("love"))
 	patch.graphics.bg.size = {x = patch.graphics.bg.love:getPixelWidth(), y = patch.graphics.bg.love:getPixelHeight()}
@@ -59,7 +60,7 @@ end
 local function ballTrajectory(k, b)
 	local t = cfg_timers.globalTimer.T
 	local dt = cfg_timers.globalTimer:dt() -- keep it fps independent
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	b.x = b.x + b.ax 		 * dt * 50
 	b.y = b.y + b.ay 		 * dt * 50
@@ -80,9 +81,9 @@ local function ballTrajectory(k, b)
 end
 
 
---- @private get_bg get background graphics based on resources
+--- @private get_bg get background graphics based on patch.resources
 local function get_lain()
-	local g = resources.graphics
+	local g = patch.resources.graphics
 	patch.graphics.lain = {}
 	patch.graphics.lain.image = love.graphics.newImage(g:get("lain"))
 	patch.graphics.lain.size = {x = LAIN_WIDTH, y = LAIN_HEIGHT}
@@ -99,8 +100,8 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	patch.graphics = {}
 
@@ -136,7 +137,8 @@ function patch:setCanvases()
 end
 
 
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	patch.hang = false
 	patch:setCanvases()
 	
@@ -180,7 +182,7 @@ end
 function patch.draw()
 	patch:drawSetup()
 
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	local t = cfg_timers.globalTimer.T
 
 	local scx, scy = p:get("sceneCenterX"), p:get("sceneCenterY")
@@ -234,7 +236,7 @@ function patch.draw()
 	end
 
 	if cfg_shaders.enabled and math.floor(t*10) % 3 ~=0 or (not p:get("drawOutsideEllipse")) then
-		patch.shader_window = love.graphics.newShader(getShaderByName("circlewindow")) -- set/update circle window shader
+		patch.shader_window = love.graphics.newShader(table.getValueByName("circlewindow", cfg_shaders.OtherShaders)) -- set/update circle window shader
 		love.graphics.setShader(patch.shader_window) -- apply shader
 		patch.shader_window:send("_windowSize", p:get("windowSize"))
 		patch.shader_window:send("_scx", scx / screen.InternalRes.W)
@@ -279,7 +281,7 @@ function patch.draw()
 
 	love.graphics.setColor(1,1,1,1)
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 
@@ -297,7 +299,7 @@ end
 function patch.update()
 	patch:mainUpdate()
 
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	-- update balls
 	for k, b in pairs(patch.ballList) do

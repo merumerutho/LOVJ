@@ -6,12 +6,13 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Lfo = lovjRequire("lib/automations/lfo")
 
-patch = Patch:new()
+local patch = Patch:new()
 
---- @private get_bg get background graphics based on resources
+local PALETTE
+
+--- @private get_bg get background graphics based on patch.resources
 local function get_bg()
-	local g = resources.graphics
-
+	local g = patch.resources.graphics
 	patch.graphics = {}
 	patch.graphics.bg = {}
 	patch.graphics.bg.wired = love.graphics.newImage(g:get("wired"))
@@ -23,8 +24,8 @@ end
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 	g:setName(1, "wired")				g:set("wired", "data/graphics/wired.png")
 	g:setName(2, "soul")				g:set("soul", "data/graphics/soul.png")
 	get_bg()
@@ -38,7 +39,7 @@ end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 
@@ -61,7 +62,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
@@ -77,8 +79,8 @@ end
 local function draw_bg()
 	local t = cfg_timers.globalTimer.T
 
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 
 	love.graphics.setCanvas(patch.canvases.bg)
 
@@ -145,13 +147,13 @@ function patch.draw()
 	-- draw picture
 	draw_bg()
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 
 function patch.update()
 	local t = cfg_timers.globalTimer.T
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	local amount
 	if kp.isDown("lshift") then

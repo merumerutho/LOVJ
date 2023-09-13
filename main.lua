@@ -13,18 +13,21 @@ logging.setLogLevel({ logging.LOG_ERROR,
 					  logging.LOG_INFO })
 
 timer = lovjRequire("lib/timer")
-resources = lovjRequire("lib/resources")
+ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
 connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
 
 cfg_patches = lovjRequire("lib/cfg/cfg_patches")
-cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 cfg_automations = lovjRequire("lib/cfg/cfg_automations")
 cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
-currentPatchName = cfg_patches.defaultPatch
-patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
+
+runningPatches = {{name = cfg_patches.defaultPatch}, {name = "demos/demo_8"}}
+for i=1, #runningPatches do
+    runningPatches[i].patch = lovjRequire(runningPatches[i].name, lick.PATCH_RESET)
+end
 
 -- Set title with LOVJ version
 love.window.setTitle("LOVJ v" ..  version)
@@ -32,9 +35,11 @@ love.window.setTitle("LOVJ v" ..  version)
 --- @public love.load love load function callback
 function love.load()
 	screen.init()  -- Init screen
-	resources.init()  -- Init resources
 	cfg_timers.init()  -- Init timers
-	patch.init()  -- Init Patch
+	for i=1, #runningPatches do
+        runningPatches[i].resources = ResourceList:new()  -- Init resources
+        runningPatches[i].patch.init(runningPatches[i].resources)  -- Init Patches
+    end
 	connections.init()  -- Init socket
 	cfg_shaders.assignGlobals()  -- Init Shaders globals
 end
@@ -47,7 +52,14 @@ function love.draw()
 		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
 	end
 
-	patch.draw()  -- call current patch draw method
+	-- For all patches...
+	for i=1, #runningPatches do
+		local canvas = runningPatches[i].patch.draw()  							-- Get canvas from current patch
+		cfg_shaders.applyShader() 												-- Remove shader
+		love.graphics.setCanvas()												-- Reset canvas
+		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
+	end
+
 end
 
 
@@ -65,5 +77,7 @@ function love.update()
 
 	dispatcher.update(connections.sendRequests())  -- TODO: implement dispatcher method
 
-	patch.update()  -- call current patch update method
+	for i=1, #runningPatches do
+		runningPatches[i].patch.update()  -- call current patch update method
+	end
 end

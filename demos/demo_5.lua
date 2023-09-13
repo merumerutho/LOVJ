@@ -2,9 +2,8 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local controls = lovjRequire("lib/controls")
 local kp = lovjRequire("lib/utils/keypress")
-local screen_settings = lovjRequire("lib/cfg/cfg_screen")
-local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 
 
 -- import palette
@@ -12,7 +11,7 @@ local PALETTE = palettes.TIC80
 
 local ALPHA_MAGIC_NUM = 0.995
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @public setCanvases (re)set canvases for this patch
 function patch:setCanvases()
@@ -29,7 +28,7 @@ end
 
 --- @private patchControls Checks the input controls locally
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- reset
 	if kp.keypressOnAttack("r") then
 		patch.reset()
@@ -60,7 +59,7 @@ end
 
 --- @private updatePoints Updates points positions
 function patch.updatePoints(l)
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	local t = cfg_timers.globalTimer.T
 	local dt = cfg_timers.globalTimer:dt()
@@ -78,7 +77,7 @@ end
 
 --- @private init_params Initialize parameters for this patch
 local function init_params()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	-- Initialize parameters
 	p:setName(1, "speed_x") 			p:set("speed_x", 20)
@@ -96,7 +95,8 @@ local function init_params()
 end
 
 --- @public init Initializes the patch
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	patch.palette = PALETTE
 	patch.nPoints = 3 + math.random(32)
 	patch.points = {}
@@ -124,14 +124,14 @@ end
 
 --- @public draw Draws the content of the patch
 function patch.draw()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 
 	-- clean trail buffer
 	patch.canvases.trail:renderTo(love.graphics.clear)
 
 	-- if hanging, copy content of main buffer onto trail buffer applying trail shader
 	if patch.hang and cfg_shaders.enabled then
-		patch.shader_trail = love.graphics.newShader(getShaderByName("trail")) -- set/update trail shader
+		patch.shader_trail = love.graphics.newShader(table.getValueByName("trail", cfg_shaders.OtherShaders)) -- set/update trail shader
 		patch.shader_trail:send("_trailColor", {
 												p:get("trail_color_red"),
 												p:get("trail_color_green"),
@@ -176,7 +176,7 @@ function patch.draw()
 		end
 	end
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 --- @public update Updates the patch

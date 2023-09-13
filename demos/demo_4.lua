@@ -9,10 +9,10 @@ local Envelope = lovjRequire("lib/automations/envelope")
 -- declaring function
 local function bpmSet(s)  end
 
-patch = Patch:new()
+local patch = Patch:new()
 
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	if kp.isDown("lctrl") then
 		-- Inverter
 		patch.invert = kp.isDown("x")
@@ -21,17 +21,18 @@ function patch.patchControls()
 	
 	-- Reset
 	if kp.isDown("r") then
-    	patch.init()
+    	patch.init(patch.resources)
 	end
 end
 
 
 local function init_params()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 end
 
 
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	patch.invert = false
 
 	patch:setCanvases()
@@ -115,7 +116,7 @@ function patch.draw()
 		end
 	end
 
-	patch:drawExec()  -- call parent rendering function
+	return patch:drawExec()  -- call parent rendering function
 end
 
 

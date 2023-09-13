@@ -124,12 +124,12 @@ local function checkForModifications()
     -- test loading the component (checks if safe to proceed)
     if not lovjTest(resetComponent.name) then return end
     if resetComponent.resetType == lick.PATCH_RESET then
-        logInfo(resetComponent.name .. " - patch reset.")
-        lovjUnrequire(resetComponent.name)
-        patch = lovjRequire(currentPatchName, lick.PATCH_RESET)
-        -- if it's also current patch, reset (this condition shall always verify, but check for safety)
-        if resetComponent.name == currentPatchName then
-            patch.init()
+        -- reset all patches
+		for i=1,#runningPatches do
+			logInfo(runningPatches[i].name .. " - patch reset.")
+			lovjUnrequire(runningPatches[i].name)
+			runningPatches[i].patch = lovjRequire(runningPatches[i].name, lick.PATCH_RESET)
+			runningPatches[i].patch.init(runningPatches[i].resources)
         end
     elseif resetComponent.resetType == lick.SOFT_RESET then
         logInfo(resetComponent.name .. " - soft reset.")

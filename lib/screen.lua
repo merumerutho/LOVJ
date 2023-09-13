@@ -57,7 +57,10 @@ function screen.toggleFullscreen()
 	end
 	calculateScaling()
 	screen.updateScreenOptions()
-	patch:setCanvases()
+	for i=1,#runningPatches do
+		runningPatches[i].patch:setCanvases()
+	end
+		
 end
 
 --- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
@@ -66,7 +69,9 @@ function screen.changeUpscaling()
 	-- calculate new scaling
 	calculateScaling()
 	-- reset canvases
-	patch:setCanvases()
+	for i=1,#runningPatches do
+		runningPatches[i].patch:setCanvases()
+	end
 end
 
 --- @public init Initialize screen, setting resolutions, calculating scaling and updating options

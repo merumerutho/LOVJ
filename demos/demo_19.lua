@@ -7,8 +7,9 @@ local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 
--- aquamarine
+local PALETTE
 
+-- aquamarine
 local waveShaderCode = [[
 	extern float _time;
 	vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
@@ -24,19 +25,19 @@ local waveShaderCode = [[
 ]]
 
 
-patch = Patch:new()
+local patch = Patch:new()
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 	g:setName(1, "bg")				g:set("bg", "data/demo_6/bg.png")
 	p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
+	local p = patch.resources.parameters
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
 end
@@ -55,7 +56,8 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
@@ -124,7 +126,7 @@ function patch.draw()
 
 	love.graphics.setColor(1,1,1,1)
 
-	patch:drawExec()
+	return patch:drawExec()
 end
 
 

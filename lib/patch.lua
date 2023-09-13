@@ -43,6 +43,10 @@ function Patch:setCanvases()
 end
 
 
+function Patch:assignResources(resources)
+	self.resources = resources
+end
+
 --- @public assignDefaultDraw assign patch.draw method to defaultDraw
 function Patch:assignDefaultDraw()
     self.defaultDraw = self.draw
@@ -95,18 +99,12 @@ function Patch:drawExec(hang)
 				love.graphics.clear(0,0,0,1)
 			end
 		end
-		-- Draw final layer on default canvas
-		love.graphics.setCanvas()
-		cfg_shaders.applyShader()
-
-		love.graphics.draw(self.canvases.ShaderCanvases[#cfg_shaders.CurrentShaders], 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+		-- return last shader canvas
+		return self.canvases.ShaderCanvases[#cfg_shaders.CurrentShaders]
 	else
-		-- If shaders disabled, draw normally on default canvas
-		love.graphics.setCanvas()
-		love.graphics.draw(self.canvases.main, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+		-- If shaders disabled, return main
+		return self.canvases.main
 	end
-	-- draw cmd menu canvas on top
-	love.graphics.draw(self.canvases.cmd, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 --- @public mainUpdate Update procedures shared across all patches

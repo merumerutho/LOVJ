@@ -7,20 +7,20 @@ local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 
-patch = Patch:new()
+local patch = Patch:new()
+
+local PALETTE
 
 --- @private init_params initialize patch parameters
 local function init_params()
-	local g = resources.graphics
-	local p = resources.parameters
-	-- g:setName(1, "bg")				g:set("bg", "data/demo_6/bg.png")
-	-- p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
+	local g = patch.resources.graphics
+	local p = patch.resources.parameters
 end
 
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
-	local p = resources.parameters
-	if love.keyboard.isDown("r") then patch.init() cfg_timers.globalTimer:reset() end
+	local p = patch.resources.parameters
+	if love.keyboard.isDown("r") then patch.init(patch.resources) cfg_timers.globalTimer:reset() end
 end
 
 
@@ -48,7 +48,9 @@ end
 
 
 --- @public init init routine
-function patch.init()
+function patch.init(resources)
+	patch:assignResources(resources)
+	
 	PALETTE = palettes.PICO8
     
 	patch:setCanvases()
@@ -142,7 +144,7 @@ function patch.draw()
 	--love.graphics.draw(patch.canvases.globaltop)
 	--love.graphics.setBlendMode("alpha")
 
-	patch:drawExec()  -- always hang to enable feedback
+	return patch:drawExec()  -- always hang to enable feedback
 
 end
 
