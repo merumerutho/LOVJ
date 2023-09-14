@@ -1,17 +1,17 @@
+-- Regular requirements
 require("lib/utils/tableExtensions")
-
 debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")
 version = require("lib/cfg/cfg_version")
 
+--
 log = lovjRequire("lib/utils/logging")
-screen = lovjRequire("lib/screen")
-
 -- TODO: move the table to cfg_logging
 logging.setLogLevel({ logging.LOG_ERROR,
 					  logging.LOG_INFO })
 
+screen = lovjRequire("lib/screen")
 timer = lovjRequire("lib/timer")
 ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
@@ -19,12 +19,11 @@ connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
 
 cfg_patches = lovjRequire("lib/cfg/cfg_patches")
-local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 cfg_automations = lovjRequire("lib/cfg/cfg_automations")
 cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
-
-runningPatches = {{name = cfg_patches.defaultPatch}, {name = "demos/demo_8"}}
+runningPatches = {{name = cfg_patches.defaultPatch[1]}, {name = cfg_patches.defaultPatch[2]}}
 for i=1, #runningPatches do
     runningPatches[i].patch = lovjRequire(runningPatches[i].name, lick.PATCH_RESET)
 end
@@ -39,9 +38,12 @@ function love.load()
 	for i=1, #runningPatches do
         runningPatches[i].resources = ResourceList:new()  -- Init resources
         runningPatches[i].patch.init(runningPatches[i].resources)  -- Init Patches
+		cfg_shaders.assignGlobals(i)  -- Init Shaders globals
     end
+	selectedPatch = 1 -- set selectedPatch to 1st patch (background)
+	controls.init()
 	connections.init()  -- Init socket
-	cfg_shaders.assignGlobals()  -- Init Shaders globals
+	
 end
 
 

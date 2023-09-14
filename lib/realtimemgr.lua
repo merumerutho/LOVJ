@@ -14,7 +14,17 @@ rtMgr.savestatePath = "savestates/"
 
 --- @public controls.loadPatch remove previous patch, load and init a new patch based on its relative path
 function rtMgr.loadPatch(patchName, slot)
-	lovjUnrequire(runningPatches[slot].name)
+	-- Search if patch already loaded somewhere else
+	local flag = false
+	for i=1,#runningPatches do
+		if i~= slot and patchName == runningPatches[i].name then
+			flag = true
+		end
+	end
+	-- If that is the case, don't unrequire the patch
+	if not flag then
+		lovjUnrequire(runningPatches[slot].name)
+	end
 	runningPatches[slot].name = patchName
 	runningPatches[slot].patch = lovjRequire(patchName, lick.PATCH_RESET)
 	runningPatches[slot].patch.init(runningPatches[slot].resources)

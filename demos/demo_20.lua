@@ -50,7 +50,7 @@ end
 --- @public init init routine
 function patch.init(resources)
 	patch:assignResources(resources)
-	
+
 	PALETTE = palettes.PICO8
     
 	patch:setCanvases()

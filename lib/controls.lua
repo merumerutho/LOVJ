@@ -10,16 +10,25 @@ local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 
 local controls = {}
 
--- TODO: Move these to cfg_controls
-controls.slots = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
+-- TODO: Move these to cfg_controls?
+controls.selectors = { "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
+
+controls.patchSlots = {}
 
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
+function controls.init()
+	for i=1,#runningPatches do
+		controls.patchSlots[i] = tostring(i)
+	end
+	currentSlot = 1
+end
+
 -- TODO: move this function somewhere in the cfg_shaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
-local function handleShaderCommands()
-	local s = resources.shaderext
+local function handleShaderCommands(slot)
+	local s = runningPatches[slot].resources.shaderext
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
 		cfg_shaders.toggleShaders()
@@ -63,24 +72,31 @@ function controls.handleGeneralControls()
 	end
 
 	-- handle shaders
-	if not cmd.isOpen then handleShaderCommands() end
+	if not cmd.isOpen then handleShaderCommands(currentSlot) end
 
-	-- load patch from associated quick-slot
-	for k,v in pairs(controls.slots) do
+	-- switch selected patch
+	for k, v in pairs(controls.patchSlots) do
+		if kp.keypressOnRelease(v) and not cmd.isOpen then
+			selectedPatch = k
+		end
+	end
+
+	-- load patch from associated selector
+	for k,v in pairs(controls.selectors) do
 		if kp.keypressOnRelease(v) and not cmd.isOpen then
 			-- Load / Save states
 			if kp.isDown(MODKEY_PRIMARY) then
 				if kp.isDown(MODKEY_SECONDARY) then
 					-- SAVE with index F1...F12
-					rtmgr.saveResources(currentPatchName, k)
+					rtmgr.saveResources(currentPatchName, k, selectedPatch)
 				else
 					-- LOAD from index F1...F12
-					rtmgr.loadResources(currentPatchName, k)
+					rtmgr.loadResources(currentPatchName, k, selectedPatch)
 				end
 			else
 				-- Otherwise, load patch
 				local patchName = cfg_patches.patches[k]
-				rtmgr.loadPatch(patchName, 2) -- TODO: change this (forcefully load on slot 2)
+				rtmgr.loadPatch(patchName, selectedPatch)
 			end
 		end
 	end

@@ -61,10 +61,12 @@ function Patch:drawSetup()
 	-- select shaders
 	if cfg_shaders.enabled then
 		for i = 1, #cfg_shaders.CurrentShaders do
-			cfg_shaders.CurrentShaders[i] = cfg_shaders.selectPPShader(i)
+			cfg_shaders.CurrentShaders[i] = cfg_shaders.selectPPShader(i, self.resources.shaderext)
 		end
 	end
 
+	love.graphics.setCanvas(self.canvases.ShaderCanvases[#cfg_shaders.CurrentShaders])
+	love.graphics.clear(0,0,0,0)
 	-- set canvas
 	love.graphics.setCanvas(self.canvases.main)
 end
@@ -96,7 +98,7 @@ function Patch:drawExec(hang)
 			love.graphics.setCanvas(srcCanvas)
             -- clear if not hanging
 			if not hang then
-				love.graphics.clear(0,0,0,1)
+				love.graphics.clear(0,0,0,0)
 			end
 		end
 		-- return last shader canvas

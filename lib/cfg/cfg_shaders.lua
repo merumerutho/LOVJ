@@ -50,8 +50,8 @@ function cfg_shaders.toggleShaders()
 end
 
 
-function cfg_shaders.assignGlobals()
-	local s = resources.shaderext
+function cfg_shaders.assignGlobals(slot)
+	local s = runningPatches[slot].resources.shaderext
 	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
 	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
 	s:setName(3, "shaderSlot3")			s:set("shaderSlot3", 0)
@@ -73,11 +73,11 @@ end
 
 
 --- @public selectShader select the shader to apply
-function cfg_shaders.selectPPShader(i)
-    local s = resources.shaderext
+function cfg_shaders.selectPPShader(patchSlot, shaderext)
+    local s = shaderext
 
     -- select shader
-	local sh_object = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. i)]
+	local sh_object = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. patchSlot)]
 	local shader = love.graphics.newShader(sh_object.value)
 
 	-- send parameters
