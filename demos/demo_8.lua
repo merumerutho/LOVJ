@@ -17,6 +17,7 @@ local function init_params()
 
 	p:setName(1, "speed")		p:set("speed", 100)
 
+	patch.resources.parameters = p
 end
 
 --- @public patchControls evaluate user keyboard controls

@@ -81,6 +81,8 @@ local function init_params()
 
 	p:setName(1, "colorInversion") p:set("colorInversion", 0)
 	p:setName(2, "ballSize") p:set("ballSize", .1)
+
+	patch.resources.parameters = p
 end
 
 --- @public patchControls evaluate user keyboard controls

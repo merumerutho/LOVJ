@@ -62,6 +62,7 @@ end
 --- @private init_params Initialize parameters for this patch
 local function init_params()
 	local p = patch.resources.parameters
+	patch.resources.parameters = p
 end
 
 

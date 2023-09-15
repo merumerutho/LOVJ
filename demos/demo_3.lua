@@ -64,6 +64,8 @@ end
 local function init_params()
 	local p = patch.resources.parameters
 	p:setName(1, "acceleration")		p:set("acceleration", DEFAULT_ACCELERATION)
+
+	patch.resources.parameters = p
 end
 
 --- @public init initialization function for the patch

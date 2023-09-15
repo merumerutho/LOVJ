@@ -92,6 +92,8 @@ local function init_params()
 	-- shader parameters
 	p:setName(7, "_warpParameter")		p:set("_warpParameter", 2.)
 	p:setName(8, "_segmentParameter")	p:set("_segmentParameter", 4.)
+
+	patch.resources.parameters = p
 end
 
 --- @public init Initializes the patch

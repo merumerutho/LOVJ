@@ -56,6 +56,9 @@ local function init_params()
 
 	p:setName(6, "sceneCenterX")		p:set("sceneCenterX", screen.InternalRes.W/2)
 	p:setName(7, "sceneCenterY")		p:set("sceneCenterY", screen.InternalRes.H/2)
+
+	patch.resources.parameters = p
+	patch.resources.graphics = g
 end
 
 --- @public setCanvases (re)set canvases for this patch

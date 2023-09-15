@@ -44,6 +44,7 @@ end
 
 function cfg_shaders.assignGlobals(slot)
 	local s = runningPatches[slot].resources.shaderext
+
 	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
 	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
 	s:setName(3, "shaderSlot3")			s:set("shaderSlot3", 0)
@@ -61,36 +62,46 @@ function cfg_shaders.assignGlobals(slot)
 	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
 	s:setName(15, "_pixres")			s:set("_pixres", 64)
 
+	runningPatches[slot].resources.shaderext = s
 end
 
 
 --- @public selectShader select the shader to apply
-function cfg_shaders.selectPPShader(patchSlot, shaderext)
+function cfg_shaders.selectPPShader(patchSlot, curShader, shaderext)
     local s = shaderext
-
+	local sh_object
+	local shader
+	
     -- select shader
-	local sh_object = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. patchSlot)]
-	local shader = love.graphics.newShader(sh_object.value)
+	local newShader = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. patchSlot)]
+	-- if shader changed, create new shader
+	if newShader.name ~= curShader.name then
+		print("shaderext", s)
+		print("Changed", patchSlot, curShader)
+		shader = {name = newShader.name, object = love.graphics.newShader(newShader.value)}
+	else
+		shader = curShader
+	end
 
 	-- send parameters
-	if string.find(sh_object.name, "swirl") then
-		shader:send("_time", cfg_timers.globalTimer.T)
+	if string.find(shader.name, "swirl") then
+		shader.object:send("_time", cfg_timers.globalTimer.T)
 	end
-	if string.find(sh_object.name, "warp") then
-		shader:send("_warpParameter", s:get("_warpParameter"))
+	if string.find(shader.name, "warp") then
+		shader.object:send("_warpParameter", s:get("_warpParameter"))
 	end
-	if string.find(sh_object.name, "kaleido") then
-		shader:send("_segmentParameter", s:get("_segmentParameter"))
+	if string.find(shader.name, "kaleido") then
+		shader.object:send("_segmentParameter", s:get("_segmentParameter"))
 	end
-	if string.find(sh_object.name, "gaussianblur") then
-		shader:send("_blurOffset", s:get("_blurOffset"))
+	if string.find(shader.name, "gaussianblur") then
+		shader.object:send("_blurOffset", s:get("_blurOffset"))
 	end
-	if string.find(sh_object.name, "glitch") then
-		shader:send("_glitchDisplace", s:get("_glitchDisplace"))
-		shader:send("_glitchFreq", s:get("_glitchFreq"))
+	if string.find(shader.name, "glitch") then
+		shader.object:send("_glitchDisplace", s:get("_glitchDisplace"))
+		shader.object:send("_glitchFreq", s:get("_glitchFreq"))
 	end
-	if string.find(sh_object.name, "pixelate") then
-		shader:send("_pixres", s:get("_pixres"))
+	if string.find(shader.name, "pixelate") then
+		shader.object:send("_pixres", s:get("_pixres"))
 	end
 
 	return shader

@@ -50,7 +50,7 @@ end
 
 --- @public New Initializer for a resource object
 function Resource:new(o, n)
-    o = {} or o
+    local o = {} or o
     setmetatable(o, self)
     self.__index = self
     for i=1,n do
@@ -75,7 +75,7 @@ function ResourceList:new()
     self.graphics = Resource:new(nil, DEFAULT_SIZE)
     -- shader external control parameters
     self.shaderext = Resource:new(nil, DEFAULT_SIZE)
-    return self
+    return res_list
 end
 
 

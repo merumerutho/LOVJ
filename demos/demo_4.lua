@@ -28,6 +28,7 @@ end
 
 local function init_params()
 	local p = patch.resources.parameters
+	patch.resources.parameters = p
 end
 
 

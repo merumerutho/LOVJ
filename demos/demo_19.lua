@@ -33,6 +33,8 @@ local function init_params()
 	local p = patch.resources.parameters
 	g:setName(1, "bg")				g:set("bg", "data/demo_6/bg.png")
 	p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
+	patch.resources.parameters = p
+	patch.resources.graphics = g
 end
 
 --- @public patchControls evaluate user keyboard controls

@@ -21,6 +21,8 @@ local function init_params()
 	local g = patch.resources.graphics
 	local p = patch.resources.parameters
 
+	patch.resources.parameters = p
+	patch.resources.graphics = g
 end
 
 --- @public patchControls evaluate user keyboard controls

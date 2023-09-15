@@ -35,6 +35,9 @@ local function init_params()
 	p:setName(4, "bgLayer3")			p:set("bgLayer3", 1)
 	p:setName(5, "dw")					p:set("dw", 0.83)
 	p:setName(6, "dh")					p:set("dh", 0.66)
+
+	patch.resources.parameters = p
+	patch.resources.graphics = g
 end
 
 --- @public patchControls evaluate user keyboard controls

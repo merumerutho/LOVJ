@@ -21,6 +21,8 @@ local function init_params()
 	local p = patch.resources.parameters
 	p:setName(1, "a")			p:set("a", 0.5)
 	p:setName(2, "b")			p:set("b", 1)
+
+	patch.resources.parameters = p
 end
 
 --- @private patchControls handle controls for current patch
@@ -69,7 +71,6 @@ function patch.draw()
 	patch:drawSetup()
 
 	local p = patch.resources.parameters
-
 	local t = cfg_timers.globalTimer.T
 
 	local points_list = {}
@@ -97,6 +98,7 @@ function patch.draw()
 			end
 		end
 	end
+
 
 	return patch:drawExec()
 end

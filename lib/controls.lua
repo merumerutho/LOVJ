@@ -22,13 +22,13 @@ function controls.init()
 	for i=1,#runningPatches do
 		controls.patchSlots[i] = tostring(i)
 	end
-	currentSlot = 1
 end
 
 -- TODO: move this function somewhere in the cfg_shaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands(slot)
 	local s = runningPatches[slot].resources.shaderext
+
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
 		cfg_shaders.toggleShaders()
@@ -72,7 +72,7 @@ function controls.handleGeneralControls()
 	end
 
 	-- handle shaders
-	if not cmd.isOpen then handleShaderCommands(currentSlot) end
+	if not cmd.isOpen then handleShaderCommands(selectedPatch) end
 
 	-- switch selected patch
 	for k, v in pairs(controls.patchSlots) do

@@ -43,12 +43,13 @@ function love.load()
 	selectedPatch = 1 -- set selectedPatch to 1st patch (background)
 	controls.init()
 	connections.init()  -- Init socket
-	
+
 end
 
 
 --- @public love.draw love draw function callback
 function love.draw()
+
 	-- if in high res upscaling mode, then apply scale function here
 	if screen.isUpscalingHiRes() then
 		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
@@ -60,7 +61,7 @@ function love.draw()
 		love.graphics.setCanvas()												-- Reset canvas
 		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
 	end
-
+	
 end
 
 

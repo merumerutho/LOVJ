@@ -23,9 +23,9 @@ end
 --- @public setShaders set-up shader list for patch with default shader
 function Patch:setShaders()
 	local default = table.getValueByName("default", cfg_shaders.PostProcessShaders)
-	self.CurrentShaders = { default,
-							default,
-							default }
+	self.CurrentShaders = { {name = default, object = nil},
+							{name = default, object = nil},
+							{name = default, object = nil} }
 end
 
 
@@ -55,6 +55,7 @@ function Patch:assignResources(resources)
 	self.resources = resources
 end
 
+
 --- @public assignDefaultDraw assign patch.draw method to defaultDraw
 function Patch:assignDefaultDraw()
     self.defaultDraw = self.draw
@@ -69,7 +70,7 @@ function Patch:drawSetup()
 	-- select shaders
 	if cfg_shaders.enabled then
 		for i = 1, #self.CurrentShaders do
-			self.CurrentShaders[i] = cfg_shaders.selectPPShader(i, self.resources.shaderext)
+			self.CurrentShaders[i] = cfg_shaders.selectPPShader(i, self.CurrentShaders[i], self.resources.shaderext)
 		end
 	end
 
@@ -101,7 +102,7 @@ function Patch:drawExec(hang)
 			else srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i] end
 			-- Set canvas, apply shader, draw and then remove shader
 			love.graphics.setCanvas(dstCanvas)
-			love.graphics.setShader(self.CurrentShaders[i])
+			love.graphics.setShader(self.CurrentShaders[i].object)
 			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
 			love.graphics.setShader()
 			love.graphics.setCanvas(srcCanvas)
