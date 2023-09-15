@@ -36,14 +36,6 @@ for i=1,#input_files do
 end
 
 
---- @private default The default shader
-local default = table.getValueByName("default", cfg_shaders.PostProcessShaders)
---- @public CurrentShaders current shaders used for post processing canvas
-cfg_shaders.CurrentShaders = 	 { default,
-								   default,
-								   default }
-
-
 --- @public toggleShaders enable / disable shaders
 function cfg_shaders.toggleShaders()
     cfg_shaders.enabled = not cfg_shaders.enabled
@@ -104,10 +96,5 @@ function cfg_shaders.selectPPShader(patchSlot, shaderext)
 	return shader
 end
 
-
---- @public applyShader apply the shader to the graphics
-function cfg_shaders.applyShader(shader)
-	love.graphics.setShader(shader)
-end
 
 return cfg_shaders

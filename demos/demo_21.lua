@@ -52,7 +52,8 @@ function patch.init(resources)
 	patch:assignResources(resources)
 
 	PALETTE = palettes.PICO8
-    
+
+	patch:setShaders()
 	patch:setCanvases()
     
 	init_params()

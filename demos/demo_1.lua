@@ -51,6 +51,7 @@ end
 function patch.init(resources)
 	patch:assignResources(resources)
 
+	patch:setShaders()
 	patch:setCanvases()
 	init_params()
 	patch:assignDefaultDraw()

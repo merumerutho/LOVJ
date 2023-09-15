@@ -103,6 +103,8 @@ function patch.init(resources)
 	for i = 1, patch.nPoints do
 		table.insert(patch.points, patch.generatePoint(i))
 	end
+
+	patch:setShaders()
 	-- canvases
 	patch:setCanvases()
 	-- move this somewhere else?

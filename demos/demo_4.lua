@@ -34,7 +34,7 @@ end
 function patch.init(resources)
 	patch:assignResources(resources)
 	patch.invert = false
-
+	patch:setShaders()
 	patch:setCanvases()
 
 	patch.bpm = 120

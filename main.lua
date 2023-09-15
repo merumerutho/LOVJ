@@ -54,10 +54,9 @@ function love.draw()
 		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
 	end
 
-	-- For all patches...
+	-- Draw all patches stacked on top of each other
 	for i=1, #runningPatches do
 		local canvas = runningPatches[i].patch.draw()  							-- Get canvas from current patch
-		cfg_shaders.applyShader() 												-- Remove shader
 		love.graphics.setCanvas()												-- Reset canvas
 		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
 	end

@@ -77,6 +77,7 @@ end
 function patch.init(resources)
 	patch:assignResources(resources)
 	patch.hang = false
+	patch:setShaders()
 	patch:setCanvases()
 
 	patch:assignDefaultDraw()

@@ -30,6 +30,7 @@ end
 --- @public init init routine
 function patch.init(resources)
 	patch:assignResources(resources)
+	patch:setShaders()
 	patch:setCanvases()
 
 	init_params()

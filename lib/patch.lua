@@ -20,6 +20,15 @@ function Patch:new(p)
 end
 
 
+--- @public setShaders set-up shader list for patch with default shader
+function Patch:setShaders()
+	local default = table.getValueByName("default", cfg_shaders.PostProcessShaders)
+	self.CurrentShaders = { default,
+							default,
+							default }
+end
+
+
 --- @public setCanvases (re)set canvases for patch
 function Patch:setCanvases()
 	self.canvases = {}
@@ -36,10 +45,9 @@ function Patch:setCanvases()
 	-- Generate canvases with calculated size
 	self.canvases.main = love.graphics.newCanvas(sizeX, sizeY)
 	self.canvases.cmd = love.graphics.newCanvas(sizeX, sizeY)
-	for i = 1, #cfg_shaders.CurrentShaders do
+	for i = 1, #self.CurrentShaders do
 		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(sizeX, sizeY))
 	end
-
 end
 
 
@@ -60,12 +68,12 @@ function Patch:drawSetup()
 
 	-- select shaders
 	if cfg_shaders.enabled then
-		for i = 1, #cfg_shaders.CurrentShaders do
-			cfg_shaders.CurrentShaders[i] = cfg_shaders.selectPPShader(i, self.resources.shaderext)
+		for i = 1, #self.CurrentShaders do
+			self.CurrentShaders[i] = cfg_shaders.selectPPShader(i, self.resources.shaderext)
 		end
 	end
 
-	love.graphics.setCanvas(self.canvases.ShaderCanvases[#cfg_shaders.CurrentShaders])
+	love.graphics.setCanvas(self.canvases.ShaderCanvases[#self.CurrentShaders])
 	love.graphics.clear(0,0,0,0)
 	-- set canvas
 	love.graphics.setCanvas(self.canvases.main)
@@ -87,14 +95,15 @@ function Patch:drawExec(hang)
 
 	-- Cycle amd apply post process shaders over relative canvases
 	if cfg_shaders.enabled then
-		for i = 1, #cfg_shaders.CurrentShaders do
+		for i = 1, #self.CurrentShaders do
 			local srcCanvas, dstCanvas
 			if i == 1 then srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
 			else srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i] end
 			-- Set canvas, apply shader, draw and then remove shader
 			love.graphics.setCanvas(dstCanvas)
-			cfg_shaders.applyShader(cfg_shaders.CurrentShaders[i])
+			love.graphics.setShader(self.CurrentShaders[i])
 			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
+			love.graphics.setShader()
 			love.graphics.setCanvas(srcCanvas)
             -- clear if not hanging
 			if not hang then
@@ -102,7 +111,7 @@ function Patch:drawExec(hang)
 			end
 		end
 		-- return last shader canvas
-		return self.canvases.ShaderCanvases[#cfg_shaders.CurrentShaders]
+		return self.canvases.ShaderCanvases[#self.CurrentShaders]
 	else
 		-- If shaders disabled, return main
 		return self.canvases.main
