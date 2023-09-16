@@ -126,8 +126,8 @@ end
 function Patch:mainUpdate()
 	-- apply keyboard patch controls
 	if not cmd.isOpen then
-
-		self.patchControls()
+		-- only handle controls if patch is selected
+		if controls.selectedPatch == self.slot then self.patchControls() end
 	end
 end
 
