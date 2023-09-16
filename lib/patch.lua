@@ -51,8 +51,11 @@ function Patch:setCanvases()
 end
 
 
-function Patch:assignResources(resources)
+function Patch:init(slot, resources)
+	self.slot = slot
 	self.resources = resources
+	self:setShaders()
+	self:assignDefaultDraw()
 end
 
 
@@ -122,7 +125,10 @@ end
 --- @public mainUpdate Update procedures shared across all patches
 function Patch:mainUpdate()
 	-- apply keyboard patch controls
-	if not cmd.isOpen then self.patchControls() end
+	if not cmd.isOpen then
+
+		self.patchControls()
+	end
 end
 
 return Patch

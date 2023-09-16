@@ -23,49 +23,53 @@ cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 cfg_automations = lovjRequire("lib/cfg/cfg_automations")
 cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 
-runningPatches = {{name = cfg_patches.defaultPatch[1]}, {name = cfg_patches.defaultPatch[2]}}
-for i=1, #runningPatches do
-    runningPatches[i].patch = lovjRequire(runningPatches[i].name, lick.PATCH_RESET)
-end
-
 -- Set title with LOVJ version
 love.window.setTitle("LOVJ v" ..  version)
 
---- @public love.load love load function callback
+--- @public love.load
+--- this function is called upon startup
 function love.load()
 	screen.init()  -- Init screen
 	cfg_timers.init()  -- Init timers
-	for i=1, #runningPatches do
-        runningPatches[i].resources = ResourceList:new()  -- Init resources
-        runningPatches[i].patch.init(runningPatches[i].resources)  -- Init Patches
-		cfg_shaders.assignGlobals(i)  -- Init Shaders globals
-    end
-	selectedPatch = 1 -- set selectedPatch to 1st patch (background)
-	controls.init()
-	connections.init()  -- Init socket
 
+	-- Set two running patches
+	patchSlots = {{name = cfg_patches.defaultPatch[1]},
+				  {name = cfg_patches.defaultPatch[2]}}
+	for i=1, #patchSlots do
+		patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
+	end
+
+	-- Initialize each patch
+	for i, slot in ipairs(patchSlots) do
+        slot.resources = ResourceList:new()  -- Init ressources for this patch slot
+        slot.patch.init(i, slot.resources)  -- Init actual patch for this patch slot
+		cfg_shaders.assignGlobals(i)  -- Assign Shaders globals
+    end
+
+	connections.init()  -- Init socket
 end
 
 
---- @public love.draw love draw function callback
+--- @public love.draw
+--- this function is called upon each draw cycle
 function love.draw()
-
-	-- if in high res upscaling mode, then apply scale function here
+	-- if in high res upscaling mode, then apply scaling function here
 	if screen.isUpscalingHiRes() then
 		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
 	end
 
 	-- Draw all patches stacked on top of each other
-	for i=1, #runningPatches do
-		local canvas = runningPatches[i].patch.draw()  							-- Get canvas from current patch
+	for i=1, #patchSlots do
+		local canvas = patchSlots[i].patch.draw()  							-- Get canvas from current patch
 		love.graphics.setCanvas()												-- Reset canvas
 		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
 	end
-	
+
 end
 
 
---- @public love.update love update function callback
+--- @public love.update
+--- this function is called upon each update cycle
 function love.update()
 	cfg_timers.update()  -- update timers
 
@@ -79,7 +83,7 @@ function love.update()
 
 	dispatcher.update(connections.sendRequests())  -- TODO: implement dispatcher method
 
-	for i=1, #runningPatches do
-		runningPatches[i].patch.update()  -- call current patch update method
+	for i=1, #patchSlots do
+		patchSlots[i].patch.update()  -- call current patch update method
 	end
 end

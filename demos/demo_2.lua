@@ -66,10 +66,9 @@ local function init_params()
 end
 
 
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	patch.hang = false
-	patch:setShaders()
 	patch:setCanvases()
 	
   	-- balls
@@ -79,8 +78,6 @@ function patch.init(resources)
   	for i = 1, patch.nBalls do
     	addBall(screen.InternalRes.W / 2, screen.InternalRes.H / 2)
   	end
-
-	patch:assignDefaultDraw()
 end
 
 

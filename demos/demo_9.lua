@@ -26,7 +26,7 @@ function patch.patchControls()
 	local p = patch.resources.parameters
 
 	if kp.isDown("r") then
-		patch.init(patch.resources)
+		patch.init(patch.slot, patch.resources)
 		cfg_timers.reset()
 	end
 
@@ -34,19 +34,16 @@ end
 
 
 --- @public init init routine
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	PALETTE = palettes.PICO8
 
-	patch:setShaders()
 	patch:setCanvases()
 
 	init_params()
 
 	patch.lfo = Lfo:new(1, 0)
 	patch.env = Envelope:new(0.5, 0.5, 0.5, 1)
-
-	patch:assignDefaultDraw()
 end
 
 --- @private draw_bg draw background graphics

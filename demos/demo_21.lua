@@ -23,7 +23,7 @@ end
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
 	local p = patch.resources.parameters
-	if love.keyboard.isDown("r") then patch.init(patch.resources) cfg_timers.globalTimer:reset() end
+	if love.keyboard.isDown("r") then patch.init(patch.slot, patch.resources) cfg_timers.globalTimer:reset() end
 end
 
 
@@ -51,17 +51,14 @@ end
 
 
 --- @public init init routine
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 
 	PALETTE = palettes.PICO8
 
-	patch:setShaders()
 	patch:setCanvases()
     
 	init_params()
-
-	patch:assignDefaultDraw()
 end
 
 
@@ -135,7 +132,7 @@ function patch.draw()
     love.graphics.setCanvas(patch.canvases.fbk)
 	love.graphics.draw(patch.canvases.bak, cx, cy, t%1, 1 + (t%.1)*math.abs(math.sin(t)), 1.1, cx, cy)
 	love.graphics.setCanvas(patch.canvases.bak)
-	love.graphics.clear(0,0,0,1)
+	love.graphics.clear(0,0,0,0)
 	love.graphics.setColor(1.0,0.9,1,0.7)  -- reduced opacity
 	love.graphics.draw(patch.canvases.fbk)
 	love.graphics.setColor(1,1,1,1)
@@ -149,7 +146,7 @@ function patch.draw()
 
     -- ## compose output pipeline ##
     love.graphics.setCanvas(patch.canvases.main)
-	love.graphics.clear(0,0,0,1)
+	love.graphics.clear(0,0,0,0)
 	--love.graphics.draw(patch.canvases.globaltop)
 	love.graphics.setColor(1,1,1,1)
 	love.graphics.draw(patch.canvases.fbk, -cx/2, -cy/2)

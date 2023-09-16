@@ -13,21 +13,16 @@ local controls = {}
 -- TODO: Move these to cfg_controls?
 controls.selectors = { "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
 
-controls.patchSlots = {}
+controls.selectedPatch = 1
 
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
-function controls.init()
-	for i=1,#runningPatches do
-		controls.patchSlots[i] = tostring(i)
-	end
-end
 
 -- TODO: move this function somewhere in the cfg_shaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands(slot)
-	local s = runningPatches[slot].resources.shaderext
+	local s = patchSlots[slot].resources.shaderext
 
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
@@ -72,12 +67,12 @@ function controls.handleGeneralControls()
 	end
 
 	-- handle shaders
-	if not cmd.isOpen then handleShaderCommands(selectedPatch) end
+	if not cmd.isOpen then handleShaderCommands(controls.selectedPatch) end
 
 	-- switch selected patch
-	for k, v in pairs(controls.patchSlots) do
-		if kp.keypressOnRelease(v) and not cmd.isOpen then
-			selectedPatch = k
+	for i=1, #patchSlots do
+		if kp.keypressOnRelease(tostring(i)) and not cmd.isOpen then
+			controls.selectedPatch = i
 		end
 	end
 
@@ -88,15 +83,15 @@ function controls.handleGeneralControls()
 			if kp.isDown(MODKEY_PRIMARY) then
 				if kp.isDown(MODKEY_SECONDARY) then
 					-- SAVE with index F1...F12
-					rtmgr.saveResources(currentPatchName, k, selectedPatch)
+					rtmgr.saveResources(currentPatchName, k, controls.selectedPatch)
 				else
 					-- LOAD from index F1...F12
-					rtmgr.loadResources(currentPatchName, k, selectedPatch)
+					rtmgr.loadResources(currentPatchName, k, controls.selectedPatch)
 				end
 			else
 				-- Otherwise, load patch
 				local patchName = cfg_patches.patches[k]
-				rtmgr.loadPatch(patchName, selectedPatch)
+				rtmgr.loadPatch(patchName, controls.selectedPatch)
 			end
 		end
 	end

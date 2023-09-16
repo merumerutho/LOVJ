@@ -41,11 +41,10 @@ end
 
 
 --- @public init init routine
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	PALETTE = palettes.PICO8
 
-	patch:setShaders()
 	patch.setCanvases()
 
 	init_params()
@@ -59,8 +58,6 @@ function patch.init(resources)
 	patch.video.loopEnd = 10
 	patch.video.playbackSpeed = 1
     patch.video.handle:play()
-
-	patch:assignDefaultDraw()
 end
 
 --- @private draw_bg draw background graphics

@@ -50,13 +50,12 @@ function patch.patchControls()
 end
 
 --- @public init init routine
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 
-	patch:setShaders()
-	patch:setCanvases()
 	init_params()
-	patch:assignDefaultDraw()
+
+	patch:setCanvases()
 
 	patch.bpm = 170
 

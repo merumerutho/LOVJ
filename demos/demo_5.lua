@@ -97,8 +97,8 @@ local function init_params()
 end
 
 --- @public init Initializes the patch
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	patch.palette = PALETTE
 	patch.nPoints = 3 + math.random(32)
 	patch.points = {}
@@ -106,15 +106,12 @@ function patch.init(resources)
 		table.insert(patch.points, patch.generatePoint(i))
 	end
 
-	patch:setShaders()
 	-- canvases
 	patch:setCanvases()
 	-- move this somewhere else?
 	patch.shader_trail = nil
 
 	init_params()
-
-	patch:assignDefaultDraw()
 end
 
 function patch.reset()

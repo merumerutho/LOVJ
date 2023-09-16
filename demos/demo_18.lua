@@ -77,13 +77,11 @@ function patch:setCanvases()
 end
 
 
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	patch.hang = false
-	patch:setShaders()
 	patch:setCanvases()
 
-	patch:assignDefaultDraw()
 	init_params()
 end
 

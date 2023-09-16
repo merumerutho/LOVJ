@@ -57,8 +57,8 @@ function screen.toggleFullscreen()
 	end
 	calculateScaling()
 	screen.updateScreenOptions()
-	for i=1,#runningPatches do
-		runningPatches[i].patch:setCanvases()
+	for i=1,#patchSlots do
+		patchSlots[i].patch:setCanvases()
 	end
 		
 end
@@ -69,8 +69,8 @@ function screen.changeUpscaling()
 	-- calculate new scaling
 	calculateScaling()
 	-- reset canvases
-	for i=1,#runningPatches do
-		runningPatches[i].patch:setCanvases()
+	for i=1,#patchSlots do
+		patchSlots[i].patch:setCanvases()
 	end
 end
 

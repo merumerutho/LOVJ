@@ -43,7 +43,7 @@ end
 
 
 function cfg_shaders.assignGlobals(slot)
-	local s = runningPatches[slot].resources.shaderext
+	local s = patchSlots[slot].resources.shaderext
 
 	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
 	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
@@ -62,7 +62,7 @@ function cfg_shaders.assignGlobals(slot)
 	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
 	s:setName(15, "_pixres")			s:set("_pixres", 64)
 
-	runningPatches[slot].resources.shaderext = s
+	patchSlots[slot].resources.shaderext = s
 end
 
 
@@ -76,8 +76,6 @@ function cfg_shaders.selectPPShader(patchSlot, curShader, shaderext)
 	local newShader = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. patchSlot)]
 	-- if shader changed, create new shader
 	if newShader.name ~= curShader.name then
-		print("shaderext", s)
-		print("Changed", patchSlot, curShader)
 		shader = {name = newShader.name, object = love.graphics.newShader(newShader.value)}
 	else
 		shader = curShader

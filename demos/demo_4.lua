@@ -21,7 +21,7 @@ function patch.patchControls()
 	
 	-- Reset
 	if kp.isDown("r") then
-    	patch.init(patch.resources)
+    	patch.init(patch.slot, patch.resources)
 	end
 end
 
@@ -32,8 +32,8 @@ local function init_params()
 end
 
 
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	patch.invert = false
 	patch:setShaders()
 	patch:setCanvases()

@@ -46,17 +46,14 @@ end
 
 
 --- @public init init routine
-function patch.init(resources)
-	patch:assignResources(resources)
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	PALETTE = palettes.PICO8
-	patch:setShaders()
 	patch:setCanvases()
 
 	init_params()
 
 	patch.push = Lfo:new(0.1, 0)
-
-	patch:assignDefaultDraw()
 
 	patch.fontSize = 8
 	patch.ANSI_font = love.graphics.newFont("data/fonts/arial.ttf", patch.fontSize)

@@ -29,14 +29,11 @@ end
 
 
 --- @public init init routine
-function patch.init(resources)
-	patch:assignResources(resources)
-	patch:setShaders()
+function patch.init(slot, resources)
+	Patch.init(patch, slot, resources)
 	patch:setCanvases()
 
 	init_params()
-
-	patch:assignDefaultDraw()
 end
 
 --- @private draw_bg draw background graphics
