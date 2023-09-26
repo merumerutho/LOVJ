@@ -24,7 +24,7 @@ function logInfo(msg)
 	if bit.band(logging.logLevel, logging.LOG_INFO) then
 		local filename = debug.getinfo(2)["short_src"]:match("[^/]*.lua")
 		-- filename = "" or filename
-		print("INFO ["..filename.."] "..msg)
+		print("INFO ["..filename.."] "..tostring(msg))
 	end
 end
 
