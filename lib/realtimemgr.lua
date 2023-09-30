@@ -28,7 +28,6 @@ function rtMgr.loadPatch(patchName, slot)
 	patchSlots[slot].name = patchName
 	patchSlots[slot].patch = lovjRequire(patchName, lick.PATCH_RESET)
 	patchSlots[slot].patch.init(slot)
-	patchSlots[slot].patch.resources.shaderext = cfg_shaders.initShaderExt(slot)  -- Assign Shaders globals
 end
 
 

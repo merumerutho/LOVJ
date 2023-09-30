@@ -22,7 +22,7 @@ local MODKEY_SECONDARY = "lshift"
 -- TODO: move this function somewhere in the cfg_shaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands(slot)
-	local s = patchSlots[slot].patch.resources.shaderext
+	local s = patchSlots[slot].shaderext
 
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then

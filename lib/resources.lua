@@ -63,18 +63,18 @@ function Resource:new(o, n)
 end
 
 
-function ResourceList:new()
+function ResourceList:new(global, shader)
     local res_list = {}
     setmetatable(res_list, self)
     self.__index = self
     -- used as parameters bound to elements in patches
     self.parameters = Resource:new(nil, DEFAULT_SIZE)
-    -- shared globally: general option values, post-processing shaders, etc.
-    self.globals = Resource:new(nil, DEFAULT_SIZE)
     -- filepaths or data bound to graphics resources / sprites etc.
     self.graphics = Resource:new(nil, DEFAULT_SIZE)
-    -- shader external control parameters
-    self.shaderext = Resource:new(nil, DEFAULT_SIZE)
+
+    -- these must be pre-initialized (and reside elsewhere)
+    self.globals = global
+    self.shaderext = shader
     return res_list
 end
 
@@ -88,5 +88,12 @@ function ResourceList:update(update_msg)
     end
     return self
 end
+
+
+--- wrapper for Resource:new()
+function ResourceList:newResource()
+    return Resource:new(nil, DEFAULT_SIZE)
+end
+
 
 return ResourceList

@@ -39,11 +39,18 @@ function love.load()
 		patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
 	end
 
+	-- global setting resources
+	globalSettings = ResourceList:newResource()
+
 	-- Initialize each patch
 	for i, slot in ipairs(patchSlots) do
         slot.patch.init(i, slot.name)  -- Init actual patch for this patch slot
-		slot.patch.resources.shaderext = cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
+		slot.shaderext = ResourceList:newResource()
+		cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
     end
+
+
+
 	connections.init()  -- Init socket
 end
 

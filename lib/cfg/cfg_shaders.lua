@@ -43,7 +43,7 @@ end
 
 
 function cfg_shaders.initShaderExt(slot)
-	local s = patchSlots[slot].patch.resources.shaderext
+	local s = patchSlots[slot].shaderext
 
 	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
 	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
@@ -62,13 +62,12 @@ function cfg_shaders.initShaderExt(slot)
 	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
 	s:setName(15, "_pixres")			s:set("_pixres", 64)
 
-	return s
 end
 
 
 --- @public selectShader select the shader to apply
 function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
-    local s = patchSlots[p_slot].patch.resources.shaderext
+    local s = patchSlots[p_slot].shaderext
 	local shader
 
     -- select shader
