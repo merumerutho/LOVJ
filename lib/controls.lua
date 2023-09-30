@@ -22,7 +22,7 @@ local MODKEY_SECONDARY = "lshift"
 -- TODO: move this function somewhere in the cfg_shaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands(slot)
-	local s = patchSlots[slot].resources.shaderext
+	local s = patchSlots[slot].patch.resources.shaderext
 
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
@@ -47,6 +47,7 @@ local function handleShaderCommands(slot)
 		if kp.isDown("up") then s:set("_blurOffset", (s:get("_blurOffset")+0.001)) end
 		if kp.isDown("down") then s:set("_blurOffset", (s:get("_blurOffset")-0.001)) end
 	end
+	return s
 end
 
 --- @public handleGeneralControls Main function to handle general keyboard controls (patch-independent)
@@ -67,7 +68,9 @@ function controls.handleGeneralControls()
 	end
 
 	-- handle shaders
-	if not cmd.isOpen then handleShaderCommands(controls.selectedPatch) end
+	if not cmd.isOpen then
+		patchSlots[controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(controls.selectedPatch) 
+	end
 
 	-- switch selected patch
 	for i=1, #patchSlots do
@@ -83,10 +86,10 @@ function controls.handleGeneralControls()
 			if kp.isDown(MODKEY_PRIMARY) then
 				if kp.isDown(MODKEY_SECONDARY) then
 					-- SAVE with index F1...F12
-					rtmgr.saveResources(currentPatchName, k, controls.selectedPatch)
+					rtmgr.saveResources(patchSlots[controls.selectedPatch].name, k, controls.selectedPatch)
 				else
 					-- LOAD from index F1...F12
-					rtmgr.loadResources(currentPatchName, k, controls.selectedPatch)
+					rtmgr.loadResources(patchSlots[controls.selectedPatch].name, k, controls.selectedPatch)
 				end
 			else
 				-- Otherwise, load patch

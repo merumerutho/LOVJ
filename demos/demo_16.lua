@@ -46,8 +46,8 @@ end
 
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	PALETTE = palettes.PICO8
 	patch:setCanvases()
 

@@ -17,7 +17,7 @@ local function init_params()
 
 	p:setName(1, "speed")		p:set("speed", 100)
 
-	patch.resources.parameters = p
+	return p, g
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -29,11 +29,12 @@ end
 
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	patch:setCanvases()
 
-	init_params()
+	patch.resources.parameters,
+	patch.resources.graphics = init_params()
 end
 
 --- @private draw_bg draw background graphics

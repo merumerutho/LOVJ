@@ -41,8 +41,8 @@ end
 
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	local g = patch.resources.graphics
 
 	PALETTE = palettes.PICO8

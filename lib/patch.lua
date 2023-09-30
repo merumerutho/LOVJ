@@ -6,6 +6,7 @@
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local cfg_patches = lovjRequire("lib/cfg/cfg_patches")
 local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+local resources = lovjRequire("lib/resources")
 local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}
@@ -51,9 +52,9 @@ function Patch:setCanvases()
 end
 
 
-function Patch:init(slot, resources)
+function Patch:init(slot)
 	self.slot = slot
-	self.resources = resources
+	self.resources = ResourceList:new()
 	self:setShaders()
 	self:assignDefaultDraw()
 end
@@ -73,7 +74,7 @@ function Patch:drawSetup()
 	-- select shaders
 	if cfg_shaders.enabled then
 		for i = 1, #self.CurrentShaders do
-			self.CurrentShaders[i] = cfg_shaders.selectPPShader(i, self.CurrentShaders[i], self.resources.shaderext)
+			self.CurrentShaders[i] = cfg_shaders.selectPPShader(self.slot, i, self.CurrentShaders[i])
 		end
 	end
 
@@ -96,7 +97,6 @@ function Patch:drawExec(hang)
 	else
 		scalingX, scalingY = screen.Scaling.X, screen.Scaling.Y
 	end
-
 	-- Cycle amd apply post process shaders over relative canvases
 	if cfg_shaders.enabled then
 		for i = 1, #self.CurrentShaders do
@@ -127,7 +127,11 @@ function Patch:mainUpdate()
 	-- apply keyboard patch controls
 	if not cmd.isOpen then
 		-- only handle controls if patch is selected
-		if controls.selectedPatch == self.slot then self.patchControls() end
+		if controls.selectedPatch == self.slot then
+			self.resources.parameters,
+			self.resources.graphics,
+			self.resources.globals = self.patchControls()
+		end
 	end
 end
 

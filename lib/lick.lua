@@ -132,7 +132,7 @@ local function checkForModifications()
         -- re-load all patches
         for i=1,#patchSlots do
             patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
-            patchSlots[i].patch.init(i, patchSlots[i].resources)
+            patchSlots[i].patch.init(i)
         end
     elseif resetComponent.resetType == lick.SOFT_RESET then
         logInfo(resetComponent.name .. " - soft reset.")
@@ -152,7 +152,7 @@ end
 local function update(dt)
     checkForModifications()
     updateok, err = pcall(love.update, dt)
-    if not updateok and not updateok_old then 
+    if not updateok and not updateok_old then
         logError(tostring(err))
         if lick.debugoutput then
             lick.debugoutput = (lick.debugoutput .."ERROR: ".. err .. "\n" )
@@ -167,10 +167,10 @@ end
 --- @private draw Draw call
 local function draw()
     drawok, err = xpcall(love.draw, handle)
-    if not drawok and not drawok_old then 
+    if not drawok and not drawok_old then
         logError(tostring(err))
         if lick.debugoutput then
-            lick.debugoutput = (lick.debugoutput .. err .. "\n" ) 
+            lick.debugoutput = (lick.debugoutput .. err .. "\n" )
         else
             lick.debugoutput =  err .. "\n"
         end 

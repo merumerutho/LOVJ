@@ -15,16 +15,21 @@ local patch = Patch:new()
 --- @public patchControls handle controls for current patch
 function patch.patchControls()
 	local p = patch.resources.parameters
+	local gr = patch.resources.graphics
+	local gl = patch.resources.globals
+
 	if kp.isDown("lctrl") then
 		-- Accelerator
 		if kp.isDown("a") then p:set("acceleration", DEFAULT_ACCELERATION+1) else p:set("acceleration", DEFAULT_ACCELERATION) end
   	end
 	-- Reset
 	if kp.isDown("r") then
-    	patch.init(patch.resources)
+    	patch.init(patch.slot, patch)
 	end
 	-- hang
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
+
+	return p, gr, gl
 end
 
 --- @private newBall spawn new ball in ballList
@@ -64,17 +69,16 @@ end
 local function init_params()
 	local p = patch.resources.parameters
 	p:setName(1, "acceleration")		p:set("acceleration", DEFAULT_ACCELERATION)
-
-	patch.resources.parameters = p
+	return p
 end
 
 --- @public init initialization function for the patch
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	PALETTE = palettes.PICO8
 	patch:setCanvases()
 
-	init_params()
+	patch.resources.parameters = init_params()
 
 	-- ball stuff
 	patch.nBalls = 100

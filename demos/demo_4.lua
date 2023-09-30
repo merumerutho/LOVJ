@@ -21,19 +21,19 @@ function patch.patchControls()
 	
 	-- Reset
 	if kp.isDown("r") then
-    	patch.init(patch.slot, patch.resources)
+    	patch.init(patch.slot)
 	end
 end
 
 
 local function init_params()
 	local p = patch.resources.parameters
-	patch.resources.parameters = p
+	return p 
 end
 
 
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	patch.invert = false
 	patch:setShaders()
 	patch:setCanvases()
@@ -47,7 +47,7 @@ function patch.init(slot, resources)
 	patch.env = Envelope:new(0, 0, 1, 0.5)
 	patch.drawList = {}
 
-	init_params()
+	patch.resources.parameters = init_params()
 	patch:assignDefaultDraw()
 
 	-- set bpm to 120

@@ -41,11 +41,9 @@ function love.load()
 
 	-- Initialize each patch
 	for i, slot in ipairs(patchSlots) do
-        slot.resources = ResourceList:new()  -- Init ressources for this patch slot
-        slot.patch.init(i, slot.resources)  -- Init actual patch for this patch slot
-		cfg_shaders.assignGlobals(i)  -- Assign Shaders globals
+        slot.patch.init(i, slot.name)  -- Init actual patch for this patch slot
+		slot.patch.resources.shaderext = cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
     end
-
 	connections.init()  -- Init socket
 end
 
@@ -60,7 +58,7 @@ function love.draw()
 
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
-		local canvas = patchSlots[i].patch.draw()  							-- Get canvas from current patch
+		local canvas = patchSlots[i].patch.draw()  								-- Get canvas from current patch
 		love.graphics.setCanvas()												-- Reset canvas
 		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
 	end
@@ -80,7 +78,6 @@ function love.update()
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls
-
 	dispatcher.update(connections.sendRequests())  -- TODO: implement dispatcher method
 
 	for i=1, #patchSlots do

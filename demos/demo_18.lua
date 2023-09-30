@@ -16,7 +16,7 @@ function patch.patchControls()
 	-- Hanger
 	if love.keyboard.isDown("x") then patch.hang = true else patch.hang = false end
 	-- Reset
-	if love.keyboard.isDown("r") then patch.init(patch.resources) end
+	if love.keyboard.isDown("r") then patch.init(patch.slot) end
 end
 
 --- @private get_roach get roach :)
@@ -77,8 +77,8 @@ function patch:setCanvases()
 end
 
 
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	patch.hang = false
 	patch:setCanvases()
 

@@ -17,8 +17,7 @@ local function init_params()
 	local g = patch.resources.graphics
 	local p = patch.resources.parameters
 
-	patch.resources.parameters = p
-	patch.resources.graphics = g
+	return p, g
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -26,7 +25,7 @@ function patch.patchControls()
 	local p = patch.resources.parameters
 
 	if kp.isDown("r") then
-		patch.init(patch.slot, patch.resources)
+		patch.init(patch.slot)
 		cfg_timers.reset()
 	end
 
@@ -34,13 +33,14 @@ end
 
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
 
-	init_params()
+	patch.resources.parameters,
+	patch.resources.graphics = init_params()
 
 	patch.lfo = Lfo:new(1, 0)
 	patch.env = Envelope:new(0.5, 0.5, 0.5, 1)

@@ -23,7 +23,7 @@ end
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
 	local p = patch.resources.parameters
-	if love.keyboard.isDown("r") then patch.init(patch.slot, patch.resources) cfg_timers.globalTimer:reset() end
+	if love.keyboard.isDown("r") then patch.init(patch.slot) cfg_timers.globalTimer:reset() end
 end
 
 
@@ -51,8 +51,8 @@ end
 
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 
 	PALETTE = palettes.PICO8
 

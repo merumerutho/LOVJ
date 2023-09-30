@@ -28,11 +28,8 @@ end
 
 --- @private patchControls Checks the input controls locally
 function patch.patchControls()
-	local p = patch.resources.parameters
 	-- reset
-	if kp.keypressOnAttack("r") then
-		patch.reset()
-	end
+	if kp.keypressOnAttack("r") then patch.reset() end
 	if kp.isDown("lshift") and kp.isDown("r") then
 		patch.reset()
 	end
@@ -93,12 +90,12 @@ local function init_params()
 	p:setName(7, "_warpParameter")		p:set("_warpParameter", 2.)
 	p:setName(8, "_segmentParameter")	p:set("_segmentParameter", 4.)
 
-	patch.resources.parameters = p
+	return p
 end
 
 --- @public init Initializes the patch
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 	patch.palette = PALETTE
 	patch.nPoints = 3 + math.random(32)
 	patch.points = {}
@@ -111,7 +108,7 @@ function patch.init(slot, resources)
 	-- move this somewhere else?
 	patch.shader_trail = nil
 
-	init_params()
+	patch.resources.parameters = init_params()
 end
 
 function patch.reset()

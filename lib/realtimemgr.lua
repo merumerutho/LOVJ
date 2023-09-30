@@ -15,19 +15,20 @@ rtMgr.savestatePath = "savestates/"
 --- @public controls.loadPatch remove previous patch, load and init a new patch based on its relative path
 function rtMgr.loadPatch(patchName, slot)
 	-- Search if patch already loaded somewhere else
-	local flag = false
+	local unrequire = true
 	for i=1,#patchSlots do
 		if i~= slot and patchName == patchSlots[i].name then
-			flag = true
+			unrequire = false
 		end
 	end
 	-- If that is the case, don't unrequire the patch
-	if not flag then
+	if unrequire then
 		lovjUnrequire(patchSlots[slot].name)
 	end
 	patchSlots[slot].name = patchName
 	patchSlots[slot].patch = lovjRequire(patchName, lick.PATCH_RESET)
-	patchSlots[slot].patch.init(slot, patchSlots[slot].resources)
+	patchSlots[slot].patch.init(slot)
+	patchSlots[slot].patch.resources.shaderext = cfg_shaders.initShaderExt(slot)  -- Assign Shaders globals
 end
 
 
@@ -35,10 +36,10 @@ end
 function rtMgr.saveResources(filename, idx, slot)
 	local data = {}
 	data.patchName = patchSlots[slot].name
-	data.parameters = patchSlots[slot].resources.parameters
-	data.globals = patchSlots[slot].resources.globals
-	data.graphics = patchSlots[slot].resources.graphics
-	data.shaderext = patchSlots[slot].resources.shaderext
+	data.parameters = patchSlots[slot].patch.resources.parameters
+	data.globals = patchSlots[slot].patch.resources.globals
+	data.graphics = patchSlots[slot].patch.resources.graphics
+	data.shaderext = patchSlots[slot].patch.resources.shaderext
 	local jsonEncoded = json.encode(data)
 
 	-- Assemble filepath
@@ -63,23 +64,23 @@ function rtMgr.loadResources(filename, idx, slot)
 	if patchSlots[slot].name == data.patchName then
 		-- Load parameters resources
 		for k,t in pairs(data.parameters) do
-			patchSlots[slot].resources.parameters:setName(k, t.name)
-			patchSlots[slot].resources.parameters:setByIdx(k, t.value)
+			patchSlots[slot].patch.resources.parameters:setName(k, t.name)
+			patchSlots[slot].patch.resources.parameters:setByIdx(k, t.value)
 		end
 		-- Load globals resources
 		for k,t in pairs(data.globals) do
-			patchSlots[slot].resources.globals:setName(k, t.name)
-			patchSlots[slot].resources.globals:setByIdx(k, t.value)
+			patchSlots[slot].patch.resources.globals:setName(k, t.name)
+			patchSlots[slot].patch.resources.globals:setByIdx(k, t.value)
 		end
 		-- Load graphics resources
 		for k,t in pairs(data.graphics) do
-			patchSlots[slot].resources.graphics:setName(k, t.name)
-			patchSlots[slot].resources.graphics:setByIdx(k, t.value)
+			patchSlots[slot].patch.resources.graphics:setName(k, t.name)
+			patchSlots[slot].patch.resources.graphics:setByIdx(k, t.value)
 		end
 		-- Load shader resources
 		for k,t in pairs(data.shaderext) do
-			patchSlots[slot].resources.shaderext:setName(k, t.name)
-			patchSlots[slot].resources.shaderext:setByIdx(k, t.value)
+			patchSlots[slot].patch.resources.shaderext:setName(k, t.name)
+			patchSlots[slot].patch.resources.shaderext:setByIdx(k, t.value)
 		end
 		logInfo("Loaded " .. filepath .. " savestate.")
 	else

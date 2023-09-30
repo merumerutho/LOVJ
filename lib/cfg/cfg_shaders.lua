@@ -42,8 +42,8 @@ function cfg_shaders.toggleShaders()
 end
 
 
-function cfg_shaders.assignGlobals(slot)
-	local s = patchSlots[slot].resources.shaderext
+function cfg_shaders.initShaderExt(slot)
+	local s = patchSlots[slot].patch.resources.shaderext
 
 	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
 	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
@@ -62,18 +62,17 @@ function cfg_shaders.assignGlobals(slot)
 	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
 	s:setName(15, "_pixres")			s:set("_pixres", 64)
 
-	patchSlots[slot].resources.shaderext = s
+	return s
 end
 
 
 --- @public selectShader select the shader to apply
-function cfg_shaders.selectPPShader(patchSlot, curShader, shaderext)
-    local s = shaderext
-	local sh_object
+function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
+    local s = patchSlots[p_slot].patch.resources.shaderext
 	local shader
-	
+
     -- select shader
-	local newShader = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. patchSlot)]
+	local newShader = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. s_slot)]
 	-- if shader changed, create new shader
 	if newShader.name ~= curShader.name then
 		shader = {name = newShader.name, object = love.graphics.newShader(newShader.value)}
@@ -101,7 +100,6 @@ function cfg_shaders.selectPPShader(patchSlot, curShader, shaderext)
 	if string.find(shader.name, "pixelate") then
 		shader.object:send("_pixres", s:get("_pixres"))
 	end
-
 	return shader
 end
 

@@ -39,8 +39,7 @@ local function init_params()
 	get_bg()
 	p:setName(1, "bgSpeed")			p:set("bgSpeed", 10)
 
-	patch.resources.parameters = p
-	patch.resources.graphics = g
+	return p, g
 end
 
 --- @public patchControls evaluate user keyboard controls
@@ -64,12 +63,13 @@ end
 
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 
 	patch:setCanvases()
 
-	init_params()
+	patch.resources.parameters,
+	patch.resources.graphics = init_params()
 
 	patch.bpm = 120
 	patch.timers = {}

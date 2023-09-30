@@ -19,15 +19,18 @@ end
 --- @private init_params initialize parameters for this patch
 local function init_params()
 	local p = patch.resources.parameters
+
 	p:setName(1, "a")			p:set("a", 0.5)
 	p:setName(2, "b")			p:set("b", 1)
 
-	patch.resources.parameters = p
+	return p
 end
 
 --- @private patchControls handle controls for current patch
 function patch.patchControls()
 	local p = patch.resources.parameters
+	local gr = patch.resources.graphics
+	local gl = patch.resources.globals
 	
 	-- INCREASE
 	if kp.isDown("up") then
@@ -47,13 +50,15 @@ function patch.patchControls()
 	
 	-- Hanger
 	if kp.isDown("x") then patch.hang = true else patch.hang = false end
+
+	return p, gr, gl
 end
 
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 
-	init_params()
+	patch.resources.parameters = init_params()
 
 	patch:setCanvases()
 

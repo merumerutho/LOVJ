@@ -23,7 +23,7 @@ end
 --- @public patchControls evaluate user keyboard controls
 function patch.patchControls()
 	local p = patch.resources.parameters
-	if love.keyboard.isDown("r") then patch.init(patch.slot, patch.resources) cfg_timers.globalTimer:reset() end
+	if love.keyboard.isDown("r") then patch.init(patch.slot) cfg_timers.globalTimer:reset() end
 end
 
 
@@ -50,13 +50,26 @@ function patch:setCanvases()
 end
 
 
+--- @private get_bg get background graphics based on patch.resources
+local function get_gameboy()
+	local g = patch.resources.graphics
+	patch.graphics = {}
+	patch.graphics.gameboy = {}
+	patch.graphics.gameboy.gb = love.graphics.newImage("data/graphics/gb.png")
+	patch.graphics.gameboy.size = {x = patch.graphics.gameboy.gb:getPixelWidth(), y = patch.graphics.gameboy.gb:getPixelHeight()}
+	patch.graphics.gameboy.frames = {}
+end
+
+
 --- @public init init routine
-function patch.init(slot, resources)
-	Patch.init(patch, slot, resources)
+function patch.init(slot)
+	Patch.init(patch, slot)
 
 	PALETTE = palettes.PICO8
 
 	patch:setCanvases()
+
+	get_gameboy()
     
 	init_params()
 end
@@ -69,6 +82,7 @@ function patch.draw()
 	local cx, cy = screen.InternalRes.W , screen.InternalRes.H
 
 
+
 	patch:drawSetup()
 
     -- ## main graphics pipeline ##
@@ -78,11 +92,19 @@ function patch.draw()
 
 	-- spheres play
 	for i = 0, 20 do
-		love.graphics.circle("fill",
-							 cx + 100 * math.sin(2*math.pi*t/40) * math.sin(2*math.pi*(t/10  +i/20)),
-							 cy + 40 * math.cos(2*math.pi*(t/20+i/10)),
-							 7)
+		--love.graphics.circle("fill",
+		--					 cx + 100 * math.sin(2*math.pi*t/40) * math.sin(2*math.pi*(t/10  +i/20)),
+		--					 cy + 40 * math.cos(2*math.pi*(t/20+i/10)),
+		--					 7)
 	end
+
+	--love.graphics.setColor(1,1,1,0.8)
+	love.graphics.draw(patch.graphics.gameboy.gb,
+						cx  - patch.graphics.gameboy.size.x / 40,
+						cy - patch.graphics.gameboy.size.y / 40,
+						0,
+						0.05,
+						0.05)
 
 
 	-- rectangle play
@@ -118,10 +140,10 @@ function patch.draw()
 
 	-- ## feedback pipeline ##
     love.graphics.setCanvas(patch.canvases.fbk)
-	love.graphics.draw(patch.canvases.bak, cx + 4*math.sin(t), cy, t, 1.1, 1.1, cx, cy)
+	love.graphics.draw(patch.canvases.bak, cx , cy, t*0.1, 1.2, 1.2, cx, cy)
 	love.graphics.setCanvas(patch.canvases.bak)
 	love.graphics.clear(0,0,0,1)
-	love.graphics.setColor(1,0.9,1,0.9)  -- reduced opacity
+	love.graphics.setColor(1,1,1,1)  -- reduced opacity
 	love.graphics.draw(patch.canvases.fbk)
 	love.graphics.setColor(1,1,1,1)
     love.graphics.draw(patch.canvases.c1)
@@ -135,7 +157,7 @@ function patch.draw()
     -- ## compose output pipeline ##
     love.graphics.setCanvas(patch.canvases.main)
 	love.graphics.clear(0,0,0,1)
-	love.graphics.setColor(1,0.9,1,0.9)  -- reduced opacity
+	love.graphics.setColor(1,1,1,0.9)  -- reduced opacity
 	love.graphics.draw(patch.canvases.fbk, -cx/2, -cy/2)
 	love.graphics.setColor(1,1,1,1)
     love.graphics.draw(patch.canvases.c1, -cx/2, -cy/2)
