@@ -44,9 +44,9 @@ function love.load()
 
 	-- Initialize each patch
 	for i, slot in ipairs(patchSlots) do
-        slot.patch.init(i, slot.name)  -- Init actual patch for this patch slot
 		slot.shaderext = ResourceList:newResource()
 		cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
+        slot.patch.init(i, slot.name)  -- Init actual patch for this patch slot
     end
 
 
