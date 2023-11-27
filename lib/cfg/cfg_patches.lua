@@ -6,7 +6,7 @@
 local cfg_patches = {}
 
 --- @public DEFAULT_PATCH default patch loaded at startup
-cfg_patches.defaultPatch = {"demos/demo_20", "demos/demo_20"}
+cfg_patches.defaultPatch = {"demos/empty_patch", "demos/demo_20"}
 
 --- @public patches list of patches
 cfg_patches.patches = {"demos/demo_1",

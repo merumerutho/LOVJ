@@ -2,11 +2,10 @@
 --
 -- Patch class including common elements shared among all patches
 --
+ffi = require("ffi")  -- not local -> can be used by patches
 
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
-local cfg_patches = lovjRequire("lib/cfg/cfg_patches")
 local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
-local resources = lovjRequire("lib/resources")
 local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}
@@ -52,9 +51,9 @@ function Patch:setCanvases()
 end
 
 
-function Patch:init(slot)
+function Patch:init(slot, globals, shaderext)
 	self.slot = slot
-	self.resources = ResourceList:new()
+	self.resources = ResourceList:new(globals, shaderext)
 	self:setShaders()
 	self:assignDefaultDraw()
 end
@@ -69,7 +68,7 @@ end
 --- @public drawSetup Draw setup shared across all patches
 function Patch:drawSetup()
 	-- reset color
-	love.graphics.setColor(1,1,1,1)
+	love.graphics.setColor(1, 1, 1, 1)
 
 	-- select shaders
 	if cfg_shaders.enabled then
@@ -79,7 +78,6 @@ function Patch:drawSetup()
 	end
 
 	love.graphics.setCanvas(self.canvases.ShaderCanvases[#self.CurrentShaders])
-	love.graphics.clear(0,0,0,0)
 	-- set canvas
 	love.graphics.setCanvas(self.canvases.main)
 end
@@ -88,21 +86,25 @@ end
 --- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec(hang)
 	hang = false or hang
-	-- Reset color
-	love.graphics.setColor(1,1,1,1)
+	love.graphics.setColor(1, 1, 1, 1)  -- Reset color
+
 	-- Calculate scaling for post process shaders
 	local scalingX, scalingY
 	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
-		scalingX, scalingY = 1,1
+		scalingX, scalingY = 1, 1
 	else
 		scalingX, scalingY = screen.Scaling.X, screen.Scaling.Y
 	end
-	-- Cycle amd apply post process shaders over relative canvases
+
+	-- Cycle over post process shaders applying them on respective canvases
 	if cfg_shaders.enabled then
 		for i = 1, #self.CurrentShaders do
 			local srcCanvas, dstCanvas
-			if i == 1 then srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
-			else srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i] end
+			if i == 1 then
+				srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
+			else
+				srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i]
+			end
 			-- Set canvas, apply shader, draw and then remove shader
 			love.graphics.setCanvas(dstCanvas)
 			love.graphics.setShader(self.CurrentShaders[i].object)
@@ -111,7 +113,7 @@ function Patch:drawExec(hang)
 			love.graphics.setCanvas(srcCanvas)
             -- clear if not hanging
 			if not hang then
-				love.graphics.clear(0,0,0,0)
+				love.graphics.clear(0, 0, 0, 0)
 			end
 		end
 		-- return last shader canvas

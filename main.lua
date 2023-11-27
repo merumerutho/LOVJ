@@ -33,8 +33,10 @@ function love.load()
 	cfg_timers.init()  -- Init timers
 
 	-- Set two running patches
-	patchSlots = {{name = cfg_patches.defaultPatch[1]},
-				  {name = cfg_patches.defaultPatch[2]}}
+	patchSlots = {}
+	for i=1,#cfg_patches.defaultPatch do
+		table.insert(patchSlots, {name = cfg_patches.defaultPatch[i]})
+	end
 	for i=1, #patchSlots do
 		patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
 	end
@@ -46,10 +48,8 @@ function love.load()
 	for i, slot in ipairs(patchSlots) do
 		slot.shaderext = ResourceList:newResource()
 		cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
-        slot.patch.init(i, slot.name)  -- Init actual patch for this patch slot
+        slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
     end
-
-
 
 	connections.init()  -- Init socket
 end
