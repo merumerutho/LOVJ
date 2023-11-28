@@ -22,7 +22,6 @@ local function init_params()
 	p:setName(5, "beta")				p:set("beta", 0.5)
 	p:setName(6, "rBase")				p:set("rBase", 50)
 
-	patch.resources.parameters = p
 end
 
 --- @public patchControls evaluate user keyboard controls

@@ -4,10 +4,10 @@ debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")
 version = require("lib/cfg/cfg_version")
+ffi = require("ffi")
 
 --
 log = lovjRequire("lib/utils/logging")
--- TODO: move the table to cfg_logging
 logging.setLogLevel({ logging.LOG_ERROR,
 					  logging.LOG_INFO })
 
@@ -44,7 +44,7 @@ function love.load()
 	-- global setting resources
 	globalSettings = ResourceList:newResource()
 
-	-- Initialize each patch
+	-- Initialize patches
 	for i, slot in ipairs(patchSlots) do
 		slot.shaderext = ResourceList:newResource()
 		cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
@@ -66,6 +66,9 @@ function love.draw()
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
 		local canvas = patchSlots[i].patch.draw()  								-- Get canvas from current patch
+
+		-- injection point for spout SendImage / SendFBO (?)
+
 		love.graphics.setCanvas()												-- Reset canvas
 		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
 	end
@@ -85,7 +88,8 @@ function love.update()
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls
-	dispatcher.update(connections.sendRequests())  -- TODO: implement dispatcher method
+	local response = connections.sendRequests()
+	dispatcher.update(response)  -- TODO: implement dispatcher method
 
 	for i=1, #patchSlots do
 		patchSlots[i].patch.update()  -- call current patch update method

@@ -59,8 +59,8 @@ end
 local function draw_eyeball(t, cx, cy)
 	local ex = cx
 	local ey = cy + 4 * math.sin(t)
-	local px = ex + 5*math.cos(t)
- 	local py = ey + 5* math.sin(t)
+	local px = ex + 5 * math.cos(t)
+ 	local py = ey + 5 * math.sin(t)
 	local eye_amp = 1 + math.abs(math.sin(t))
 	-- eyeball
 	love.graphics.setColor(1,1,1,1)

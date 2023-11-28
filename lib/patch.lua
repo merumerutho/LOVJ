@@ -2,7 +2,6 @@
 --
 -- Patch class including common elements shared among all patches
 --
-ffi = require("ffi")  -- not local -> can be used by patches
 
 local screen_settings = lovjRequire("lib/cfg/cfg_screen")
 local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
