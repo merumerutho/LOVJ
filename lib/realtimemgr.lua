@@ -4,8 +4,8 @@
 -- i.e. loading patches, loading / saving parameter status
 --
 
-json = require("lib/json")
-resources = lovjRequire("lib/resources")
+local json = require("lib/json")
+-- local resources = lovjRequire("lib/resources")
 
 local rtMgr = {}
 
@@ -16,18 +16,22 @@ rtMgr.savestatePath = "savestates/"
 function rtMgr.loadPatch(patchName, slot)
 	-- Search if patch already loaded somewhere else
 	local unrequire = true
-	for i=1,#patchSlots do
-		if i~= slot and patchName == patchSlots[i].name then
+	for i = 1, #patchSlots do
+		if (i ~= slot) and (patchName == patchSlots[i].name) then
 			unrequire = false
 		end
 	end
 	-- If that is the case, don't unrequire the patch
-	if unrequire then
+	if (unrequire) then
 		lovjUnrequire(patchSlots[slot].name)
 	end
 	patchSlots[slot].name = patchName
 	patchSlots[slot].patch = lovjRequire(patchName, lick.PATCH_RESET)
-	patchSlots[slot].patch.init(slot)
+	patchSlots[slot].patch.init(slot, globalSettings, patchSlots[slot].shaderext)
+	-- for debugging
+	print("global settings: " .. tostring(globalSettings))
+	print("shaderext: " .. tostring(patchSlots[slot].shaderext))
+	print("parameters: " .. tostring(patchSlots[slot].patch.resources.parameters))
 end
 
 
@@ -54,7 +58,7 @@ end
 function rtMgr.loadResources(filename, idx, slot)
 	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	local f = io.open(filepath, "r")
-	if f == nil then logError("Couldn't open " .. filepath) return end
+	if (f == nil) then logError("Couldn't open " .. filepath) return end
 	local jsonEncoded = f:read("a")
 	f:close()
 

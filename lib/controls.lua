@@ -6,7 +6,8 @@
 local kp = lovjRequire("lib/utils/keypress")
 local cmd = lovjRequire("lib/cmdmenu")
 local rtmgr = lovjRequire("lib/realtimemgr")
-local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfgPatches = lovjRequire("lib/cfg/cfg_patches")
 
 local controls = {}
 
@@ -19,18 +20,18 @@ local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
 
--- TODO: move this function somewhere in the cfg_shaders, maybe?
+-- TODO: move this function somewhere in the cfgShaders, maybe?
 --- @private handleShaderCommands Handle shader-related keyboard commands
 local function handleShaderCommands(slot)
 	local s = patchSlots[slot].shaderext
 
 	-- toggle shaders on / off
 	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
-		cfg_shaders.toggleShaders()
+		cfgShaders.toggleShaders()
 	end
 	-- select main shader
 	if kp.keypressOnAttack("s") then
-		s:set("shaderSlot1", (s:get("shaderSlot1") + 1) % #cfg_shaders.PostProcessShaders)
+		s:set("shaderSlot1", (s:get("shaderSlot1") + 1) % #cfgShaders.PostProcessShaders)
 	end
 	-- warp
 	if kp.isDown("w") then
@@ -93,7 +94,7 @@ function controls.handleGeneralControls()
 				end
 			else
 				-- Otherwise, load patch
-				local patchName = cfg_patches.patches[k]
+				local patchName = cfgPatches.patches[k]
 				rtmgr.loadPatch(patchName, controls.selectedPatch)
 			end
 		end

@@ -3,8 +3,8 @@
 -- Patch class including common elements shared among all patches
 --
 
-local screen_settings = lovjRequire("lib/cfg/cfg_screen")
-local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfgScreen = lovjRequire("lib/cfg/cfg_screen")
+local cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
 local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}
@@ -21,7 +21,7 @@ end
 
 --- @public setShaders set-up shader list for patch with default shader
 function Patch:setShaders()
-	local default = table.getValueByName("default", cfg_shaders.PostProcessShaders)
+	local default = table.getValueByName("default", cfgShaders.PostProcessShaders)
 	self.CurrentShaders = { {name = default, object = nil},
 							{name = default, object = nil},
 							{name = default, object = nil} }
@@ -35,7 +35,7 @@ function Patch:setCanvases()
 
 	local sizeX, sizeY
 	-- Calculate appropriate size
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+	if cfgScreen.UPSCALE_MODE == cfgScreen.LOW_RES then
 		sizeX, sizeY = screen.InternalRes.W, screen.InternalRes.H
 	else
 		sizeX, sizeY = screen.ExternalRes.W, screen.ExternalRes.H
@@ -70,9 +70,9 @@ function Patch:drawSetup()
 	love.graphics.setColor(1, 1, 1, 1)
 
 	-- select shaders
-	if cfg_shaders.enabled then
+	if cfgShaders.enabled then
 		for i = 1, #self.CurrentShaders do
-			self.CurrentShaders[i] = cfg_shaders.selectPPShader(self.slot, i, self.CurrentShaders[i])
+			self.CurrentShaders[i] = cfgShaders.selectPPShader(self.slot, i, self.CurrentShaders[i])
 		end
 	end
 
@@ -89,14 +89,14 @@ function Patch:drawExec(hang)
 
 	-- Calculate scaling for post process shaders
 	local scalingX, scalingY
-	if screen_settings.UPSCALE_MODE == screen_settings.LOW_RES then
+	if cfgScreen.UPSCALE_MODE == cfgScreen.LOW_RES then
 		scalingX, scalingY = 1, 1
 	else
 		scalingX, scalingY = screen.Scaling.X, screen.Scaling.Y
 	end
 
 	-- Cycle over post process shaders applying them on respective canvases
-	if cfg_shaders.enabled then
+	if cfgShaders.enabled then
 		for i = 1, #self.CurrentShaders do
 			local srcCanvas, dstCanvas
 			if i == 1 then

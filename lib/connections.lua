@@ -6,7 +6,7 @@
 --
 
 local Connections = {}
-local cfg = require("lib/cfg/cfg_connections")
+local cfgConnections = require("lib/cfg/cfg_connections")
 
 
 --- @public init Initialize connections (open UDP threads and req / rsp channels for communicating)
@@ -17,7 +17,7 @@ function Connections.init()
   Connections.RspChannels = {}
 
   -- initialize threads
-  for k,v in pairs(cfg.listOfThreads) do
+  for k,v in pairs(cfgConnections.listOfThreads) do
     table.insert(Connections.UdpThreads, love.thread.newThread("lib/UDPThread.lua"))
     Connections.UdpThreads[k]:start(k, v)  -- k used as ID, v contains ip and port
     -- Get request and response channels
@@ -32,12 +32,12 @@ function Connections.sendRequests()
   local responses = {}
 
   for k,reqCh in pairs(Connections.ReqChannels) do
-    reqCh:push(cfg.reqMsg)  -- send request to all channels
+    reqCh:push(cfgConnections.reqMsg)  -- send request to all channels
   end
 
   for k,rspCh in pairs(Connections.RspChannels) do
-    table.insert(responses, rspCh:demand(cfg.TIMEOUT_TIME))  -- expect response from all channels
-    Connections.ReqChannels[k]:push(cfg.ackMsg)  -- send ACK
+    table.insert(responses, rspCh:demand(cfgConnections.TIMEOUT_TIME))  -- expect response from all channels
+    Connections.ReqChannels[k]:push(cfgConnections.ackMsg)  -- send ACK
   end
   return responses
 end

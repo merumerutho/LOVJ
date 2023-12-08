@@ -2,7 +2,7 @@
 --
 -- Handle screen graphical settings
 
-local screen_settings = require("lib/cfg/cfg_screen")
+local cfgScreen = require("lib/cfg/cfg_screen")
 
 local screen = {}
 
@@ -39,7 +39,7 @@ local function calculateScaling()
 	screen.Scaling.RatioY = screen.ExternalRes.H / screen.InternalRes.H
 
 	-- set upscaling mode
-	screen.Scaling.Upscale = screen_settings.UPSCALE_MODE
+	screen.Scaling.Upscale = cfgScreen.UPSCALE_MODE
 
 	-- depending on upscaling mode, set x and y for scaling to "r" or "1/r" => (^1 or ^-1)
 	screen.Scaling.X = screen.Scaling.RatioX ^ (1-2*screen.Scaling.Upscale)
@@ -53,7 +53,7 @@ function screen.toggleFullscreen()
 	if screen.isFullscreen then
 		screen.ExternalRes.W, screen.ExternalRes.H = love.window.getDesktopDimensions()
 	else
-		SetExternalRes(screen_settings.OUTER_RES_WIDTH, screen_settings.OUTER_RES_RATIO)
+		SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_RATIO)
 	end
 	calculateScaling()
 	screen.updateScreenOptions()
@@ -65,7 +65,7 @@ end
 
 --- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
 function screen.changeUpscaling()
-	screen_settings.UPSCALE_MODE = math.abs(screen_settings.UPSCALE_MODE - 1)  -- boolean inversion
+	cfgScreen.UPSCALE_MODE = math.abs(cfgScreen.UPSCALE_MODE - 1)  -- boolean inversion
 	-- calculate new scaling
 	calculateScaling()
 	-- reset canvases
@@ -77,9 +77,8 @@ end
 --- @public init Initialize screen, setting resolutions, calculating scaling and updating options
 function screen.init()
 	-- Set internal resolution and screen scaling settings
-	local ss = screen_settings
-	SetInternalRes(ss.INTERNAL_RES_WIDTH, ss.INTERNAL_RES_RATIO)
-	SetExternalRes(ss.OUTER_RES_WIDTH, ss.OUTER_RES_RATIO)
+	SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_RATIO)
+	SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_RATIO)
 	screen.isFullscreen = false
 	calculateScaling()
 	screen.updateScreenOptions()
@@ -88,7 +87,7 @@ end
 
 --- @public isUpscalingHiRes return whether the upscaling mode is hi-res or lo-res
 function screen.isUpscalingHiRes()
-	return (screen.Scaling.Upscale == screen_settings.HIGH_RES)
+	return (screen.Scaling.Upscale == cfgScreen.HIGH_RES)
 end
 
 return screen

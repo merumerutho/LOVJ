@@ -4,7 +4,6 @@ debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")
 version = require("lib/cfg/cfg_version")
-ffi = require("ffi")
 
 --
 log = lovjRequire("lib/utils/logging")
@@ -17,25 +16,27 @@ ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
 connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
+spout = lovjRequire("lib/spout")
 
-cfg_patches = lovjRequire("lib/cfg/cfg_patches")
-cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
-cfg_automations = lovjRequire("lib/cfg/cfg_automations")
-cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+cfgPatches = lovjRequire("lib/cfg/cfg_patches")
+cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
+cfgTimers = lovjRequire("lib/cfg/cfg_timers")
 
 -- Set title with LOVJ version
 love.window.setTitle("LOVJ v" ..  version)
+
+local downMixCanvas
 
 --- @public love.load
 --- this function is called upon startup
 function love.load()
 	screen.init()  -- Init screen
-	cfg_timers.init()  -- Init timers
+	cfgTimers.init()  -- Init timers
 
 	-- Set two running patches
 	patchSlots = {}
-	for i=1,#cfg_patches.defaultPatch do
-		table.insert(patchSlots, {name = cfg_patches.defaultPatch[i]})
+	for i=1,#cfgPatches.defaultPatch do
+		table.insert(patchSlots, {name = cfgPatches.defaultPatch[i]})
 	end
 	for i=1, #patchSlots do
 		patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
@@ -47,43 +48,55 @@ function love.load()
 	-- Initialize patches
 	for i, slot in ipairs(patchSlots) do
 		slot.shaderext = ResourceList:newResource()
-		cfg_shaders.initShaderExt(i)  -- Assign Shaders globals
+		cfgShaders.initShaderExt(i)  -- Assign Shaders globals
         slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
     end
 
 	connections.init()  -- Init socket
+	spout.init()
+
+	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 end
 
 
 --- @public love.draw
 --- this function is called upon each draw cycle
 function love.draw()
-	-- if in high res upscaling mode, then apply scaling function here
+	-- Clear screen
+	love.graphics.setCanvas()
+	love.graphics.clear()
+
+	local scaleX, scaleY
+	-- Set upscale
 	if screen.isUpscalingHiRes() then
 		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
+		scaleX, scaleY = screen.Scaling.X, screen.Scaling.Y
+	else
+		scaleX, scaleY = 1, 1
 	end
 
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
-		local canvas = patchSlots[i].patch.draw()  								-- Get canvas from current patch
-
-		-- injection point for spout SendImage / SendFBO (?)
-
-		love.graphics.setCanvas()												-- Reset canvas
-		love.graphics.draw(canvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y) -- Draw
+		local canvas = patchSlots[i].patch.draw()  -- careful around this function! may change current canvas
+		love.graphics.setCanvas(downMixCanvas)
+		love.graphics.draw(canvas, 0, 0, 0, scaleX, scaleY)
 	end
+	love.graphics.setCanvas()
 
+	love.graphics.draw(downMixCanvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	-- Spout
+	spout.SendCanvas(downMixCanvas, screen.ExternalRes.W, screen.ExternalRes.H)
 end
 
 
 --- @public love.update
 --- this function is called upon each update cycle
 function love.update()
-	cfg_timers.update()  -- update timers
+	cfgTimers.update()  -- update timers
 
 	-- calculate and log fps
 	local fps = love.timer.getFPS()
-	if cfg_timers.consoleTimer:Activated() then
+	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
 	end
 

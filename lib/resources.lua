@@ -17,6 +17,7 @@ end
 
 --- @public getByIdx setter for resource value by idx
 function Resource:getByIdx(idx)
+    print(self, idx)
     return self[idx].value
 end
 
@@ -40,6 +41,7 @@ end
 
 --- @public set setter for resource value by name
 function Resource:set(name, n)
+    print("looking for: " .. name, n)
     return self:setByIdx(self:getIdxByName(name), n)
 end
 
@@ -67,6 +69,7 @@ function ResourceList:new(global, shader)
     local res_list = {}
     setmetatable(res_list, self)
     self.__index = self
+
     -- used as parameters bound to elements in patches
     self.parameters = Resource:new(nil, DEFAULT_SIZE)
     -- filepaths or data bound to graphics resources / sprites etc.

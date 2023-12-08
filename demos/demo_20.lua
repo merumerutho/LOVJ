@@ -168,7 +168,6 @@ function patch.draw()
 	--love.graphics.setBlendMode("alpha")
 
 	return patch:drawExec()  -- always hang to enable feedback
-
 end
 
 
