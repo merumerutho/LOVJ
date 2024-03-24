@@ -84,7 +84,7 @@ function patch.draw()
 	love.graphics.setColor(1,1,1,1)
 
 	local shader
-	if cfg_shaders.enabled then
+	if cfgShaders.enabled then
 		shader = love.graphics.newShader(waveShaderCode)
 		love.graphics.setShader(shader)
 		shader:send("_time", t)
