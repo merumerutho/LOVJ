@@ -6,10 +6,10 @@
 local cfg_patches = {}
 
 --- @public DEFAULT_PATCH default patch loaded at startup
-cfg_patches.defaultPatch = {"demos/demo_16"}
+cfg_patches.defaultPatch = {"demos/demo_19"}
 
 --- @public patches list of patches
-cfg_patches.patches = {"demos/demo_1",
+cfg_patches.patches = {"demos/demo_20",
                        "demos/demo_3",
                        "demos/demo_4",
                        "demos/demo_5",
@@ -17,7 +17,7 @@ cfg_patches.patches = {"demos/demo_1",
                        "demos/demo_16",
                        "demos/demo_8",
                        "demos/demo_13",
-                       "demos/demo_10",
+                       "demos/demo_18",
                        "demos/demo_11",
                        "demos/demo_12",
                        "demos/demo_14"

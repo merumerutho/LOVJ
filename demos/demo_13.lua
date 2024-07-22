@@ -9,6 +9,8 @@ local Lfo = lovjRequire("lib/automations/lfo")
 local patch = Patch:new()
 
 local PALETTE
+local resW, resH
+
 
 --- @private get_bg get background graphics based on patch.resources
 local function get_bg()
@@ -52,13 +54,13 @@ end
 function patch:setCanvases()
 	Patch.setCanvases(patch)  -- call parent function
 	-- patch-specific execution (window canvas)
-	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
-		patch.canvases.balls = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
-		patch.canvases.bg = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	if not screen.isUpscalingHiRes() then
+		resW, resH = screen.InternalRes.W, screen.InternalRes.H
 	else
-		patch.canvases.balls = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-		patch.canvases.bg = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		resW, resH = screen.ExternalRes.W, screen.ExternalRes.H
 	end
+	patch.canvases.balls = love.graphics.newCanvas(resW, resH)
+	patch.canvases.bg = love.graphics.newCanvas(resW, resH)
 end
 
 
@@ -83,20 +85,21 @@ local function draw_bg()
 
 	love.graphics.setCanvas(patch.canvases.bg)
 
-	local nX = math.ceil(screen.InternalRes.W / patch.graphics.bg.size.x)
-	local nY = math.ceil(screen.InternalRes.H / patch.graphics.bg.size.y)
+	local nX = math.ceil(resW / patch.graphics.bg.size.x)
+	local nY = math.ceil(resH / patch.graphics.bg.size.y)
 
 	love.graphics.setColor(0,0,0,1)
-	love.graphics.rectangle("fill", 0, 0, screen.ExternalRes.W, screen.ExternalRes.H)
+	love.graphics.rectangle("fill", 0, 0, resW, resH)
 	love.graphics.setColor(1,1,1,1)
 
 	local bg_alpha = 1 - ((t*2) % 1)
 
-	for cx = -1, nX do
-		for cy = -1, nY do
-			local x = cx * patch.graphics.bg.size.x
-			local y = cy * patch.graphics.bg.size.y + ((2 * (cx % 2)-1) * (t*20)) % patch.graphics.bg.size.y
-			if p:get("bgLayer1") == 1 and bg_alpha then
+	if p:get("bgLayer1") == 1 and bg_alpha then
+		for cx = -1, nX do
+			for cy = -1, nY do
+				local x = cx * patch.graphics.bg.size.x
+				local y = cy * patch.graphics.bg.size.y + ((2 * (cx % 2)-1) * (t*20)) % patch.graphics.bg.size.y
+			
 				love.graphics.setColor(1, (cy+1)/(nY+1), (cy+1)/(nY+1), bg_alpha)
 				love.graphics.draw(patch.graphics.bg.image, x, y)
 			end
@@ -118,8 +121,8 @@ local function draw_bg()
 	local push = patch.push:Sine(t)
 
 	for i = 1, nBalls do
-		local cx = screen.InternalRes.W/2 + push * radiusX * math.sin(dw*(i/nBalls + t + math.sin(t))*2*math.pi)
-		local cy = screen.InternalRes.H/2 + push * radiusY * math.cos(dh*(i/nBalls + t)*2*math.pi)
+		local cx = resW/2 + push * radiusX * math.sin(dw*(i/nBalls + t + math.sin(t))*2*math.pi)
+		local cy = resH/2 + push * radiusY * math.cos(dh*(i/nBalls + t)*2*math.pi)
 		local r = size + 3 * math.sin(3*(t*2+i/nBalls)*2*math.pi)
 
 		love.graphics.setColor(1,1,1,i/nBalls)

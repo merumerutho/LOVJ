@@ -6,13 +6,14 @@ local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
 local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
-local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
 
 local BG_SPRITE_SIZE = 8
 
 local PALETTE = palettes.PICO8
 
 local patch = Patch:new()
+
+local resW, resH
 
 --- @private get_bg get background graphics based on resources
 local function get_bg()
@@ -54,11 +55,12 @@ end
 function patch:setCanvases()
 	Patch.setCanvases(patch)  -- call parent function
 	-- patch-specific execution (window canvas)
-	if cfg_screen.UPSCALE_MODE == cfg_screen.LOW_RES then
-		patch.canvases.toShade = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+	if not screen.isUpscalingHiRes() then
+		resW, resH = screen.InternalRes.W, screen.InternalRes.H
 	else
-		patch.canvases.toShade = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+		resW, resH = screen.ExternalRes.W, screen.ExternalRes.H
 	end
+	patch.canvases.toShade = love.graphics.newCanvas(resW, resH)
 end
 
 
@@ -78,7 +80,7 @@ function patch.init(slot)
 	patch.env = Envelope:new(0.005, 0, 1, 0.5)
 	patch.lfo = Lfo:new(patch.bpm/60, 0)
 
-	patch.sym_shader = love.graphics.newShader(table.getValueByName("quadmirror", cfg_shaders.PostProcessShaders))
+	patch.sym_shader = love.graphics.newShader(table.getValueByName("quadmirror", cfgShaders.PostProcessShaders))
 end
 
 --- @private draw_bg draw background graphics
@@ -91,7 +93,7 @@ local function draw_bg()
 	love.graphics.setCanvas(patch.canvases.toShade)
 
 	love.graphics.setColor(0,0,0,1)
-	love.graphics.rectangle("fill",0,0,screen.InternalRes.W, screen.InternalRes.H)
+	love.graphics.rectangle("fill",0,0, screen.InternalRes.W, resH)
 	love.graphics.setColor(1,1,1,math.abs(math.sin(t*10))*0.2)
 	local idx = (math.floor(t * p:get("bgSpeed") ) % (patch.graphics.bg.image:getWidth() / BG_SPRITE_SIZE) ) + 1
 	-- Generate background pic
@@ -129,7 +131,7 @@ local function draw_bg()
 		local size = 5 + 2 * math.cos(t*10 + x/50)
 		love.graphics.setColor(0.4,0.4,0.4,.7)
 		love.graphics.circle("fill",
-								offX + screen.InternalRes.H/2 + 30*math.sin((t/2+x/200)*2*math.pi),
+								offX + screen.InternalRes.W/2 + 30*math.sin((t/2+x/200)*2*math.pi),
 							 	amp + screen.InternalRes.W/2+x, size)
 		love.graphics.setColor(1,1,1,.7)
 		love.graphics.circle("fill", offX + screen.InternalRes.H/2 + 30*math.sin((t/2+x/200+0.05)*2*math.pi),
@@ -147,7 +149,7 @@ local function draw_bg()
 	love.graphics.setColor(0,0,0,0.2*(((t+.25)*7)%1))
 	love.graphics.rectangle("fill", screen.InternalRes.W/2 - 50 - .5*rsize, screen.InternalRes.H/2 - 30- .5*rsize, 100+ .5*rsize, 60 +.5*rsize)
 
-	if cfg_shaders.enabled then
+	if cfgShaders.enabled then
 		love.graphics.setShader(patch.sym_shader)
 	end
 
@@ -161,12 +163,16 @@ function patch.draw()
 	patch.canvases.main:renderTo(function()
 									love.graphics.clear(1,1,1,1)
 								end )
+	local scaleX, scaleY = 1, 1
+	if screen.isUpscalingHiRes() then
+		scaleX, scaleY = screen.Scaling.X, screen.Scaling.Y
+	end
 
 	-- draw picture
 	draw_bg()
 	love.graphics.setCanvas(patch.canvases.main)
 	love.graphics.setColor(1,1,1,1)
-	love.graphics.draw(patch.canvases.toShade)
+	love.graphics.draw(patch.canvases.toShade, 0, 0, 0, scaleX, scaleY)
 
 	return patch:drawExec()
 

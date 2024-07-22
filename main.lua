@@ -65,6 +65,9 @@ function love.draw()
 	-- Clear screen
 	love.graphics.setCanvas()
 	love.graphics.clear()
+	
+	love.graphics.setCanvas(downMixCanvas)
+	love.graphics.clear()
 
 	local scaleX, scaleY
 	-- Set upscale
@@ -77,7 +80,7 @@ function love.draw()
 
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
-		local canvas = patchSlots[i].patch.draw()  -- careful around this function! may change current canvas
+		local canvas = patchSlots[i].patch.draw()  -- this function may change current canvas
 		love.graphics.setCanvas(downMixCanvas)
 		love.graphics.draw(canvas, 0, 0, 0, scaleX, scaleY)
 	end

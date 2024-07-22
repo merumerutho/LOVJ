@@ -7,21 +7,21 @@ local cfgScreen = require("lib/cfg/cfg_screen")
 local screen = {}
 
 ---@private SetInternalRes
---- assign internal resolution to be (w by h), where h is calculated as w/r
-local function SetInternalRes(w, r)
+--- assign internal resolution to be (w by h)
+local function SetInternalRes(w, h)
 	screen.InternalRes = {}
 	screen.InternalRes.W = w
-	screen.InternalRes.R = 1/r
-	screen.InternalRes.H = math.floor(w/r)
+	screen.InternalRes.H = h
+	screen.InternalRes.R = w/h
 end
 
 --- @private SetExternalRes
---- assign external resolution to be (w by h), where h is calculated as w/r
-local function SetExternalRes(w, r)
+--- assign external resolution to be (w by h)
+local function SetExternalRes(w, h)
 	screen.ExternalRes = {}
 	screen.ExternalRes.W = w
-	screen.ExternalRes.R = 1/r
-	screen.ExternalRes.H = math.floor(w/r)
+	screen.ExternalRes.H = h
+	screen.ExternalRes.R = w/h
 end
 
 --- @public updateScreenOptions Update screen options to defaults
@@ -53,7 +53,7 @@ function screen.toggleFullscreen()
 	if screen.isFullscreen then
 		screen.ExternalRes.W, screen.ExternalRes.H = love.window.getDesktopDimensions()
 	else
-		SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_RATIO)
+		SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_HEIGHT)
 	end
 	calculateScaling()
 	screen.updateScreenOptions()
@@ -77,8 +77,8 @@ end
 --- @public init Initialize screen, setting resolutions, calculating scaling and updating options
 function screen.init()
 	-- Set internal resolution and screen scaling settings
-	SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_RATIO)
-	SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_RATIO)
+	SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_HEIGHT)
+	SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_HEIGHT)
 	screen.isFullscreen = false
 	calculateScaling()
 	screen.updateScreenOptions()

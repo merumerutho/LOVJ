@@ -33,19 +33,19 @@ function Patch:setCanvases()
 	self.canvases = {}
 	self.canvases.ShaderCanvases = {}
 
-	local sizeX, sizeY
+	local resW, resH
 	-- Calculate appropriate size
-	if cfgScreen.UPSCALE_MODE == cfgScreen.LOW_RES then
-		sizeX, sizeY = screen.InternalRes.W, screen.InternalRes.H
+	if not screen.isUpscalingHiRes() then
+		resW, resH = screen.InternalRes.W, screen.InternalRes.H
 	else
-		sizeX, sizeY = screen.ExternalRes.W, screen.ExternalRes.H
+		resW, resH = screen.ExternalRes.W, screen.ExternalRes.H
 	end
     
 	-- Generate canvases with calculated size
-	self.canvases.main = love.graphics.newCanvas(sizeX, sizeY)
-	self.canvases.cmd = love.graphics.newCanvas(sizeX, sizeY)
+	self.canvases.main = love.graphics.newCanvas(resW, resH)
+	self.canvases.cmd = love.graphics.newCanvas(resW, resH)
 	for i = 1, #self.CurrentShaders do
-		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(sizeX, sizeY))
+		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(resW, resH))
 	end
 end
 
@@ -89,7 +89,7 @@ function Patch:drawExec(hang)
 
 	-- Calculate scaling for post process shaders
 	local scalingX, scalingY
-	if cfgScreen.UPSCALE_MODE == cfgScreen.LOW_RES then
+	if not screen.isUpscalingHiRes() then
 		scalingX, scalingY = 1, 1
 	else
 		scalingX, scalingY = screen.Scaling.X, screen.Scaling.Y
