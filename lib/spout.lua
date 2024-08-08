@@ -19,8 +19,12 @@ function spout.init()
 end
 
 function spout.SendCanvas(canvas, width, height)
+	-- ensure resetting to main canvas before doing anything
+	love.graphics.setCanvas()
+	-- create picture
     local img = canvas:newImageData(nil, 1, 0, 0, width, height)
     local imgptr = img:getFFIPointer()
+	-- send picture
     return spout.handle.SendImage_w(spout.sender, imgptr, width, height, 0x1908, false)
 end
 
