@@ -22,6 +22,8 @@ cfgPatches = lovjRequire("lib/cfg/cfg_patches")
 cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
 cfgTimers = lovjRequire("lib/cfg/cfg_timers")
 
+drawingUtils = lovjRequire("lib/utils/drawing")
+
 -- Set title with LOVJ version
 love.window.setTitle("LOVJ v" ..  version)
 
@@ -62,12 +64,12 @@ end
 --- @public love.draw
 --- this function is called upon each draw cycle
 function love.draw()
-	-- Clear screen
-	love.graphics.setCanvas()
-	love.graphics.clear()
 	
-	love.graphics.setCanvas(downMixCanvas)
-	love.graphics.clear()
+	-- Clear downmix canvas
+	drawingUtils.clearCanvas(downMixCanvas)
+
+	-- Clear main screen
+	drawingUtils.clearCanvas(nil)
 
 	local scaleX, scaleY
 	-- Set upscale
@@ -80,15 +82,18 @@ function love.draw()
 
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
-		local canvas = patchSlots[i].patch.draw()  -- this function may change current canvas
-		love.graphics.setCanvas(downMixCanvas)
-		love.graphics.draw(canvas, 0, 0, 0, scaleX, scaleY)
+		local canvas = patchSlots[i].patch.draw()  -- this function may change currently set canvas
+		-- draw canvas to downmix
+		downMixCanvas = drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, scaleX, scaleY)
+		-- clean canvas after using it
+		drawingUtils.clearCanvas(canvas)
 	end
-	love.graphics.setCanvas()
-
-	love.graphics.draw(downMixCanvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	
 	-- Spout
-	spout.SendCanvas(downMixCanvas, screen.ExternalRes.W, screen.ExternalRes.H)
+	spout.SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
+	
+	-- draw downmix to main screen
+	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 end
 
 
