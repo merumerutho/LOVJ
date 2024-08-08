@@ -17,7 +17,7 @@ end
 
 --- @public getByIdx setter for resource value by idx
 function Resource:getByIdx(idx)
-    print(self, idx)
+    --print(self, idx)
     return self[idx].value
 end
 
@@ -41,7 +41,7 @@ end
 
 --- @public set setter for resource value by name
 function Resource:set(name, n)
-    print("looking for: " .. name, n)
+    --print("looking for: " .. name, n)
     return self:setByIdx(self:getIdxByName(name), n)
 end
 

@@ -29,9 +29,9 @@ function rtMgr.loadPatch(patchName, slot)
 	patchSlots[slot].patch = lovjRequire(patchName, lick.PATCH_RESET)
 	patchSlots[slot].patch.init(slot, globalSettings, patchSlots[slot].shaderext)
 	-- for debugging
-	print("global settings: " .. tostring(globalSettings))
-	print("shaderext: " .. tostring(patchSlots[slot].shaderext))
-	print("parameters: " .. tostring(patchSlots[slot].patch.resources.parameters))
+	--print("global settings: " .. tostring(globalSettings))
+	--print("shaderext: " .. tostring(patchSlots[slot].shaderext))
+	--print("parameters: " .. tostring(patchSlots[slot].patch.resources.parameters))
 end
 
 
