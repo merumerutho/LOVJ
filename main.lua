@@ -64,7 +64,6 @@ end
 --- @public love.draw
 --- this function is called upon each draw cycle
 function love.draw()
-	
 	-- Clear downmix canvas
 	drawingUtils.clearCanvas(downMixCanvas)
 
@@ -86,7 +85,7 @@ function love.draw()
 		-- draw canvas to downmix
 		downMixCanvas = drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, scaleX, scaleY)
 		-- clean canvas after using it
-		drawingUtils.clearCanvas(canvas)
+		canvas = drawingUtils.clearCanvas(canvas)
 	end
 	
 	-- Spout
