@@ -28,6 +28,7 @@ drawingUtils = lovjRequire("lib/utils/drawing")
 love.window.setTitle("LOVJ v" ..  version)
 
 local downMixCanvas
+local dummyCanvas
 
 --- @public love.load
 --- this function is called upon startup
@@ -58,12 +59,14 @@ function love.load()
 	spout.init()
 
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	dummyCanvas = love.graphics.newCanvas(1,1)
 end
 
 
 --- @public love.draw
 --- this function is called upon each draw cycle
 function love.draw()
+	love.graphics.setCanvas(dummyCanvas)
 	-- Clear downmix canvas
 	drawingUtils.clearCanvas(downMixCanvas)
 
@@ -88,7 +91,7 @@ function love.draw()
 		canvas = drawingUtils.clearCanvas(canvas)
 	end
 	
-	-- Spout
+	-- Spout output
 	spout.SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
 	
 	-- draw downmix to main screen
