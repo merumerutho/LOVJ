@@ -5,23 +5,34 @@ LOVJ aims to be a [LÖVE](https://love2d.org/) framework to create a live-coding
 It revolves around the concept of video patches: these can be loaded, sequenced, and mixed in several ways.
 
 It allows interaction with the patches through:
-- code editing (livecoding)
-- user controls (mouse / keyboard / hid devices)
-- external controls (midi, osc, etc.)
+- code editing (with **livecoding** hot-reload features)
+- common controls (mouse / keyboard / touch)
+- external controls (**OSC**)
+
+Moreover, it supports advanced functionalities such as:
+- **GLSL** shaders support (for advanced rendering techniques, such as ray-marching)
+- **Spout** Send/Receive functions (allowing streaming to/from external apps, feedback loops, etc.)
+- **Savestates** (save/recall patches internal status quickly)
 
 
 ## Setup
-- [LÖVE](https://love2d.org/) version 11.4
+- [LÖVE](https://love2d.org/) version 11.4+
 - Add LOVE2D bin folder to your PATH variable
 - Download/clone this repository.
-- Go inside the main folder (with the main.lua script) and run:
+- From this repo main folder (containing the main.lua script), run:
 ```sh
 love .
 ```
 
 ## Issues
-LOVJ is still in a work-in-progress state. Development is messy and several features are still broken. 
+LOVJ is still in a work-in-progress state. Development is messy and several features are kind of broken. 
 It can be played with, but don't expect the software to be working reliably in its current state. Check Issue tracker for more info.
+
+## Running the demos
+- Open _lib/cfg/cfg_patches.lua_.
+- Edit the _defaultPatch_ or the _patches_ list.
+- Run LOVJ.
+- Select the chosen demo from _patches_ with the [F1 ... F12] keys.
 
 
 ## Credits
