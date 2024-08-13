@@ -25,8 +25,10 @@ It can be played with, but don't expect the software to be working reliably in i
 
 
 ## Credits
-- [usysrc](https://github.com/usysrc) for the original *LICK* library implementation.
-- [rxi](https://github.com/rxi) Json library.
+- [lick](https://github.com/usysrc/lick) original *LICK* implementation for live-coding features.
+- [json.lua](https://github.com/rxi/json.lua) Json library.
+- [losc](https://github.com/davidgranstrom/losc) Lua OSC library.
+- [Spout](https://spout.zeal.co/) Spout library.
 
 
 ## MIDI to OSC
