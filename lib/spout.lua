@@ -15,12 +15,15 @@ void SetSenderName_w(SPOUTHANDLE handle, const char* sendername);
 bool SendImage_w(SPOUTHANDLE spInst, const unsigned char* pixels, unsigned int width, unsigned int height, unsigned int glFormat, bool bInvert);
 bool SendFbo_w(SPOUTHANDLE spInst, unsigned int fboId, unsigned int width, unsigned int height, bool bInvert);
 //
-bool ReceiveImage_w(SPOUTHANDLE spInst, const unsigned char* pixels, unsigned int glFormat, bool bInvert, unsigned int hostFbo);
 void SetReceiverName_w(SPOUTHANDLE handle, const char * SenderName);
+bool IsConnected_w(SPOUTHANDLE handle);
 bool IsUpdated_w(SPOUTHANDLE handle);
 bool IsFrameNew_w(SPOUTHANDLE handle);
 unsigned int GetSenderWidth_w(SPOUTHANDLE handle);
 unsigned int GetSenderHeight_w(SPOUTHANDLE handle);
+long GetSenderFrame_w(SPOUTHANDLE handle);
+const char * GetSenderName_w(SPOUTHANDLE handle);
+bool ReceiveImage_w(SPOUTHANDLE spInst, const unsigned char* pixels, unsigned int glFormat, bool bInvert, unsigned int hostFbo);
 //
 void* GetSpout(void);
 ]]
@@ -33,12 +36,13 @@ spout.receiver = {}
 spout.sender.name = "LOVJ_SPOUT_SENDER"
 spout.sender.nameMem = love.data.newByteData(2^8)
 
-spout.receiver.name = "Avenue - Avenue_FBK"
+spout.receiver.name = "Avenue - Avenue2LOVJ"
 spout.receiver.nameMem = love.data.newByteData(2^8)
 
 spout.receiver.width = 0
 spout.receiver.height = 0
-spout.receiver.status = false
+spout.receiver.connected = false
+spout.receiver.senderName = ''
 
 function spout.init()
     spout.sender.handle = ffi.load("SpoutLibrary.dll")
@@ -59,7 +63,9 @@ function spout.sender.init()
 	end
 	-- Add termination character
 	senderNamePtr[#spout.sender.name] = string.byte('\0')
-	logInfo("SPOUT_SENDER: Connected.")
+	spout.sender.handle.SetSenderName_w(spout.sender.object, senderNamePtr)
+
+	logInfo("SPOUT_SENDER: " .. spout.sender.name .. " - Enabled.")
 end
 
 function spout.receiver.init()
@@ -71,8 +77,7 @@ function spout.receiver.init()
 	-- Add termination character
 	receiverNamePtr[#spout.receiver.name] = string.byte('\0')
 
-	-- Set names
-	spout.sender.handle.SetSenderName_w(spout.sender.object, senderNamePtr)
+	-- Set name
 	spout.receiver.handle.SetReceiverName_w(spout.receiver.object, receiverNamePtr)
 
 	-- Handle first reception
@@ -80,12 +85,14 @@ function spout.receiver.init()
 	if (spout.receiver.handle.IsUpdated_w(spout.receiver.object)) then
 		spout.receiver.width = spout.receiver.handle.GetSenderWidth_w(spout.receiver.object)
 		spout.receiver.height = spout.receiver.handle.GetSenderHeight_w(spout.receiver.object)
-		logInfo("SPOUT_RECEIVER: Connected", spout.receiver.width, "x", spout.receiver.height)
 		-- Allocate img data and pointer
 		spout.receiver.data = love.data.newByteData(4 * spout.receiver.width * spout.receiver.height)
 		spout.receiver.dataPtr = ffi.cast('const char *', spout.receiver.data:getFFIPointer())
-		-- Set to true
-		spout.receiver.status = true
+		-- Set receiver as 'connected'
+		spout.receiver.connected = true
+		local name = spout.receiver.handle.GetSenderName_w(spout.receiver.object)
+		spout.receiver.senderName = ffi.string(name)
+		logInfo("SPOUT_RECEIVER: " .. spout.receiver.senderName .. " - size: " .. spout.receiver.width .. "x" .. spout.receiver.height)
 	end
 end
 
@@ -101,28 +108,40 @@ end
 
 function spout.ReceiveImage()
 	local img = nil
-	if (spout.receiver.status == true) then
+	local ret = false
+	if (spout.receiver.connected == true) then
 		if (spout.receiver.handle.IsFrameNew_w(spout.receiver.object)) then
-			local val = spout.receiver.handle.ReceiveImage_w(spout.receiver.object, spout.receiver.dataPtr, GL_RGBA, false, 0)
+			ret = spout.receiver.handle.ReceiveImage_w(spout.receiver.object, spout.receiver.dataPtr, GL_RGBA, false, 0)
 			if spout.receiver.dataPtr ~= nil then
 				local imgData = love.image.newImageData(spout.receiver.width, spout.receiver.height, "rgba8", spout.receiver.data)
 				img = love.graphics.newImage(imgData)
 			end
-		else
-			spout.receiver.status = false
-			logInfo("SPOUT_RECEIVER: Disconnected.")
 		end
 	end
-	return img
+	return ret, img
 end
 
 function spout.update()
-	if (spout.receiver.status == false) then
+	local img = nil
+	local ret = false
+	if (spout.receiver.connected == false) then
 		spout.receiver.init()
-	elseif (not spout.receiver.handle.IsFrameNew_w(spout.receiver.object)) then
-		spout.receiver.status = false
-		logInfo("SPOUT_RECEIVER: Disconnected.")
+	else
+		ret, img = spout.ReceiveImage()
+		if (ret == false) then
+			-- test frame to check for connection
+			local name = spout.receiver.handle.GetSenderName_w(spout.receiver.object)
+			name = ffi.string(name)
+			logInfo(name)
+			local connected = spout.receiver.handle.IsConnected_w(spout.receiver.object)
+			print(connected)
+			if (not connected) then
+				spout.receiver.connected = connected
+				logInfo("SPOUT_RECEIVER: " .. spout.receiver.senderName .. " disconnected.")
+			end
+		end
 	end
+	return img
 end
 
 return spout

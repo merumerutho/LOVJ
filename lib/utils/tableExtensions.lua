@@ -48,7 +48,7 @@ end
 -- filter based on array value
 table.filter = function(array, func)
     local new_array = {}
-    for i,v in ipairs(x) do
+    for i,v in ipairs(array) do
         if func(i, v) then new_array[i] = v end
     end
     return new_array

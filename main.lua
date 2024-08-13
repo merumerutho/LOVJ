@@ -82,6 +82,8 @@ function love.draw()
 		scaleX, scaleY = 1, 1
 	end
 
+	local spoutReceivedImg = spout.update()
+
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
 		local canvas = patchSlots[i].patch.draw()  -- this function may change currently set canvas
@@ -108,7 +110,6 @@ function love.update()
 	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
-		spout.update()
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls
