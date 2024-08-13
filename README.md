@@ -1,6 +1,8 @@
 # LOVJ
 ### A LÖVE2D VJing framework 
 
+![LOVJ logo](https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png)
+
 LOVJ aims to be a [LÖVE](https://love2d.org/) framework to create a live-coding, interactive VJing environment mainly targeted at live music performances.
 It revolves around the concept of video patches: these can be loaded, sequenced, and mixed in several ways.
 
