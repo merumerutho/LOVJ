@@ -108,6 +108,7 @@ function love.update()
 	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
+		spout.update()
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls
