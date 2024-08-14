@@ -53,7 +53,7 @@ function screen.toggleFullscreen()
 	if screen.isFullscreen then
 		screen.ExternalRes.W, screen.ExternalRes.H = love.window.getDesktopDimensions()
 	else
-		SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_HEIGHT)
+		SetExternalRes(cfgScreen.WINDOW_WIDTH, cfgScreen.WINDOW_HEIGHT)
 	end
 	calculateScaling()
 	screen.updateScreenOptions()
@@ -78,7 +78,7 @@ end
 function screen.init()
 	-- Set internal resolution and screen scaling settings
 	SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_HEIGHT)
-	SetExternalRes(cfgScreen.OUTER_RES_WIDTH, cfgScreen.OUTER_RES_HEIGHT)
+	SetExternalRes(cfgScreen.WINDOW_WIDTH, cfgScreen.WINDOW_HEIGHT)
 	screen.isFullscreen = false
 	calculateScaling()
 	screen.updateScreenOptions()

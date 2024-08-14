@@ -5,7 +5,6 @@
 --
 
 local json = require("lib/json")
--- local resources = lovjRequire("lib/resources")
 
 local rtMgr = {}
 
