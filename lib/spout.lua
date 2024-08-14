@@ -62,6 +62,7 @@ function spout.sender.init()
 end
 
 function spout.receiver.init()
+	local ptr
 	local name = cfg_spout.receiver.name
 	spout.receiver.handle = ffi.load("SpoutLibrary.dll")
     spout.receiver.object = spout.receiver.handle.GetSpout()
@@ -93,7 +94,7 @@ function spout.receiver.init()
 	end
 end
 
-function spout.SendCanvas(canvas, width, height)
+function spout.sender.SendCanvas(canvas, width, height)
 	-- ensure resetting to main canvas before doing anything
 	love.graphics.setCanvas()
 	-- create picture
@@ -103,7 +104,7 @@ function spout.SendCanvas(canvas, width, height)
     return spout.sender.handle.SendImage_w(spout.sender.object, imgptr, width, height, GL_RGBA, false)
 end
 
-function spout.ReceiveImage()
+function spout.receiver.ReceiveImage()
 	local img = nil
 	local ret = false
 	if (spout.receiver.connected == true) then
@@ -124,7 +125,7 @@ function spout.receiver.update()
 	if (spout.receiver.connected == false) then
 		spout.receiver.init()
 	else
-		ret, img = spout.ReceiveImage()
+		ret, img = spout.receiver.ReceiveImage()
 		if (ret == false) then
 			-- test frame to check for connection
 			local name = spout.receiver.handle.GetSenderName_w(spout.receiver.object)

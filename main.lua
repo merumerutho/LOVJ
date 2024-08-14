@@ -94,7 +94,7 @@ function love.draw()
 	end
 	
 	-- Spout output
-	spout.SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
+	spout.sender.SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
 	
 	-- draw downmix to main screen
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
