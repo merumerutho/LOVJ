@@ -20,6 +20,7 @@ spout = lovjRequire("lib/spout")
 cfgPatches = lovjRequire("cfg/cfg_patches")
 cfgShaders = lovjRequire("cfg/cfg_shaders")
 cfgTimers = lovjRequire("cfg/cfg_timers")
+cfgSpout = lovjRequire("cfg/cfg_spout")
 
 drawingUtils = lovjRequire("lib/utils/drawing")
 
@@ -28,6 +29,8 @@ love.window.setTitle("LOVJ v" ..  version)
 
 local downMixCanvas
 local dummyCanvas
+
+local spout_sender = spout.SpoutSender:new(nil, cfg_spout.sender.name)
 
 --- @public love.load
 --- this function is called upon startup
@@ -55,8 +58,7 @@ function love.load()
     end
 
 	connections.init()  -- Init socket
-	spout.sender.init()
-	--spout.receiver.init()  -- Move to patch
+	spout_sender:init() -- Initialize spout sender
 
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -94,7 +96,7 @@ function love.draw()
 	end
 	
 	-- Spout output
-	spout.sender.SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
+	spout_sender:SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
 	
 	-- draw downmix to main screen
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)

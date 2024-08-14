@@ -9,6 +9,6 @@ cfg_spout.sender = {}
 cfg_spout.receiver = {}
 
 cfg_spout.sender.name = "LOVJ_SPOUT_SENDER"
-cfg_spout.receiver.name = "Avenue - Avenue2LOVJ"
+cfg_spout.receiver.name = "Avenue - Avenue2LOVJ"  -- to be used when initializing receiver
 
 return cfg_spout

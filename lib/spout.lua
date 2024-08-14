@@ -31,44 +31,61 @@ void* GetSpout(void);
 
 local GL_RGBA = 0x1908
 
-spout.sender = {}
-spout.receiver = {}
+spout.SpoutSender = {}
+spout.SpoutReceiver = {}
 
-spout.sender.nameMem = love.data.newByteData(2^8)
-spout.receiver.nameMem = love.data.newByteData(2^8)
+--- @public spout.SpoutSender:new
+--- Create a new SpoutSender
+function spout.SpoutSender:new(o, name)
+    local o = {} or o
+    setmetatable(o, self)
+    self.__index = self
+    o.name = name
+	o.nameMem = love.data.newByteData(2^8)
+	return o
+end
 
-spout.receiver.width = 0
-spout.receiver.height = 0
-spout.receiver.connected = false
-spout.receiver.senderName = ''
+--- @public spout.SpoutReceiver:new
+--- Create a new SpoutReceiver
+function spout.SpoutReceiver:new(o, name)
+	local o = {} or o
+    setmetatable(o, self)
+    self.__index = self
+    o.name = name
+	o.nameMem = love.data.newByteData(2^8)
+	o.connected = false
+	return o
+end
 
---- @public spout.sender.init
---- Initialize spout sender
-function spout.sender.init()
-	local name = cfg_spout.sender.name
-	spout.sender.handle = ffi.load("SpoutLibrary.dll")
-    spout.sender.object = spout.sender.handle.GetSpout()
+--- @public spout.SpoutSender:init
+--- Initialize SpoutSender
+function spout.SpoutSender:init()
+	local name = self.name
+	self.handle = ffi.load("SpoutLibrary.dll")
+    self.object = self.handle.GetSpout()
 
 	-- Transcribe sender name to memory
-	local senderNamePtr = ffi.cast('char *', spout.sender.nameMem:getFFIPointer())
+	local senderNamePtr = ffi.cast('char *', self.nameMem:getFFIPointer())
 	for i=1,(#name) do
 		senderNamePtr[i-1] = string.byte(name:sub(i,i))
 	end
 	-- Add termination character
 	senderNamePtr[#name] = string.byte('\0')
-	spout.sender.handle.SetSenderName_w(spout.sender.object, senderNamePtr)
+	self.handle.SetSenderName_w(self.object, senderNamePtr)
 
 	logInfo("SPOUT_SENDER: " .. name .. " - Enabled.")
 end
 
-function spout.receiver.init()
+--- @public spout.SpoutReceiver:init
+--- Initialize SpoutReceiver
+function spout.SpoutReceiver:init()
 	local ptr
-	local name = cfg_spout.receiver.name
-	spout.receiver.handle = ffi.load("SpoutLibrary.dll")
-    spout.receiver.object = spout.receiver.handle.GetSpout()
+	local name = senderName
+	self.handle = ffi.load("SpoutLibrary.dll")
+    self.object = self.handle.GetSpout()
 
 	-- Transcribe receiver name to memory
-	local receiverNamePtr = ffi.cast('char *', spout.receiver.nameMem:getFFIPointer())
+	local receiverNamePtr = ffi.cast('char *', self.nameMem:getFFIPointer())
 	for i=1,(name) do
 		receiverNamePtr[i-1] = string.byte(name:sub(i,i))
 	end
@@ -76,42 +93,46 @@ function spout.receiver.init()
 	receiverNamePtr[#name] = string.byte('\0')
 
 	-- Set name
-	spout.receiver.handle.SetReceiverName_w(spout.receiver.object, receiverNamePtr)
+	self.handle.SetReceiverName_w(self.object, receiverNamePtr)
 
 	-- Handle first reception
-	spout.receiver.handle.ReceiveImage_w(spout.receiver.object, ptr, GL_RGBA, false, 0)
-	if (spout.receiver.handle.IsUpdated_w(spout.receiver.object)) then
-		spout.receiver.width = spout.receiver.handle.GetSenderWidth_w(spout.receiver.object)
-		spout.receiver.height = spout.receiver.handle.GetSenderHeight_w(spout.receiver.object)
+	self.handle.ReceiveImage_w(self.object, ptr, GL_RGBA, false, 0)
+	if (self.handle.IsUpdated_w(self.object)) then
+		self.width = self.handle.GetSenderWidth_w(self.object)
+		self.height = self.handle.GetSenderHeight_w(self.object)
 		-- Allocate img data and pointer
-		spout.receiver.data = love.data.newByteData(4 * spout.receiver.width * spout.receiver.height)
-		spout.receiver.dataPtr = ffi.cast('const char *', spout.receiver.data:getFFIPointer())
+		self.data = love.data.newByteData(4 * self.width * self.height)
+		self.dataPtr = ffi.cast('const char *', self.data:getFFIPointer())
 		-- Set receiver as 'connected'
-		spout.receiver.connected = true
-		local name = spout.receiver.handle.GetSenderName_w(spout.receiver.object)
-		spout.receiver.senderName = ffi.string(name)
-		logInfo("SPOUT_RECEIVER: " .. spout.receiver.senderName .. " - size: " .. spout.receiver.width .. "x" .. spout.receiver.height)
+		self.connected = true
+		local name = self.handle.GetSenderName_w(self.object)
+		self.senderName = ffi.string(name)
+		logInfo("SPOUT_RECEIVER: " .. self.senderName .. " - size: " .. self.width .. "x" .. self.height)
 	end
 end
 
-function spout.sender.SendCanvas(canvas, width, height)
-	-- ensure resetting to main canvas before doing anything
+--- @public spout.SpoutSender:SendCanvas
+--- Send Canvas as Image
+function spout.SpoutSender:SendCanvas(canvas, width, height)
+	-- Ensure resetting to main canvas before doing anything
 	love.graphics.setCanvas()
-	-- create picture
+	-- Create picture
     local img = canvas:newImageData(nil, 1, 0, 0, width, height)
     local imgptr = img:getFFIPointer()
-	-- send picture
-    return spout.sender.handle.SendImage_w(spout.sender.object, imgptr, width, height, GL_RGBA, false)
+	-- Send picture
+    return self.handle.SendImage_w(self.object, imgptr, width, height, GL_RGBA, false)
 end
 
-function spout.receiver.ReceiveImage()
+--- @private spout.SpoutReceiver:ReceiveImage
+--- Receive Image
+function spout.SpoutReceiver:ReceiveImage()
 	local img = nil
 	local ret = false
-	if (spout.receiver.connected == true) then
-		if (spout.receiver.handle.IsFrameNew_w(spout.receiver.object)) then
-			ret = spout.receiver.handle.ReceiveImage_w(spout.receiver.object, spout.receiver.dataPtr, GL_RGBA, false, 0)
-			if spout.receiver.dataPtr ~= nil then
-				local imgData = love.image.newImageData(spout.receiver.width, spout.receiver.height, "rgba8", spout.receiver.data)
+	if (self.connected == true) then
+		if (self.handle.IsFrameNew_w(self.object)) then
+			ret = self.handle.ReceiveImage_w(self.object, self.dataPtr, GL_RGBA, false, 0)
+			if self.dataPtr ~= nil then
+				local imgData = love.image.newImageData(self.width, self.height, "rgba8", self.data)
 				img = love.graphics.newImage(imgData)
 			end
 		end
@@ -119,23 +140,25 @@ function spout.receiver.ReceiveImage()
 	return ret, img
 end
 
-function spout.receiver.update()
+--- @public spout.SpoutReceiver:update
+--- If connected, perform ReceiveImage, otherwise attempt connecting.
+function spout.SpoutReceiver:update(receiver)
 	local img = nil
 	local ret = false
-	if (spout.receiver.connected == false) then
-		spout.receiver.init()
+	if (self.connected == false) then
+		self.init()
 	else
-		ret, img = spout.receiver.ReceiveImage()
+		ret, img = self.ReceiveImage()
 		if (ret == false) then
 			-- test frame to check for connection
-			local name = spout.receiver.handle.GetSenderName_w(spout.receiver.object)
+			local name = self.handle.GetSenderName_w(self.object)
 			name = ffi.string(name)
 			logInfo(name)
-			local connected = spout.receiver.handle.IsConnected_w(spout.receiver.object)
+			local connected = self.handle.IsConnected_w(self.object)
 			print(connected)
 			if (not connected) then
-				spout.receiver.connected = connected
-				logInfo("SPOUT_RECEIVER: " .. spout.receiver.senderName .. " disconnected.")
+				self.connected = connected
+				logInfo("SPOUT_RECEIVER: " .. self.senderName .. " disconnected.")
 			end
 		end
 	end
