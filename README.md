@@ -12,9 +12,10 @@ It allows interaction with the patches through:
 - external controls (**OSC**)
 
 Moreover, it supports advanced functionalities such as:
-- **GLSL** shaders support (for advanced rendering techniques, such as ray-marching)
-- **Spout** Send/Receive functions (allowing streaming to/from external apps, feedback loops, etc.)
-- **Savestates** (save/recall patches internal status quickly)
+- **GLSL** shaders support (for advanced rendering techniques, such as ray-marching).
+- **Spout** Send/Receive functions (allowing streaming to/from external apps, feedback loops, etc.).
+- **Savestates** (save/recall patches internal status quickly).
+- **OSC** network server via **UDP**.
 
 
 ## Setup
@@ -38,10 +39,10 @@ It can be played with, but don't expect the software to be working reliably in i
 
 
 ## Credits
-- [lick](https://github.com/usysrc/lick) original *LICK* implementation for live-coding features.
-- [json.lua](https://github.com/rxi/json.lua) Json library.
-- [losc](https://github.com/davidgranstrom/losc) Lua OSC library.
-- [Spout](https://spout.zeal.co/) Spout library.
+- [lick](https://github.com/usysrc/lick) original *LICK* implementation for live-coding features (MIT license).
+- [json.lua v.0.1.2](https://github.com/rxi/json.lua) Json library (MIT license).
+- [losc v.1.0.1](https://github.com/davidgranstrom/losc) Lua OSC library (MIT license).
+- [Spout](https://spout.zeal.co/) Spout library (BSD-2 license).
 
 
 ## MIDI to OSC
