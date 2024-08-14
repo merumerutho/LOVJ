@@ -42,8 +42,10 @@ local function calculateScaling()
 	screen.Scaling.Upscale = cfgScreen.UPSCALE_MODE
 
 	-- depending on upscaling mode, set x and y for scaling to "r" or "1/r" => (^1 or ^-1)
-	screen.Scaling.X = screen.Scaling.RatioX ^ (1-2*screen.Scaling.Upscale)
-	screen.Scaling.Y = screen.Scaling.RatioY ^ (1-2*screen.Scaling.Upscale)
+	local upscale = (screen.Scaling.Upscale and 1) or 0
+
+	screen.Scaling.X = screen.Scaling.RatioX ^ (1-2*upscale)
+	screen.Scaling.Y = screen.Scaling.RatioY ^ (1-2*upscale)
 
 end
 
@@ -65,7 +67,7 @@ end
 
 --- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
 function screen.changeUpscaling()
-	cfgScreen.UPSCALE_MODE = math.abs(cfgScreen.UPSCALE_MODE - 1)  -- boolean inversion
+	cfgScreen.UPSCALE_MODE = not cfgScreen.UPSCALE_MODE  -- boolean inversion
 	-- calculate new scaling
 	calculateScaling()
 	-- reset canvases
