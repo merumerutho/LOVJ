@@ -12,7 +12,7 @@ local ansi_table = {
 
 local PALETTE
 
-local textSlideShow = {"greetings", "towards", "all", "of", "the", "scene"}
+local textSlideShow = {"LOVJ"}
 
 local patch = Patch:new()
 

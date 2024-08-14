@@ -5,10 +5,9 @@ lick = require("lib/lick")
 requirements = require("lib/utils/require")
 version = require("lib/cfg/cfg_version")
 
---
+-- From here on, use lovjRequire
 log = lovjRequire("lib/utils/logging")
-logging.setLogLevel({ logging.LOG_ERROR,
-					  logging.LOG_INFO })
+logging.setLogLevel({ logging.LOG_ERROR, logging.LOG_INFO })
 
 screen = lovjRequire("lib/screen")
 timer = lovjRequire("lib/timer")
@@ -56,7 +55,8 @@ function love.load()
     end
 
 	connections.init()  -- Init socket
-	spout.init()
+	spout.sender.init()
+	--spout.receiver.init()  -- Move to patch
 
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -82,7 +82,7 @@ function love.draw()
 		scaleX, scaleY = 1, 1
 	end
 
-	local spoutReceivedImg = spout.update()
+	--local spoutReceivedImg = spout.receiver.update()
 
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do

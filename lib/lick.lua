@@ -30,12 +30,11 @@ lick.resetList["main"] = {time=0,
 
 lick.debug = false
 lick.clearFlag = false
-lick.sleepTime = love.graphics.newCanvas and 0.0001 or 1
-
+lick.sleepTime = 0.001
 
 --- @private handle Handle error in lick
 local function handle(err)
-  return "ERROR: " .. err
+	return "ERROR: " .. err
 end
 
 
@@ -66,7 +65,7 @@ local function closeUDPThread()
 
     -- Expect quitAck from each thread
     local responses = {}
-	for k,rspCh in pairs(Connections.RspChannels) do
+	for k, rspCh in pairs(Connections.RspChannels) do
         table.insert(responses, rspCh:demand(cfg_connections.TIMEOUT_TIME))  -- expect response from all channels
     end
 
@@ -119,10 +118,13 @@ end
 
 --- @private checkForModifications call checkReset, and apply related reset
 local function checkForModifications()
+	-- check which component is in list for reset
     local resetComponent = checkReset()
+	-- if none, return
     if not resetComponent.name then return end
-    -- test loading the component (checks if safe to proceed)
+    -- test loading the component (checks if safe to proceed without causing errors)
     if not lovjTest(resetComponent.name) then return end
+	-- for components that require a patch-only reset
     if resetComponent.resetType == lick.PATCH_RESET then
         -- unload all patches
         for i=1,#patchSlots do
@@ -134,6 +136,7 @@ local function checkForModifications()
             patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
             patchSlots[i].patch.init(i)
         end
+	-- for components that require a soft reset
     elseif resetComponent.resetType == lick.SOFT_RESET then
         logInfo(resetComponent.name .. " - soft reset.")
         for component, t in pairs(lick.resetList) do
@@ -143,6 +146,7 @@ local function checkForModifications()
             end
         end
     elseif resetComponent.resetType == lick.HARD_RESET then
+		logInfo(resetComponent.name .. " - hard reset.")
         lick.hardReset(resetComponent)
     end
 end
@@ -150,6 +154,7 @@ end
 
 --- @private update Update call, also check for modifications of components and eventually resets
 local function update(dt)
+	-- Check and reset modified components
     checkForModifications()
     updateok, err = pcall(love.update, dt)
     if not updateok and not updateok_old then
@@ -195,16 +200,17 @@ function love.run()
         -- Process events.
         if love.event then
             love.event.pump()
-            for e,a,b,c,d in love.event.poll() do
+            for e, a, b, c, d in love.event.poll() do
             if e == "quit" then
                 if not love.quit or not love.quit() then
                     if love.audio then
                         love.audio.stop()
+                        closeUDPThread()
                     end
                 return
                 end
             end
-            love.handlers[e](a,b,c,d)
+            love.handlers[e](a, b, c, d)
         end
     end
 

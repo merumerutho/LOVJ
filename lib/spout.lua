@@ -44,18 +44,10 @@ spout.receiver.height = 0
 spout.receiver.connected = false
 spout.receiver.senderName = ''
 
-function spout.init()
-    spout.sender.handle = ffi.load("SpoutLibrary.dll")
-    spout.sender.object = spout.sender.handle.GetSpout()
-	
-	spout.receiver.handle = ffi.load("SpoutLibrary.dll")
-    spout.receiver.object = spout.receiver.handle.GetSpout()
-
-	spout.sender.init()
-	spout.receiver.init()
-end
-
 function spout.sender.init()
+	spout.sender.handle = ffi.load("SpoutLibrary.dll")
+    spout.sender.object = spout.sender.handle.GetSpout()
+
 	-- Transcribe sender name to memory
 	local senderNamePtr = ffi.cast('char *', spout.sender.nameMem:getFFIPointer())
 	for i=1,(#spout.sender.name) do
@@ -69,6 +61,9 @@ function spout.sender.init()
 end
 
 function spout.receiver.init()
+	spout.receiver.handle = ffi.load("SpoutLibrary.dll")
+    spout.receiver.object = spout.receiver.handle.GetSpout()
+
 	-- Transcribe receiver name to memory
 	local receiverNamePtr = ffi.cast('char *', spout.receiver.nameMem:getFFIPointer())
 	for i=1,(#spout.receiver.name) do
@@ -121,7 +116,7 @@ function spout.ReceiveImage()
 	return ret, img
 end
 
-function spout.update()
+function spout.receiver.update()
 	local img = nil
 	local ret = false
 	if (spout.receiver.connected == false) then
