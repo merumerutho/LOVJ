@@ -1,6 +1,6 @@
 -- cfg_screen.lua
 --
--- Configure and handle configurable screen settings
+-- Configure and handle screen settings
 --
 
 local cfg_screen = {}

@@ -4,6 +4,7 @@ local ffi = require("ffi")
 local string = require("string")
 
 log = lovjRequire("lib/utils/logging")
+cfg_spout = lovjRequire("lib/cfg/cfg_spout")
 
 ffi.cdef[[
 typedef int GLint;
@@ -33,10 +34,7 @@ local GL_RGBA = 0x1908
 spout.sender = {}
 spout.receiver = {}
 
-spout.sender.name = "LOVJ_SPOUT_SENDER"
 spout.sender.nameMem = love.data.newByteData(2^8)
-
-spout.receiver.name = "Avenue - Avenue2LOVJ"
 spout.receiver.nameMem = love.data.newByteData(2^8)
 
 spout.receiver.width = 0
@@ -44,33 +42,37 @@ spout.receiver.height = 0
 spout.receiver.connected = false
 spout.receiver.senderName = ''
 
+--- @public spout.sender.init
+--- Initialize spout sender
 function spout.sender.init()
+	local name = cfg_spout.sender.name
 	spout.sender.handle = ffi.load("SpoutLibrary.dll")
     spout.sender.object = spout.sender.handle.GetSpout()
 
 	-- Transcribe sender name to memory
 	local senderNamePtr = ffi.cast('char *', spout.sender.nameMem:getFFIPointer())
-	for i=1,(#spout.sender.name) do
-		senderNamePtr[i-1] = string.byte(spout.sender.name:sub(i,i))
+	for i=1,(#name) do
+		senderNamePtr[i-1] = string.byte(name:sub(i,i))
 	end
 	-- Add termination character
-	senderNamePtr[#spout.sender.name] = string.byte('\0')
+	senderNamePtr[#name] = string.byte('\0')
 	spout.sender.handle.SetSenderName_w(spout.sender.object, senderNamePtr)
 
-	logInfo("SPOUT_SENDER: " .. spout.sender.name .. " - Enabled.")
+	logInfo("SPOUT_SENDER: " .. name .. " - Enabled.")
 end
 
 function spout.receiver.init()
+	local name = cfg_spout.receiver.name
 	spout.receiver.handle = ffi.load("SpoutLibrary.dll")
     spout.receiver.object = spout.receiver.handle.GetSpout()
 
 	-- Transcribe receiver name to memory
 	local receiverNamePtr = ffi.cast('char *', spout.receiver.nameMem:getFFIPointer())
-	for i=1,(#spout.receiver.name) do
-		receiverNamePtr[i-1] = string.byte(spout.receiver.name:sub(i,i))
+	for i=1,(name) do
+		receiverNamePtr[i-1] = string.byte(name:sub(i,i))
 	end
 	-- Add termination character
-	receiverNamePtr[#spout.receiver.name] = string.byte('\0')
+	receiverNamePtr[#name] = string.byte('\0')
 
 	-- Set name
 	spout.receiver.handle.SetReceiverName_w(spout.receiver.object, receiverNamePtr)
