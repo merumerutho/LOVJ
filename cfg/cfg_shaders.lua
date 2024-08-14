@@ -3,7 +3,7 @@
 -- Configure and handle shader settings
 --
 
-local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
 local logging = lovjRequire("lib/utils/logging")
 local resources = lovjRequire("lib/resources")
 

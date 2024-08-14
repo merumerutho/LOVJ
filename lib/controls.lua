@@ -6,8 +6,8 @@
 local kp = lovjRequire("lib/utils/keypress")
 local cmd = lovjRequire("lib/cmdmenu")
 local rtmgr = lovjRequire("lib/realtimemgr")
-local cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
-local cfgPatches = lovjRequire("lib/cfg/cfg_patches")
+local cfgShaders = lovjRequire("cfg/cfg_shaders")
+local cfgPatches = lovjRequire("cfg/cfg_patches")
 
 local controls = {}
 

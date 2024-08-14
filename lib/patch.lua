@@ -3,8 +3,8 @@
 -- Patch class including common elements shared among all patches
 --
 
-local cfgScreen = lovjRequire("lib/cfg/cfg_screen")
-local cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfgScreen = lovjRequire("cfg/cfg_screen")
+local cfgShaders = lovjRequire("cfg/cfg_shaders")
 local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}

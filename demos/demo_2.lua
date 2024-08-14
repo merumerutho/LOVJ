@@ -2,7 +2,7 @@ local Patch = lovjRequire ("lib/patch")
 local palettes = lovjRequire ("lib/utils/palettes")
 local screen = lovjRequire ("lib/screen")
 local Timer = lovjRequire ("lib/timer")
-local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
+local cfg_timers = lovjRequire ("cfg/cfg_timers")
 
 local PALETTE = palettes.PICO8
 

@@ -6,7 +6,7 @@
 --
 
 local Connections = {}
-local cfgConnections = require("lib/cfg/cfg_connections")
+local cfgConnections = require("cfg/cfg_connections")
 
 
 --- @public init Initialize connections (open UDP threads and req / rsp channels for communicating)

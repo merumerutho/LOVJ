@@ -10,7 +10,7 @@ local ip_port = initParams[2]["port"]
 
 -- include libs
 local socket = require "socket"
-local cfg = require "lib/cfg/cfg_connections"
+local cfg = require "cfg/cfg_connections"
 
 -- local variables
 local rspMsgs = {} -- Response list

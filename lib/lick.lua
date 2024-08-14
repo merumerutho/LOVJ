@@ -54,7 +54,7 @@ end
 --- @private closeUDPThread used to close the UDP threads (if present)
 local function closeUDPThread()
     local Connections = require("lib/connections")
-    local cfg_connections = require("lib/cfg/cfg_connections")
+    local cfg_connections = require("cfg/cfg_connections")
     if Connections.UdpThreads == nil then return end
 
     -- If there are UDP_threads open, send them "quitMsg"

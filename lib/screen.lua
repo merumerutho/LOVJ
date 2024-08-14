@@ -2,7 +2,7 @@
 --
 -- Handle screen graphical settings
 
-local cfgScreen = require("lib/cfg/cfg_screen")
+local cfgScreen = require("cfg/cfg_screen")
 
 local screen = {}
 

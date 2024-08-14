@@ -4,8 +4,8 @@ local kp = lovjRequire("lib/utils/keypress")
 local Envelope = lovjRequire("lib/automations/envelope")
 local Lfo = lovjRequire("lib/automations/lfo")
 local Timer = lovjRequire("lib/timer")
-local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
-local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
+local cfg_shaders = lovjRequire("cfg/cfg_shaders")
 
 -- declare palette
 local PALETTE

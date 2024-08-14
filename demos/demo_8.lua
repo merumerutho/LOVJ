@@ -2,7 +2,7 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
-local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
 
 
 -- import pico8 palette

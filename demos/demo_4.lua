@@ -3,7 +3,7 @@ local palettes = lovjRequire("lib/utils/palettes")
 local screen = lovjRequire("lib/screen")
 local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
-local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
 local Envelope = lovjRequire("lib/automations/envelope")
 
 -- declaring function

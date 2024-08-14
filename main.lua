@@ -3,7 +3,7 @@ require("lib/utils/tableExtensions")
 debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")
-version = require("lib/cfg/cfg_version")
+version = require("cfg/cfg_version")
 
 -- From here on, use lovjRequire
 log = lovjRequire("lib/utils/logging")
@@ -17,9 +17,9 @@ connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
 spout = lovjRequire("lib/spout")
 
-cfgPatches = lovjRequire("lib/cfg/cfg_patches")
-cfgShaders = lovjRequire("lib/cfg/cfg_shaders")
-cfgTimers = lovjRequire("lib/cfg/cfg_timers")
+cfgPatches = lovjRequire("cfg/cfg_patches")
+cfgShaders = lovjRequire("cfg/cfg_shaders")
+cfgTimers = lovjRequire("cfg/cfg_timers")
 
 drawingUtils = lovjRequire("lib/utils/drawing")
 

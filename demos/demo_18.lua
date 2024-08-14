@@ -1,7 +1,7 @@
 local Patch = lovjRequire ("lib/patch")
 local screen = lovjRequire ("lib/screen")
-local cfg_screen = lovjRequire("lib/cfg/cfg_screen")
-local cfg_timers = lovjRequire ("lib/cfg/cfg_timers")
+local cfg_screen = lovjRequire("cfg/cfg_screen")
+local cfg_timers = lovjRequire ("cfg/cfg_timers")
 
 local patch = Patch:new()
 

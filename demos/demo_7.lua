@@ -1,9 +1,9 @@
 local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local videoutils = lovjRequire("lib/utils/video")
-local screen_settings = lovjRequire("lib/cfg/cfg_screen")
+local screen_settings = lovjRequire("cfg/cfg_screen")
 local Timer = lovjRequire("lib/timer")
-local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
 
 
 -- import pico8 palette

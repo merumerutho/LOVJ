@@ -4,7 +4,7 @@ local ffi = require("ffi")
 local string = require("string")
 
 log = lovjRequire("lib/utils/logging")
-cfg_spout = lovjRequire("lib/cfg/cfg_spout")
+cfg_spout = lovjRequire("cfg/cfg_spout")
 
 ffi.cdef[[
 typedef int GLint;

@@ -2,8 +2,8 @@ local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local controls = lovjRequire("lib/controls")
 local kp = lovjRequire("lib/utils/keypress")
-local cfg_timers = lovjRequire("lib/cfg/cfg_timers")
-local cfg_shaders = lovjRequire("lib/cfg/cfg_shaders")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
+local cfg_shaders = lovjRequire("cfg/cfg_shaders")
 
 
 -- import palette

@@ -6,7 +6,7 @@
 --
 
 amath = lovjRequire("lib/automations/automation_math")
-cfg_timers = lovjRequire("lib/cfg/cfg_timers")
+cfg_timers = lovjRequire("cfg/cfg_timers")
 
 local Automation = {}
 Automation.__index = Automation
