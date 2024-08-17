@@ -3,8 +3,10 @@ local spout = {}
 local ffi = require("ffi")
 local string = require("string")
 
-log = lovjRequire("lib/utils/logging")
-cfg_spout = lovjRequire("cfg/cfg_spout")
+local log = lovjRequire("lib/utils/logging")
+local cfg_spout = lovjRequire("cfg/cfg_spout")
+local screen = lovjRequire("lib/screen")
+local drawingUtils = lovjRequire("lib/utils/drawing")
 
 ffi.cdef[[
 typedef int GLint;
@@ -41,6 +43,8 @@ function spout.SpoutSender:new(o, name)
     setmetatable(o, self)
     self.__index = self
     o.name = name
+	local w, h = cfg_spout.sender.width, cfg_spout.sender.height
+	o.outCanvas = love.graphics.newCanvas(w, h)
 	o.nameMem = love.data.newByteData(2^8)
 	return o
 end
@@ -113,14 +117,19 @@ end
 
 --- @public spout.SpoutSender:SendCanvas
 --- Send Canvas as Image
-function spout.SpoutSender:SendCanvas(canvas, width, height)
-	-- Ensure resetting to main canvas before doing anything
-	love.graphics.setCanvas()
-	-- Create picture
-    local img = canvas:newImageData(nil, 1, 0, 0, width, height)
+function spout.SpoutSender:SendCanvas(canvas)
+	-- Rescale to spout_out
+	local w, h = cfg_spout.sender.width, cfg_spout.sender.height
+	local wf, hf = (w / screen.InternalRes.W), (h / screen.InternalRes.H)
+	drawingUtils.drawCanvasToCanvas(canvas, self.outCanvas, 0, 0, 0, wf, hf)
+
+	-- Create picture from spout_out
+    local img = self.outCanvas:newImageData(nil, 1, 0, 0, w, h)
     local imgptr = img:getFFIPointer()
+	love.graphics.setCanvas()
+
 	-- Send picture
-    return self.handle.SendImage_w(self.object, imgptr, width, height, GL_RGBA, false)
+    return self.handle.SendImage_w(self.object, imgptr, w, h, GL_RGBA, false)
 end
 
 --- @private spout.SpoutReceiver:ReceiveImage

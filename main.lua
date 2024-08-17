@@ -30,7 +30,7 @@ love.window.setTitle("LOVJ v" ..  version)
 local downMixCanvas
 local dummyCanvas
 
-local spout_sender = spout.SpoutSender:new(nil, cfg_spout.sender.name)
+local spout_sender = spout.SpoutSender:new(nil, cfgSpout.sender.name)
 
 --- @public love.load
 --- this function is called upon startup
@@ -90,16 +90,16 @@ function love.draw()
 	for i=1, #patchSlots do
 		local canvas = patchSlots[i].patch.draw()  -- this function may change currently set canvas
 		-- draw canvas to downmix
-		downMixCanvas = drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, scaleX, scaleY)
+		drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, scaleX, scaleY)
 		-- clean canvas after using it
 		canvas = drawingUtils.clearCanvas(canvas)
 	end
-	
-	-- Spout output
-	spout_sender:SendCanvas(downMixCanvas, screen.InternalRes.W, screen.InternalRes.H)
-	
+
 	-- draw downmix to main screen
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+
+	-- Spout output
+	spout_sender:SendCanvas(downMixCanvas)
 end
 
 
