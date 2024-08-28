@@ -74,7 +74,7 @@ function patch.init(slot)
 	patch.resources.parameters = init_params()
 	
   	-- balls
-  	patch.nBalls = 500
+  	patch.nBalls = 200
   	patch.ballList = {}
   	-- generate balls
   	for i = 1, patch.nBalls do

@@ -80,6 +80,9 @@ function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
 	end
 
 	-- send parameters
+	if string.find(shader.name, "test") then
+		shader.object:send("_time", cfg_timers.globalTimer.T)
+	end
 	if string.find(shader.name, "swirl") then
 		shader.object:send("_time", cfg_timers.globalTimer.T)
 	end
@@ -89,7 +92,7 @@ function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
 	if string.find(shader.name, "kaleido") then
 		shader.object:send("_segmentParameter", s:get("_segmentParameter"))
 	end
-	if string.find(shader.name, "gaussianblur") then
+	if string.find(shader.name, "medianblur") then
 		shader.object:send("_blurOffset", s:get("_blurOffset"))
 	end
 	if string.find(shader.name, "glitch") then
