@@ -4,7 +4,6 @@ local ffi = require("ffi")
 local string = require("string")
 
 local log = lovjRequire("lib/utils/logging")
-local cfg_spout = lovjRequire("cfg/cfg_spout")
 local screen = lovjRequire("lib/screen")
 local drawingUtils = lovjRequire("lib/utils/drawing")
 
@@ -38,12 +37,12 @@ spout.SpoutReceiver = {}
 
 --- @public spout.SpoutSender:new
 --- Create a new SpoutSender
-function spout.SpoutSender:new(o, name)
+function spout.SpoutSender:new(o, name, w, h)
     local o = {} or o
     setmetatable(o, self)
     self.__index = self
     o.name = name
-	local w, h = cfg_spout.sender.width, cfg_spout.sender.height
+    o.width, o.height = w, h
 	o.outCanvas = love.graphics.newCanvas(w, h)
 	o.nameMem = love.data.newByteData(2^8)
 	return o
@@ -119,7 +118,7 @@ end
 --- Send Canvas as Image
 function spout.SpoutSender:SendCanvas(canvas)
 	-- Rescale to spout_out
-	local w, h = cfg_spout.sender.width, cfg_spout.sender.height
+	local w, h = self.width, self.height
 	local wf, hf = (w / screen.InternalRes.W), (h / screen.InternalRes.H)
 	drawingUtils.drawCanvasToCanvas(canvas, self.outCanvas, 0, 0, 0, wf, hf)
 

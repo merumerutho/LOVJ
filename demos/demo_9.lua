@@ -1,8 +1,8 @@
 local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local kp = lovjRequire("lib/utils/keypress")
-local Envelope = lovjRequire("lib/automations/envelope")
-local Lfo = lovjRequire("lib/automations/lfo")
+local Envelope = lovjRequire("lib/signals/envelope")
+local Lfo = lovjRequire("lib/signals/lfo")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("cfg/cfg_timers")
 

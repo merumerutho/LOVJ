@@ -3,7 +3,7 @@ local palettes = lovjRequire("lib/utils/palettes")
 local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("cfg/cfg_timers")
-local Envelope = lovjRequire("lib/automations/envelope")
+local Envelope = lovjRequire("lib/signals/envelope")
 
 -- import pico8 palette
 local PALETTE = palettes.PICO8

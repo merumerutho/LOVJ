@@ -4,7 +4,7 @@ local screen = lovjRequire("lib/screen")
 local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("cfg/cfg_timers")
-local Envelope = lovjRequire("lib/automations/envelope")
+local Envelope = lovjRequire("lib/signals/envelope")
 
 -- declaring function
 local function bpmSet(s)  end

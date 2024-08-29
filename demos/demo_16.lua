@@ -4,7 +4,7 @@ local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("cfg/cfg_timers")
 local cfg_screen = lovjRequire("cfg/cfg_screen")
-local Lfo = lovjRequire("lib/automations/lfo")
+local Lfo = lovjRequire("lib/signals/lfo")
 
 local ansi_table = {
 	"▀","▄","█","▌","▐","░","▒","▓"

@@ -1,19 +1,20 @@
--- automation.lua
+-- signals.lua
 --
--- Automation class:
--- defines a generic automation as an event with an attack instant (trigger)
--- and a release instant (trigger release) dependent on a boolean condition.
+-- Signals class:
+-- defines a generic signal as something with a beginning (trigger)
+-- and an end (trigger release) dependent on a boolean condition.
+-- The underlying function depends on the type of signal
 --
 
-amath = lovjRequire("lib/automations/automation_math")
+SMath = lovjRequire("lib/signals/signal_math")
 cfg_timers = lovjRequire("cfg/cfg_timers")
 
-local Automation = {}
-Automation.__index = Automation
+local Signals = {}
+Signals.__index = Signals
 
---- @public new create Automation object
-function Automation:new()
-    local self = setmetatable({}, Automation)
+--- @public new create Signals object
+function Signals:new()
+    local self = setmetatable({}, Signals)
 
     self.trigger = { atkInst = 0, rlsInst = 0 }  -- input triggers
     self.output = nil  -- output control
@@ -22,12 +23,12 @@ function Automation:new()
 end
 
 --- @public isTriggerActive check if the trigger is currently enabled
-function Automation:isTriggerActive()
+function Signals:isTriggerActive()
     return (self.trigger.atkInst > self.trigger.rlsInst)
 end
 
 --- @public UpdateTrigger periodically update the trigger
-function Automation:UpdateTrigger(trg)
+function Signals:UpdateTrigger(trg)
     local globalTimer = cfg_timers.globalTimer
 
     -- if trigger 0->1, this is the atkInst
@@ -42,4 +43,4 @@ function Automation:UpdateTrigger(trg)
 end
 
 
-return Automation
+return Signals

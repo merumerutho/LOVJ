@@ -1,17 +1,19 @@
 -- cfg_spout.lua
 --
--- Configure and handle spout settings
+-- Configure spout sender and receivers
 --
 
 local cfg_spout = {}
 
-cfg_spout.sender = {}
-cfg_spout.sender.name = "LOVJ_SPOUT_SENDER"
-cfg_spout.sender.width = 1920
-cfg_spout.sender.height = 1080
+cfg_spout.senders = 
+{
+    { ["name"] = "LOVJ_SPOUT_SENDER", ["width"] = 1920, ["height"] = 1080 }
+}
 
-cfg_spout.receiver = {}
-cfg_spout.receiver.name = "Avenue - Avenue2LOVJ"  -- to be used when initializing receiver
+cfg_spout.receiver = 
+{
+    "Avenue - Avenue2LOVJ"
+}
 
 
 

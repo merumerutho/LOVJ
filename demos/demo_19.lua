@@ -4,8 +4,8 @@ local kp = lovjRequire("lib/utils/keypress")
 local Timer = lovjRequire("lib/timer")
 local cfg_timers = lovjRequire("cfg/cfg_timers")
 local cfg_screen = lovjRequire("cfg/cfg_screen")
-local Envelope = lovjRequire("lib/automations/envelope")
-local Lfo = lovjRequire("lib/automations/lfo")
+local Envelope = lovjRequire("lib/signals/envelope")
+local Lfo = lovjRequire("lib/signals/lfo")
 
 local PALETTE
 
