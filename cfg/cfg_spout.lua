@@ -7,7 +7,7 @@ local cfg_spout = {}
 
 cfg_spout.senders = 
 {
-    { ["name"] = "LOVJ_SPOUT_SENDER", ["width"] = 1920, ["height"] = 1080 }
+    ["main"] = { ["name"] = "LOVJ_SPOUT_SENDER", ["width"] = 1920, ["height"] = 1080 }
 }
 
 cfg_spout.receiver = 

@@ -30,8 +30,12 @@ love.window.setTitle("LOVJ v" ..  version)
 local downMixCanvas
 local dummyCanvas
 
-local main_sender_cfg = cfgSpout.senders[1] -- no language is perfect. For Lua, it had to be 1-based indexing
-local main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"])
+local main_sender_cfg = cfgSpout.senders["main"]
+local main_spout_sender
+
+if main_sender_cfg then
+    main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"])
+end
 
 --- @public love.load
 --- this function is called upon startup
@@ -59,7 +63,9 @@ function love.load()
     end
 
 	connections.init()  -- Init socket
-	main_spout_sender:init() -- Initialize spout sender
+    if #cfgSpout.senders > 0 then
+        main_spout_sender:init() -- Initialize spout sender
+    end
 
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -100,7 +106,11 @@ function love.draw()
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 
 	-- Spout output
-	main_spout_sender:SendCanvas(downMixCanvas)
+    if #cfgSpout.senders > 0 then
+        main_spout_sender:SendCanvas(downMixCanvas)
+    end
+    -- Ensure resetting canvas in any case
+    love.graphics.setCanvas()
 end
 
 
