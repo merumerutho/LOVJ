@@ -148,29 +148,29 @@ function spout.SpoutReceiver:ReceiveImage()
 	return ret, img
 end
 
---- @public spout.SpoutReceiver:update
---- If connected, perform ReceiveImage, otherwise attempt connecting.
-function spout.SpoutReceiver:update(receiver)
-	local img = nil
+--- @public spout.SpoutReceiver:draw
+--- If connected, perform ReceiveImage
+function spout.SpoutReceiver:draw()
+	-- default dummy picture
+    local dummy_imgData = love.graphics.newImageData(1,1, "rgba8", {0,0,0,0})
+    local img = love.grahpics.newImage(dummy_imgData)
 	local ret = false
+    
+    -- Receive Image if connected
+    if (self.connected) then
+        ret, recv_img = self.ReceiveImage()
+        self.connected = ret -- update connection state
+        if ret then img = recv_img end
+    end
+	return img
+end
+
+--- @public spout.SpoutReceiver:update
+--- If disconnected, try connecting
+function spout.SpoutReceiver:update()
 	if (self.connected == false) then
 		self.init()
-	else
-		ret, img = self.ReceiveImage()
-		if (ret == false) then
-			-- test frame to check for connection
-			local name = self.handle.GetSenderName_w(self.object)
-			name = ffi.string(name)
-			logInfo(name)
-			local connected = self.handle.IsConnected_w(self.object)
-			print(connected)
-			if (not connected) then
-				self.connected = connected
-				logInfo("SPOUT_RECEIVER: " .. self.senderName .. " disconnected.")
-			end
-		end
 	end
-	return img
 end
 
 return spout

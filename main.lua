@@ -91,7 +91,7 @@ function love.draw()
 		scaleX, scaleY = 1, 1
 	end
 
-	--local spoutReceivedImg = spout.receiver.update()
+	-- for receiver in receiver_list do local spoutReceivedImg = receiver:draw() end
 
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
@@ -121,6 +121,7 @@ function love.update()
 	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
+        -- for receiver in receiver_list do receiver:update() end
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls
