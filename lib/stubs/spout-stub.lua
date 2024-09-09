@@ -62,10 +62,18 @@ end
 
 --- @public spout.SpoutReceiver:update
 --- (stubbed) Update Receiver: 
---- return stubbed Receive Image function
-function spout.SpoutReceiver:update(receiver)
+--- return stubbed "ReceiveImage" function
+function spout.SpoutReceiver:draw(receiver)
 	_, i = self:ReceiveImage()
 	return i
 end
+
+--- @public spout.SpoutReceiver:update
+--- (stubbed) Update Receiver:
+--- do nothing
+function spout.SpoutReceiver:update()
+	return
+end
+
 
 return spout
