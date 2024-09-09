@@ -5,12 +5,12 @@
 
 local cfg_screen = {}
 
-cfg_screen.INTERNAL_RES_WIDTH = 800
-cfg_screen.INTERNAL_RES_HEIGHT = 480
+cfg_screen.INTERNAL_RES_WIDTH = 320
+cfg_screen.INTERNAL_RES_HEIGHT = 160
 cfg_screen.INTERNAL_RES_RATIO = cfg_screen.INTERNAL_RES_WIDTH / cfg_screen.INTERNAL_RES_HEIGHT
 
-cfg_screen.WINDOW_WIDTH = 800
-cfg_screen.WINDOW_HEIGHT = 480
+cfg_screen.WINDOW_WIDTH = 320
+cfg_screen.WINDOW_HEIGHT = 160
 cfg_screen.WINDOW_RATIO = cfg_screen.WINDOW_WIDTH / cfg_screen.WINDOW_HEIGHT
 
 cfg_screen.LOW_RES = false
