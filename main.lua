@@ -36,7 +36,7 @@ love.window.setTitle("LOVJ v" ..  version)
 local downMixCanvas
 local dummyCanvas
 
-local main_sender_cfg = cfgSpout.senders["main"] -- no language is perfect. For Lua, it had to be 1-based indexing
+local main_sender_cfg = cfgSpout.senders["main"]
 local main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"])
 
 local receivers_cfg = cfgSpout.receivers
