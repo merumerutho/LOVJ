@@ -21,7 +21,9 @@ local MODKEY_SECONDARY = "lshift"
 
 
 -- TODO: move this function somewhere in the cfgShaders, maybe?
---- @private handleShaderCommands Handle shader-related keyboard commands
+-- (and make it somehow structured as a table)
+--- @private handleShaderCommands
+--- Handle shader-related keyboard commands
 local function handleShaderCommands(slot)
 	local s = patchSlots[slot].shaderext
 
@@ -51,8 +53,9 @@ local function handleShaderCommands(slot)
 	return s
 end
 
---- @public handleGeneralControls Main function to handle general keyboard controls (patch-independent)
-function controls.handleGeneralControls()
+--- @public handleGeneralControls 
+--- Main function to handle general keyboard controls (patch-independent)
+function controls.handleKeyBoard()
 	-- handle command menu
 	if kp.keypressOnRelease("escape") then
 		cmd.handleCmdMenu()

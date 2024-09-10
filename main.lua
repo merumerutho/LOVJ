@@ -137,7 +137,7 @@ function love.update()
         end
 	end
 
-	controls.handleGeneralControls()  -- evaluate general controls
+	controls.handleKeyBoard()
 	local response = connections.sendRequests()
 	dispatcher.update(response)  -- TODO: implement dispatcher method
 
