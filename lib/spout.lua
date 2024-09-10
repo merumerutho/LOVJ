@@ -83,13 +83,13 @@ end
 --- Initialize SpoutReceiver
 function spout.SpoutReceiver:init()
 	local ptr
-	local name = senderName
+	local name = self.name
 	self.handle = ffi.load("SpoutLibrary.dll")
     self.object = self.handle.GetSpout()
 
 	-- Transcribe receiver name to memory
 	local receiverNamePtr = ffi.cast('char *', self.nameMem:getFFIPointer())
-	for i=1,(name) do
+	for i=1,(#name) do
 		receiverNamePtr[i-1] = string.byte(name:sub(i,i))
 	end
 	-- Add termination character
@@ -158,7 +158,7 @@ function spout.SpoutReceiver:draw()
     
     -- Receive Image if connected
     if (self.connected) then
-        ret, recv_img = self.ReceiveImage()
+        ret, recv_img = self:ReceiveImage()
         self.connected = ret -- update connection state
         if ret then img = recv_img end
     end
@@ -169,7 +169,7 @@ end
 --- If disconnected, try connecting
 function spout.SpoutReceiver:update()
 	if (self.connected == false) then
-		self.init()
+		self:init()
 	end
 end
 

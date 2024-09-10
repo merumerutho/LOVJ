@@ -10,7 +10,7 @@ cfg_spout.senders =
     ["main"] = { ["name"] = "LOVJ_SPOUT_SENDER", ["width"] = 1920, ["height"] = 1080 }
 }
 
-cfg_spout.receiver = 
+cfg_spout.receivers = 
 {
     "Avenue - Avenue2LOVJ"
 }

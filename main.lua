@@ -39,6 +39,12 @@ local dummyCanvas
 local main_sender_cfg = cfgSpout.senders["main"] -- no language is perfect. For Lua, it had to be 1-based indexing
 local main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"])
 
+local receivers_cfg = cfgSpout.receivers
+local receivers_obj = {}
+for i = 1, #receivers_cfg do
+    table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
+end
+
 --- @public love.load
 --- this function is called upon startup
 function love.load()
@@ -66,6 +72,11 @@ function love.load()
 
 	connections.init()  -- Init socket
 	main_spout_sender:init() -- Initialize spout sender
+    
+    -- Initialize spout receivers
+    for i = 1, #receivers_obj do
+        receivers_obj[i]:init()
+    end
 
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -117,11 +128,13 @@ end
 function love.update()
 	cfgTimers.update()  -- update timers
 
-	-- calculate and log fps
+	-- Timer "callback"
 	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
-        -- for receiver in receiver_list do receiver:update() end
+        for i=1, #receivers_obj do
+            receivers_obj[i]:update() -- Update spout receivers
+        end
 	end
 
 	controls.handleGeneralControls()  -- evaluate general controls
