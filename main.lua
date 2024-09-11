@@ -15,18 +15,19 @@ ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
 connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
-if love.system.getOS() == "Windows" then
+
+cfgPatches = lovjRequire("cfg/cfg_patches")
+cfgShaders = lovjRequire("cfg/cfg_shaders")
+cfgTimers = lovjRequire("cfg/cfg_timers")
+cfgSpout = lovjRequire("cfg/cfg_spout")
+
+if cfgSpout.enable and love.system.getOS() == "Windows" then
 	spout_support = true
 	spout = lovjRequire("lib/spout")
 else
 	spout_support = false
 	spout = lovjRequire("lib/stubs/spout-stub")
 end
-
-cfgPatches = lovjRequire("cfg/cfg_patches")
-cfgShaders = lovjRequire("cfg/cfg_shaders")
-cfgTimers = lovjRequire("cfg/cfg_timers")
-cfgSpout = lovjRequire("cfg/cfg_spout")
 
 drawingUtils = lovjRequire("lib/utils/drawing")
 
