@@ -5,7 +5,6 @@
 
 local cfgScreen = lovjRequire("cfg/cfg_screen")
 local cfgShaders = lovjRequire("cfg/cfg_shaders")
-local cmd = lovjRequire("lib/cmdmenu")
 
 local Patch = {}
 
@@ -43,7 +42,6 @@ function Patch:setCanvases()
     
 	-- Generate canvases with calculated size
 	self.canvases.main = love.graphics.newCanvas(resW, resH)
-	self.canvases.cmd = love.graphics.newCanvas(resW, resH)
 	for i = 1, #self.CurrentShaders do
 		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(resW, resH))
 	end
@@ -126,14 +124,12 @@ end
 --- @public mainUpdate Update procedures shared across all patches
 function Patch:mainUpdate()
 	-- apply keyboard patch controls
-	if not cmd.isOpen then
 		-- only handle controls if patch is selected
 		if controls.selectedPatch == self.slot then
 			self.resources.parameters,
 			self.resources.graphics,
 			self.resources.globals = self.patchControls()
 		end
-	end
 end
 
 return Patch

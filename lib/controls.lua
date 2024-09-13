@@ -4,7 +4,6 @@
 --
 
 local kp = lovjRequire("lib/utils/keypress")
-local cmd = lovjRequire("lib/cmdmenu")
 local rtmgr = lovjRequire("lib/realtimemgr")
 local cfgShaders = lovjRequire("cfg/cfg_shaders")
 local cfgPatches = lovjRequire("cfg/cfg_patches")
@@ -53,12 +52,12 @@ local function handleShaderCommands(slot)
 	return s
 end
 
---- @public handleKeyBoard 
+--- @public handleGeneralControls 
 --- Main function to handle general keyboard controls (patch-independent)
 function controls.handleKeyBoard()
-	-- handle command menu
+	-- handle debug
 	if kp.keypressOnRelease("escape") then
-		cmd.handleCmdMenu()
+		debug.debug()  -- 'cont' to exit debug
 	end
 
 	-- toggle fullscreen
@@ -72,20 +71,20 @@ function controls.handleKeyBoard()
 	end
 
 	-- handle shaders
-	if not cmd.isOpen then
-		patchSlots[controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(controls.selectedPatch) 
-	end
+	
+    patchSlots[controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(controls.selectedPatch) 
+	
 
 	-- switch selected patch
 	for i=1, #patchSlots do
-		if kp.keypressOnRelease(tostring(i)) and not cmd.isOpen then
+		if kp.keypressOnRelease(tostring(i)) then
 			controls.selectedPatch = i
 		end
 	end
 
 	-- load patch from associated selector
 	for k,v in pairs(controls.selectors) do
-		if kp.keypressOnRelease(v) and not cmd.isOpen then
+		if kp.keypressOnRelease(v) then
 			-- Load / Save states
 			if kp.isDown(MODKEY_PRIMARY) then
 				if kp.isDown(MODKEY_SECONDARY) then
