@@ -53,7 +53,7 @@ local function handleShaderCommands(slot)
 	return s
 end
 
---- @public handleGeneralControls 
+--- @public handleKeyBoard 
 --- Main function to handle general keyboard controls (patch-independent)
 function controls.handleKeyBoard()
 	-- handle command menu
