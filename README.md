@@ -32,7 +32,7 @@ LOVJ is still in a work-in-progress state. Development is messy and several feat
 It can be played with, but don't expect the software to be working reliably in its current state. Check Issue tracker for more info.
 
 ## Running the demos
-- Open _lib/cfg/cfg_patches.lua_.
+- Open _cfg/cfg_patches.lua_.
 - Edit the _defaultPatch_ or the _patches_ list.
 - Run LOVJ.
 - Select the chosen demo from _patches_ with the [F1 ... F12] keys.
