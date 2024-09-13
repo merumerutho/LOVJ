@@ -23,9 +23,15 @@ CmdMenu.commands = {
 --- @public handleCmdMenu cmd menu handler
 function CmdMenu.handleCmdMenu()
 	CmdMenu.isOpen = (not CmdMenu.isOpen)
-	if CmdMenu.isOpen then patch.draw = CmdMenu.update else patch.draw = patch.defaultDraw end
-	-- clear cmd buffer, regardless
-	patch.canvases.cmd:renderTo(love.graphics.clear)
+	if patch then
+		if CmdMenu.isOpen then
+			patch.draw = CmdMenu.update
+		else
+			patch.draw = patch.defaultDraw
+		end
+		-- clear cmd buffer, regardless
+		patch.canvases.cmd:renderTo(love.graphics.clear)
+	end
 end
 
 --- @public textinput called when a key for text is pressed
