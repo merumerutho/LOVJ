@@ -38,7 +38,7 @@ function patch.patchControls()
 		patch.hang = not patch.hang
 	end
 	-- fallback to general controls callback
-	controls.handleGeneralControls()
+	controls.handleKeyBoard()
 end
 
 
