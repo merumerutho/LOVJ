@@ -56,8 +56,12 @@ end
 --- Main function to handle general keyboard controls (patch-independent)
 function controls.handleKeyBoard()
 	-- handle debug
-	if kp.keypressOnRelease("escape") then
-		debug.debug()  -- 'cont' to exit debug
+	if kp.keypressOnRelease("d") then
+        if kp.isDown("lctrl") then
+            if kp.isDown("lalt") then
+                debug.debug()  -- 'cont' to exit debug
+            end
+        end
 	end
 
 	-- toggle fullscreen
