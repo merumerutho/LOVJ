@@ -27,6 +27,19 @@ Moreover, it supports advanced functionalities such as:
 love .
 ```
 
+## Usage
+### General
+- **F1 ... F12** to switch between patches.
+- **CTRL + Return** toggle fullscreen.
+- **CTRL + S** toggle shader on/off
+- **CTRL + U** upscale
+
+### Visual effects
+- **S** cycle through shaders
+- **W** warp
+- **K** kaleidoscope
+- **G** blur
+
 ## Issues
 LOVJ is still in a work-in-progress state. Development is messy and several features are kind of broken. 
 It can be played with, but don't expect the software to be working reliably in its current state. Check Issue tracker for more info.
