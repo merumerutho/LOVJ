@@ -33,9 +33,11 @@ love .
 - **CTRL + Return** toggle fullscreen.
 - **CTRL + S** toggle shader on/off
 - **CTRL + U** upscale
+- **S** cycle through shaders
 
 ### Visual effects
-- **S** cycle through shaders
+You should use them in combination with the **UP** or **DOWN** arrow keys to change the effect intensity.
+
 - **W** warp
 - **K** kaleidoscope
 - **G** blur
