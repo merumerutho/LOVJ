@@ -20,6 +20,7 @@ cfgPatches = lovjRequire("cfg/cfg_patches")
 cfgShaders = lovjRequire("cfg/cfg_shaders")
 cfgTimers = lovjRequire("cfg/cfg_timers")
 cfgSpout = lovjRequire("cfg/cfg_spout")
+cfgApp = lovjRequire("cfg/cfg_app")
 
 if cfgSpout.enable and love.system.getOS() == "Windows" then
 	spout_support = true
@@ -32,7 +33,8 @@ end
 drawingUtils = lovjRequire("lib/utils/drawing")
 
 -- Set title with LOVJ version
-love.window.setTitle("LOVJ v" ..  version)
+love.window.setTitle(cfgApp.title .. " v" ..  version)
+love.window.setIcon(love.image.newImageData(cfgApp.icon))
 
 local downMixCanvas
 local dummyCanvas
