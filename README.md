@@ -27,6 +27,70 @@ Moreover, it supports advanced functionalities such as:
 love .
 ```
 
+## Usage
+### General
+- **F1 ... F12** to switch between patches.
+- **CTRL + Return** toggle fullscreen.
+- **CTRL + S** toggle shader on/off
+- **CTRL + U** upscale
+- **S** cycle through effects
+
+### Visual effects adjustments
+You should use them in combination with the **UP** or **DOWN** arrow keys to change the effect intensity, after selecting the corresponding effect with the **S** key.
+
+- **W** for warp effect
+- **K** kaleidoscope effect
+- **G** blur effect
+
+## Porting GLSL shaders
+You can port GLSL shaders to LOVJ by creating a new patch in postProcess and readapt the shader code.
+
+Keep in mind that in order to modify the shader parameters, you need to pass everything in `cfg/cfg_shaders.lua`
+
+Assuming that your shader is called "porting", this is how a shader should look like:
+```lua
+-- lib/shaders/postProcess/19_porting.glsl
+vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
+    -- your shader code here
+}
+```
+
+### Passing time to shader
+One common use case, is pass the time parameter to a shader:
+```lua
+-- cfg/cfg_shaders.lua
+if string.find(shader.name, "porting") then
+    shader.object:send("_time", cfg_timers.globalTimer.T)
+end
+```
+
+### Passing a parameter to shader
+Another useful common use case is to pass a parameter to the shader that can be controlled by the user.
+
+In this specific case, your GLSL shader should look like
+```glsl
+external float _whateverParameter;
+
+vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
+    ...
+}
+```
+
+And in the `cfg_shaders.lua` file, you should add:
+```lua
+-- cfg/cfg_shaders.lua
+-- ...
+-- porting
+if kp.isDown("m") then
+    if kp.isDown("up") then s:set("_whateverParameter", (s:get("_whateverParameter") + 0.1)) end
+    if kp.isDown("down") then s:set("_whateverParameter", (s:get("_whateverParameter") - 0.1)) end
+end
+```
+
+Feel free to adapt the parameter name and the value to your needs, this is just an example that binds the parameter to the **M** key and allows to change it with the **UP** and **DOWN** arrow keys.
+
+Then, in order to use the shader, you need to cycle through the effects with the **S** key, until you reach the desired effect.
+
 ## Issues
 LOVJ is still in a work-in-progress state. Development is messy and several features are kind of broken. 
 It can be played with, but don't expect the software to be working reliably in its current state. Check Issue tracker for more info.
