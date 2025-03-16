@@ -1,8 +1,6 @@
-# LOVJ
-### A LÖVE2D VJing framework 
+<center><img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png" width=500 /></center>
 
-![LOVJ logo](https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png)
-
+# LOVE2D VJing Framework
 LOVJ aims to be a [LÖVE](https://love2d.org/) framework to create a live-coding, interactive VJing environment mainly targeted at live music performances.
 It revolves around the concept of video patches: these can be loaded, sequenced, and mixed in several ways.
 
@@ -16,6 +14,15 @@ Moreover, it supports advanced functionalities such as:
 - **Spout** Send/Receive functions (allowing streaming to/from external apps, feedback loops, etc.).
 - **Savestates** (save/recall patches internal status quickly).
 - **OSC** network server via **UDP**.
+
+## Screenshots
+
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/1.png" width=300/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/2.png" width=300/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/4.png" width=300/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/3.png" width=300/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/5.png" width=300/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/6.png" width=300/>
 
 
 ## Setup
