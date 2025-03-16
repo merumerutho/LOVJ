@@ -5,7 +5,7 @@
 
 local cfg_spout = {}
 
-cfg_spout.enable = false
+cfg_spout.enable = true
 
 cfg_spout.senders = 
 {

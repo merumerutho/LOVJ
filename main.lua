@@ -22,7 +22,10 @@ cfgTimers = lovjRequire("cfg/cfg_timers")
 cfgSpout = lovjRequire("cfg/cfg_spout")
 cfgApp = lovjRequire("cfg/cfg_app")
 
-if cfgSpout.enable and love.system.getOS() == "Windows" then
+if (cfgSpout.enable and 
+	love.system.getOS() == "Windows" and
+	love.filesystem.getInfo("SpoutLibrary.dll") and
+	love.filesystem.getInfo("SpoutWrapper.dll")) then
 	spout_support = true
 	spout = lovjRequire("lib/spout")
 else
