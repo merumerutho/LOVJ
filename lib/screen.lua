@@ -67,7 +67,7 @@ end
 
 --- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)
 function screen.changeUpscaling()
-	cfgScreen.UPSCALE_MODE = not cfgScreen.UPSCALE_MODE  -- boolean inversion
+	cfgScreen.UPSCALE_MODE = (1 - cfgScreen.UPSCALE_MODE)  -- apply inversion
 	-- calculate new scaling
 	calculateScaling()
 	-- reset canvases

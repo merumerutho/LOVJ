@@ -16,9 +16,11 @@ end
 -- Build new regular polygon
 function Polygon:NewRegular(center, size, n, angle)
     local vertices = {}
-    for i = 0,1,1/n do
-        table.insert(vertices, size*math.cos(2*math.pi*(i+angle)))  -- x
-        table.insert(vertices, size*math.sin(2*math.pi*(i+angle)))  -- y
+    local one_over_n = 1/n
+    local TAU = 2*math.pi
+    for i = 0,1,one_over_n do
+        table.insert(vertices, size*math.cos(TAU*(i+angle)))  -- x
+        table.insert(vertices, size*math.sin(TAU*(i+angle)))  -- y
     end
     
     self.vertices = vertices
@@ -41,7 +43,8 @@ end
 
 -- Core rotation function
 local function rotateCore(vx, vy, angle, cx, cy)
-    local cosa, sina = math.cos(2*math.pi*angle), math.sin(2*math.pi*angle)
+    local TAU = 2*math.pi
+    local cosa, sina = math.cos(TAU*angle), math.sin(TAU*angle)
     
     -- translate
     local vx_t = table.map(vx, function(v) return v - cx end)

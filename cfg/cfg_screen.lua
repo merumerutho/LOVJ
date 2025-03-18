@@ -13,8 +13,9 @@ cfg_screen.WINDOW_WIDTH = 320
 cfg_screen.WINDOW_HEIGHT = 160
 cfg_screen.WINDOW_RATIO = cfg_screen.WINDOW_WIDTH / cfg_screen.WINDOW_HEIGHT
 
-cfg_screen.LOW_RES = false
-cfg_screen.HIGH_RES = true
+-- define LOW_RES and HIGH_RES
+cfg_screen.LOW_RES = 0
+cfg_screen.HIGH_RES = 1
 
 cfg_screen.UPSCALE_MODE = cfg_screen.LOW_RES
 

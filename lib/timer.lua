@@ -6,13 +6,13 @@ local Timer = {}
 Timer.__index = Timer
 
 --- @public new Create a new timer object with optional reset time
-function Timer:new(rst)
+function Timer:new(reset_time)
 	local self = setmetatable({}, Timer)
 
 	self.initTime = love.timer.getTime()  -- get time of initialization
 	self.T = 0  -- initialize timer to 0
 	self.delta = 0  -- delta to the reset time
-	self.resetT = rst  -- the reset time
+	self.resetT = reset_time  -- the reset time
 	self.hasReset = false  -- becomes true upon reset
 
 	return self

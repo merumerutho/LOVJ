@@ -15,16 +15,4 @@ cfg_connections.listOfThreads = {
                         }
 }
 
--- string sent as a request notifier, in request channels
-cfg_connections.reqMsg = "RQST"
-
--- string sent as an acknowledgement, in response channels
-cfg_connections.ackMsg = "ACK"
-
--- string sent as a closure notifier, in request channels
-cfg_connections.quitMsg = "QUIT"
-
--- string sent as a acknowledge to closer notifier, in response channels
-cfg_connections.ackQuit = "CLEAR"
-
 return cfg_connections
