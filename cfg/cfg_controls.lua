@@ -24,9 +24,7 @@ local MODKEY_SECONDARY = "lshift"
 -- Swap shader with the next one (currently valid only for slot1)
 local function increaseShader()
 	local s = patchSlots[cfg_controls.selectedPatch].shaderext
-  
 	s:set("shaderSlot1", 1 + (s:get("shaderSlot1")) % (#cfgShaders.PostProcessShaders))
-	print(cfgShaders.PostProcessShaders[s:get("shaderSlot1")]["name"])
 end
 
 --- @private handleShaderCommands
@@ -60,28 +58,8 @@ end
 --- @public handleGeneralControls 
 --- Main function to handle general keyboard controls (patch-independent)
 function cfg_controls.handleKeyBoard()
-	-- handle debug
-	if kp.keypressOnRelease("d") then
-        if kp.isDown("lctrl") then
-            if kp.isDown("lalt") then
-                debug.debug()  -- 'cont' to exit debug
-            end
-        end
-	end
-
-	-- toggle fullscreen
-	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("return") then
-		screen.toggleFullscreen()
-	end
-
-	-- handle low-res/hi-res upscaling
-	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("u") then
-		screen.changeUpscaling()
-	end
-
 	-- handle shaders
-  patchSlots[cfg_controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(cfg_controls.selectedPatch) 
-	
+  patchSlots[cfg_controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(cfg_controls.selectedPatch)
 
 	-- switch selected patch
 	for i=1, #patchSlots do
@@ -113,12 +91,18 @@ end
 
 
 function cfg_controls.init()
-  --controls.bindRegular(patch.reset , controls.onPress, {"r"})						          -- R 				= RESET  (TODO)
-  controls.bind(increaseShader , controls.onPress, {"s"})					                  -- S 				= CHANGE SHADER
+  --controls.bindRegular(patch.reset , controls.onPress, {"r"})						                      -- R 				= RESET  (TODO)
+  controls.bind(increaseShader, {}, controls.onPress, {"s"})					                          -- S 				= CHANGE SHADER
   
-  controls.bind(cfgShaders.toggleShaders, controls.onPress, {"lctrl", "s"})			    -- CTRL + S 		= toggle shaders
-  controls.bind(screen.toggleFullscreen, controls.onPress, {"lctrl", "return"})		  -- CTRL + ENTER 	= toggle fullscreen
-  controls.bind(screen.changeUpscaling, controls.onPress, {"lctrl", "u"})			      -- CTRL + U 		= toggle upscaling mode
+  controls.bind(cfgShaders.toggleShaders, {}, controls.onPress, {MODKEY_PRIMARY, "s"})			    -- CTRL + S 		  = toggle shaders
+  controls.bind(screen.toggleFullscreen, {}, controls.onPress, {MODKEY_PRIMARY, "return"})		  -- CTRL + ENTER 	= toggle fullscreen
+  controls.bind(screen.changeUpscaling, {}, controls.onPress, {MODKEY_PRIMARY, "u"})			      -- CTRL + U 		  = toggle upscaling mode
+  
+  -- Controls to load patches
+  for i=1, 12 do
+    controls.bind(rtmgr.loadPatch, {cfgPatches.patches[i], cfg_controls.selectedPatch}, controls.onPress, {"f"..i})
+  end
+  
 end
 
 return cfg_controls

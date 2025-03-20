@@ -49,7 +49,7 @@ local main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], ma
 local receivers_cfg = cfgSpout.receivers
 local receivers_obj = {}
 for i = 1, #receivers_cfg do
-    table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
+  table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
 end
 
 --- @public love.load
@@ -75,18 +75,18 @@ function love.load()
 	for i, slot in ipairs(patchSlots) do
 		slot.shaderext = ResourceList:newResource()
 		cfgShaders.initShaderExt(i)  -- Assign Shaders globals
-        slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
-    end
+    slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
+  end
 
 	cfgControls.init()  -- Init controls
 
 	connections.init()  -- Init socket
 	main_spout_sender:init() -- Initialize spout sender
     
-    -- Initialize spout receivers
-    for i = 1, #receivers_obj do
-        receivers_obj[i]:init()
-    end
+  -- Initialize spout receivers
+  for i = 1, #receivers_obj do
+    receivers_obj[i]:init()
+  end
 
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -128,8 +128,8 @@ function love.draw()
 
 	-- Spout output
 	main_spout_sender:SendCanvas(downMixCanvas)
-    -- Force resetting Canvas
-    love.graphics.setCanvas()
+  -- Force resetting Canvas
+  love.graphics.setCanvas()
 end
 
 
@@ -142,9 +142,9 @@ function love.update()
 	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
-        for i=1, #receivers_obj do
-            receivers_obj[i]:update() -- Update spout receivers
-        end
+    for i=1, #receivers_obj do
+      receivers_obj[i]:update() -- Update spout receivers
+    end
 	end
 
 	controls.update()

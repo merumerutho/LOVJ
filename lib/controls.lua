@@ -29,14 +29,28 @@ local function checkMatchingKeyCombination(kc1, kc2)
   return true
 end
 
+
+local function checkMatchingArguments(args1, args2)
+  local ret = true
+  -- Check length
+  if #args1 ~= #args2 then return false end
+  -- Check content if length is the same
+  for i, _ in ipairs(args1) do
+    ret = ret and (args1[i] == args2[i])
+  end
+  return ret
+end
+
+
 -- Primitive binding function
-function Controls.bind(actionFunc, checkFunc, keyCombination)
+function Controls.bind(actionFunc, actionArgs, checkFunc, keyCombination)
   if not actionFunc then logError("ActionFunc is nil") return end
   if not checkFunc then logError("CheckFunc is nil") return end
 	for i=1, #Controls.actionsList do
 		-- If entry found (already existing)
 		if (Controls.actionsList[i]["func"] == action and
-			Controls.actionsList[i]["check"] == checkFunc) then
+			Controls.actionsList[i]["check"] == checkFunc and
+      checkMatchingArguments(actionArgs, Controls.actionsList[i]["args"])) then
 			-- Check if key-combination is also already present
       local found = false
       for _, listed_kc in ipairs(Controls.actionsList[i]["keyCombs"]) do
@@ -50,28 +64,9 @@ function Controls.bind(actionFunc, checkFunc, keyCombination)
 	end
 	-- else (if entry not found)
 	-- create entry
-	table.insert(Controls.actionsList, { func = actionFunc, check = checkFunc, keyCombs = {keyCombination}})
+	table.insert(Controls.actionsList, { func = actionFunc, args = actionArgs, check = checkFunc, keyCombs = {keyCombination}})
 end
 
--- Primitive unbinding function
-function Controls.unbind(list, actionFunc, checkFunc, ...)
-    for i = #list, 1, -1 do -- reverse traversing to avoid index issues 
-        if list[i]["func"] == actionFunc and list[i]["check"] == checkFunc then
-            local keys_to_remove = {...}
-            for _, key_remove in ipairs(keys_to_remove) do
-                for key_index = #list[i]["keyCombs"], 1, -1 do
-                    if list[i]["keyCombs"][key_index] == key_remove then
-                        table.remove(list[i]["keyCombs"], key_index)
-                    end
-                end
-            end
-            -- if no keys are left, remove the entire action entry
-            if #list[i]["keyCombs"] == 0 then
-                table.remove(list, i)
-            end
-        end
-    end
-end
 
 -- Check if an action is currently pressed
 function Controls.checkPressed(keyCombs)
@@ -112,7 +107,7 @@ function Controls.update(dt)
     local action_func = Controls
     -- If button check is activated, trigger the action
     if action["check"](action["keyCombs"]) then
-      action["func"]()
+      action["func"](unpack(action["args"]))
     end
 	end
   
