@@ -16,6 +16,7 @@ controls = lovjRequire("lib/controls")
 connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
 
+cfgControls = lovjRequire("cfg/cfg_controls")
 cfgPatches = lovjRequire("cfg/cfg_patches")
 cfgShaders = lovjRequire("cfg/cfg_shaders")
 cfgTimers = lovjRequire("cfg/cfg_timers")
@@ -54,6 +55,7 @@ end
 --- @public love.load
 --- this function is called upon startup
 function love.load()
+	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	screen.init()  -- Init screen
 	cfgTimers.init()  -- Init timers
 
@@ -75,6 +77,8 @@ function love.load()
 		cfgShaders.initShaderExt(i)  -- Assign Shaders globals
         slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
     end
+
+	cfgControls.init()  -- Init controls
 
 	connections.init()  -- Init socket
 	main_spout_sender:init() -- Initialize spout sender
@@ -143,9 +147,8 @@ function love.update()
         end
 	end
 
-	controls.handleKeyBoard()
-	local response = connections.sendRequests()
-	dispatcher.update(response)  -- TODO: implement dispatcher method
+	controls.update()
+	-- dispatcher.update(response)  -- TODO: implement dispatcher method
 
 	for i=1, #patchSlots do
 		patchSlots[i].patch.update()  -- call current patch update method

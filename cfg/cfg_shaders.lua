@@ -9,30 +9,54 @@ local resources = lovjRequire("lib/resources")
 
 local cfg_shaders = {}
 
+cfg_shaders.OverallParams = {}
+
+
+-- Parse parameters from shader content
+local function parseShaderParams(shaderContent)
+	local params = {}
+	for line in shaderContent:gmatch("[^\r\n]+") do
+		local param_name, param_value = string.match(line, "//%s*@param%s+(%w+)%s+([%d%.%-]+)")
+		if param_name and param_value then
+			params[param_name] = tonumber(param_value)
+		end
+	end
+	return params
+end
+
 --- @public enabled boolean to enable or disable shaders
 cfg_shaders.enabled = true
+
 
 --- @public PostProcessShaders list of shaders extracted from "lib/shaders/postProcess/" folder
 cfg_shaders.PostProcessShaders = {}
 local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
 for i=1, #input_files do
-	-- match pattern as '{idx}_{name}.glsl'
-	local idx, name = string.match(input_files[i], "(%d+)_(.*).glsl")
-	idx = tonumber(idx)
-	cfg_shaders.PostProcessShaders[idx+1] = {}
-	cfg_shaders.PostProcessShaders[idx+1].name = name
-	cfg_shaders.PostProcessShaders[idx+1].value = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
+	local name = string.match(input_files[i], "(.*).glsl")
+	if name then
+		local shaderContent = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
+		table.insert(cfg_shaders.PostProcessShaders, { name = name, value = shaderContent })
+		-- Parse GLSL to find parameters and their initial value
+		local parsed_params = parseShaderParams(shaderContent)
+		cfg_shaders.OverallParams[name] = parsed_params
+	end
 end
+
+print("PostProcess shaders: " .. #cfg_shaders.PostProcessShaders)
 
 
 --- @public OtherShaders list of shaders extracted from "lib/shaders/other" folder
 cfg_shaders.OtherShaders = {}
-input_files = love.filesystem.getDirectoryItems("lib/shaders/other")
+input_files = love.filesystem.getDirectoryItems("lib/shaders/other/")
 for i=1,#input_files do
 	local name = string.match(input_files[i], "(.*).glsl")
-	cfg_shaders.OtherShaders[i] = {}
-	cfg_shaders.OtherShaders[i].name = name
-	cfg_shaders.OtherShaders[i].value = love.filesystem.read("lib/shaders/other/" .. input_files[i])
+	if name then
+		local shaderContent = love.filesystem.read("lib/shaders/other/" .. input_files[i])
+		table.insert(cfg_shaders.OtherShaders, {name = name, value = shaderContent})
+		-- Parse GLSL to find parameters and their initial value
+		local parsed_params = parseShaderParams(shaderContent)
+		cfg_shaders.OverallParams[name] = parsed_params
+	end
 end
 
 
@@ -44,64 +68,59 @@ end
 
 function cfg_shaders.initShaderExt(slot)
 	local s = patchSlots[slot].shaderext
-
-	s:setName(1, "shaderSlot1")			s:set("shaderSlot1", 0)
-	s:setName(2, "shaderSlot2")			s:set("shaderSlot2", 0)
-	s:setName(3, "shaderSlot3")			s:set("shaderSlot3", 0)
-
-	s:setName(4, "_warpParameter")		s:set("_warpParameter", 2)
-	s:setName(5, "_segmentParameter")	s:set("_segmentParameter", 3)
-	s:setName(6, "_chromaColor")		s:set("_chromaColor", {0,0,0,0})
-	s:setName(7, "_chromaTolerance")	s:set("_chromaTolerance", {0.05, 0.1})
-	s:setName(8, "_blurOffset")			s:set("_blurOffset", 0.01)
-	s:setName(9, "_glitchOffset")		s:set("_glitchOffset", 0.00)
-	s:setName(10, "_glitchSize")		s:set("_glitchSize", -2000)
-	s:setName(11, "_glitchDisplace")	s:set("_glitchDisplace", 0)
-	s:setName(12, "_glitchFreq")		s:set("_glitchFreq", 1)
-	s:setName(13, "_swirlmodx")			s:set("_swirlmodx", 1)
-	s:setName(14, "_swirlmody")			s:set("_swirlmody", 1)
-	s:setName(15, "_pixres")			s:set("_pixres", 64)
-
+	local counter = 1
+	
+	-- Allocate shader slots
+	for i=1, 3 do
+		s:setName(counter, "shaderSlot" .. i)
+		s:set("shaderSlot" .. i, 1)
+		counter = counter + 1
+	end
+	
+	-- Parse OverallParams
+	local paramGroups = cfg_shaders.OverallParams
+	for pg_name, pg_val in pairs(paramGroups) do
+		for param_name, param_value in pairs(pg_val) do
+			-- compose full name
+			local full_param_name = pg_name .. "_" .. param_name
+			-- set name and value
+			s:setName(counter, param_name)
+			s:set(full_param_name, param_value)
+			-- increase index counter
+			counter = counter + 1
+		end
+	end
 end
 
 
---- @public selectShader select the shader to apply
+--- @public selectShader select the post processing shader to apply
 function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
     local s = patchSlots[p_slot].shaderext
 	local shader
 
     -- select shader
-	local newShader = cfg_shaders.PostProcessShaders[1 + s:get("shaderSlot" .. s_slot)]
+	local newShader = cfg_shaders.PostProcessShaders[s:get("shaderSlot" .. s_slot)]
 	-- if shader changed, create new shader
 	if newShader.name ~= curShader.name then
 		shader = {name = newShader.name, object = love.graphics.newShader(newShader.value)}
 	else
 		shader = curShader
 	end
-
-	-- send parameters
-	if string.find(shader.name, "test") then
-		shader.object:send("_time", cfg_timers.globalTimer.T)
+	
+	-- Update all parameters
+	local paramGroups = cfg_shaders.OverallParams
+	for pg_name, pg_val in pairs(paramGroups) do
+		-- if the selected shader matches the name of the param group
+		if pg_name == shader.name then
+			-- update all parameters
+			for param_name, default_value in pairs(pg_val) do
+				local full_param_name = pg_name .. "_" .. param_name
+				-- send new value
+				shader.object:send(param, s:get(full_param_name))
+			end
+		end
 	end
-	if string.find(shader.name, "swirl") then
-		shader.object:send("_time", cfg_timers.globalTimer.T)
-	end
-	if string.find(shader.name, "warp") then
-		shader.object:send("_warpParameter", s:get("_warpParameter"))
-	end
-	if string.find(shader.name, "kaleido") then
-		shader.object:send("_segmentParameter", s:get("_segmentParameter"))
-	end
-	if string.find(shader.name, "medianblur") then
-		shader.object:send("_blurOffset", s:get("_blurOffset"))
-	end
-	if string.find(shader.name, "glitch") then
-		shader.object:send("_glitchDisplace", s:get("_glitchDisplace"))
-		shader.object:send("_glitchFreq", s:get("_glitchFreq"))
-	end
-	if string.find(shader.name, "pixelate") then
-		shader.object:send("_pixres", s:get("_pixres"))
-	end
+		
 	return shader
 end
 

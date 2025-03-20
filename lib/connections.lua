@@ -1,46 +1,37 @@
--- connections.lua
---
--- Handler of exchange of UDP / OSC packets from/to different peers
--- Several connections can be managed specifying the list through cfg_connections.lua
--- A dedicated process (UDP_thread) is used to manage the communication for each entry.
---
-
 local Connections = {}
-local cfgConnections = require("cfg/cfg_connections")
+local cfg_connections = require("cfg/cfg_connections")
+local dispatcher = require("lib/dispatcher")
 
-
---- @public init Initialize connections (open UDP threads and req / rsp channels for communicating)
 function Connections.init()
-  -- initialize list of udp threads and channels (request, response)
-  Connections.UdpThreads = {}
-  Connections.ReqChannels = {}
-  Connections.RspChannels = {}
+    Connections.UdpThreads = {}
+    Connections.OscChannels = {}
 
-  -- initialize threads
-  for k,v in pairs(cfgConnections.listOfThreads) do
-    table.insert(Connections.UdpThreads, love.thread.newThread("lib/UDPThread.lua"))
-    Connections.UdpThreads[k]:start(k, v)  -- k used as ID, v contains ip and port
-    -- Get request and response channels
-    table.insert(Connections.ReqChannels, love.thread.getChannel("reqChannel_" .. k))
-    table.insert(Connections.RspChannels, love.thread.getChannel("rspChannel_" .. k))
-  end
+    for k, v in pairs(cfg_connections.listOfThreads) do
+        local channelName = "oscChannel_" .. k
+        
+        -- Create and start UDP thread
+        local thread = love.thread.newThread("lib/UDPThread.lua")
+        thread:start(k, v)
+        
+        -- Store reference to the thread and its OSC channel
+        Connections.UdpThreads[k] = thread
+        Connections.OscChannels[k] = channelName
+        
+    end
 end
 
-
---- @public sendRequests return responses after sending requests to all req channels.
-function Connections.sendRequests()
-  local responses = {}
-
-  for k,reqCh in pairs(Connections.ReqChannels) do
-    reqCh:push(cfgConnections.reqMsg)  -- send request to all channels
-  end
-
-  for k,rspCh in pairs(Connections.RspChannels) do
-    table.insert(responses, rspCh:demand(cfgConnections.TIMEOUT_TIME))  -- expect response from all channels
-    Connections.ReqChannels[k]:push(cfgConnections.ackMsg)  -- send ACK
-  end
-  return responses
+-- Function to stop a UDP thread and remove its channel
+function Connections.stopThread(id)
+    if Connections.UdpThreads[id] then
+        Connections.UdpThreads[id]:release()
+        Connections.UdpThreads[id] = nil
+        
+		-- Remove OscChannel
+        local channelName = Connections.OscChannels[id]
+        if channelName then
+            Connections.OscChannels[id] = nil
+        end
+    end
 end
-
 
 return Connections

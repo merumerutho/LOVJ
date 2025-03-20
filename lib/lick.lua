@@ -58,24 +58,10 @@ local function closeUDPThread()
     if Connections.UdpThreads == nil then return end
 
     -- If there are UDP_threads open, send them "quitMsg"
-	for k,reqCh in pairs(Connections.ReqChannels) do
+	for k, th in ipairs(Connections.UdpThreads) do
         logInfo("Closing UDP thread #" .. k)
-        reqCh:push(cfg_connections.quitMsg)  -- send request to all channels
+        Connections.stopThread(th)
     end
-
-    -- Expect quitAck from each thread
-    local responses = {}
-	for k, rspCh in pairs(Connections.RspChannels) do
-        table.insert(responses, rspCh:demand(cfg_connections.TIMEOUT_TIME))  -- expect response from all channels
-    end
-
-    -- Release thread
-    for k,resp in pairs(responses) do
-        if resp == cfg_connections.ackQuit then
-            Connections.UdpThreads[k]:release()
-            logInfo("UDP Thread #".. k .. " released.")
-        end
-	end
 end
 
 
