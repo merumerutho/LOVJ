@@ -4,7 +4,7 @@
 -- i.e. loading patches, loading / saving parameter status
 --
 
-local json = require("lib/json")
+local json = require("lib/json/json")
 
 local rtMgr = {}
 

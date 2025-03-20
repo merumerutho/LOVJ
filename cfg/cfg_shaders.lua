@@ -42,8 +42,6 @@ for i=1, #input_files do
 	end
 end
 
-print("PostProcess shaders: " .. #cfg_shaders.PostProcessShaders)
-
 
 --- @public OtherShaders list of shaders extracted from "lib/shaders/other" folder
 cfg_shaders.OtherShaders = {}
