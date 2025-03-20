@@ -21,7 +21,7 @@ cfg_controls.selectedPatch = 1
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
--- Swap shader with the next one (currently valid only for slot1
+-- Swap shader with the next one (currently valid only for slot1)
 local function increaseShader()
 	local s = patchSlots[cfg_controls.selectedPatch].shaderext
   
