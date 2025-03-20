@@ -14,8 +14,6 @@ local cfgPatches = lovjRequire("cfg/cfg_patches")
 
 local cfg_controls = {}
 
-cfg_controls.selectors = { "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"}
-
 cfg_controls.selectedPatch = 1
 
 local MODKEY_PRIMARY = "lctrl"
@@ -60,33 +58,6 @@ end
 function cfg_controls.handleKeyBoard()
 	-- handle shaders
   patchSlots[cfg_controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(cfg_controls.selectedPatch)
-
-	-- switch selected patch
-	for i=1, #patchSlots do
-		if kp.keypressOnRelease(tostring(i)) then
-			cfg_controls.selectedPatch = i
-		end
-	end
-
-	-- load patch from associated selector
-	for k,v in pairs(cfg_controls.selectors) do
-		if kp.keypressOnRelease(v) then
-			-- Load / Save states
-			if kp.isDown(MODKEY_PRIMARY) then
-				if kp.isDown(MODKEY_SECONDARY) then
-					-- SAVE with index F1...F12
-					rtmgr.saveResources(patchSlots[cfg_controls.selectedPatch].name, k, cfg_controls.selectedPatch)
-				else
-					-- LOAD from index F1...F12
-					rtmgr.loadResources(patchSlots[cfg_controls.selectedPatch].name, k, cfg_controls.selectedPatch)
-				end
-			else
-				-- Otherwise, load patch
-				local patchName = cfgPatches.patches[k]
-				rtmgr.loadPatch(patchName, cfg_controls.selectedPatch)
-			end
-		end
-	end
 end
 
 
@@ -98,9 +69,24 @@ function cfg_controls.init()
   controls.bind(screen.toggleFullscreen, {}, controls.onPress, {MODKEY_PRIMARY, "return"})		  -- CTRL + ENTER 	= toggle fullscreen
   controls.bind(screen.changeUpscaling, {}, controls.onPress, {MODKEY_PRIMARY, "u"})			      -- CTRL + U 		  = toggle upscaling mode
   
-  -- Controls to load patches
+  -- Controls to load patches / load savestate / save savestate
   for i=1, 12 do
-    controls.bind(rtmgr.loadPatch, {cfgPatches.patches[i], cfg_controls.selectedPatch}, controls.onPress, {"f"..i})
+    controls.bind(rtmgr.loadPatch,      
+                  {cfgPatches.patches[i], cfg_controls.selectedPatch}, 
+                  controls.onPress, 
+                  {"f"..i})
+    controls.bind(rtmgr.loadResources,
+                  {patchSlots[cfg_controls.selectedPatch].name, i, cfg_controls.selectedPatch},
+                  controls.onPress,
+                  {MODKEY_PRIMARY, "f"..i})
+    controls.bind(rtmgr.saveResources,
+                  {patchSlots[cfg_controls.selectedPatch].name, i, cfg_controls.selectedPatch},
+                  controls.onPress,
+                  {MODKEY_PRIMARY, MODKEY_SECONDARY, "f"..i})
+  end
+  
+  for i=1, #patchSlots do
+    controls.bind(function() cfg_controls.selectedPatch = i end, {}, controls.onPress, {i}) -- anonymous function example use in this context
   end
   
 end
