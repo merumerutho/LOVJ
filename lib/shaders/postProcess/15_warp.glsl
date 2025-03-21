@@ -1,3 +1,4 @@
+// @param float _warpParameter 0.2 //
 extern float _warpParameter;
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
 {

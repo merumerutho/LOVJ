@@ -10,53 +10,50 @@ local resources = lovjRequire("lib/resources")
 local cfg_shaders = {}
 
 cfg_shaders.OverallParams = {}
+cfg_shaders.PostProcessShaders = {}
+cfg_shaders.OtherShaders = {}
 
+--- @public enabled boolean to enable or disable shaders
+cfg_shaders.enabled = true
 
 -- Parse parameters from shader content
 local function parseShaderParams(shaderContent)
 	local params = {}
 	for line in shaderContent:gmatch("[^\r\n]+") do
-		local param_name, param_value = string.match(line, "//%s*@param%s+(%w+)%s+([%d%.%-]+)")
-		if param_name and param_value then
-			params[param_name] = tonumber(param_value)
+		local param_type, param_name, param_value = string.match(line, "//%s+@param%s+([%a%d_]*)%s+([%a_]*)%s+([%-%d%.{},%s]*)%s*//")
+		if param_name and param_type and param_value then
+      params[param_name] = load("return " .. param_value)() -- Extremely dangerous move because I'm lazy
+                                                            -- pls no injecterino
 		end
 	end
 	return params
 end
 
---- @public enabled boolean to enable or disable shaders
-cfg_shaders.enabled = true
+function cfg_shaders.init()
+  local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
+  for i=1, #input_files do
+    local name = string.match(input_files[i], "(.*).glsl")
+    if name then
+      local shaderContent = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
+      table.insert(cfg_shaders.PostProcessShaders, { name = name, value = shaderContent })
+      -- Parse GLSL to find parameters and their initial value
+      local parsed_params = parseShaderParams(shaderContent)
+      cfg_shaders.OverallParams[name] = parsed_params
+    end
+  end
 
-
---- @public PostProcessShaders list of shaders extracted from "lib/shaders/postProcess/" folder
-cfg_shaders.PostProcessShaders = {}
-local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
-for i=1, #input_files do
-	local name = string.match(input_files[i], "(.*).glsl")
-	if name then
-		local shaderContent = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
-		table.insert(cfg_shaders.PostProcessShaders, { name = name, value = shaderContent })
-		-- Parse GLSL to find parameters and their initial value
-		local parsed_params = parseShaderParams(shaderContent)
-		cfg_shaders.OverallParams[name] = parsed_params
-	end
+  input_files = love.filesystem.getDirectoryItems("lib/shaders/other/")
+  for i=1,#input_files do
+    local name = string.match(input_files[i], "(.*).glsl")
+    if name then
+      local shaderContent = love.filesystem.read("lib/shaders/other/" .. input_files[i])
+      table.insert(cfg_shaders.OtherShaders, {name = name, value = shaderContent})
+      -- Parse GLSL to find parameters and their initial value
+      local parsed_params = parseShaderParams(shaderContent)
+      cfg_shaders.OverallParams[name] = parsed_params
+    end
+  end
 end
-
-
---- @public OtherShaders list of shaders extracted from "lib/shaders/other" folder
-cfg_shaders.OtherShaders = {}
-input_files = love.filesystem.getDirectoryItems("lib/shaders/other/")
-for i=1,#input_files do
-	local name = string.match(input_files[i], "(.*).glsl")
-	if name then
-		local shaderContent = love.filesystem.read("lib/shaders/other/" .. input_files[i])
-		table.insert(cfg_shaders.OtherShaders, {name = name, value = shaderContent})
-		-- Parse GLSL to find parameters and their initial value
-		local parsed_params = parseShaderParams(shaderContent)
-		cfg_shaders.OverallParams[name] = parsed_params
-	end
-end
-
 
 --- @public toggleShaders enable / disable shaders
 function cfg_shaders.toggleShaders()
@@ -82,7 +79,7 @@ function cfg_shaders.initShaderExt(slot)
 			-- compose full name
 			local full_param_name = pg_name .. "_" .. param_name
 			-- set name and value
-			s:setName(counter, param_name)
+			s:setName(counter, full_param_name)
 			s:set(full_param_name, param_value)
 			-- increase index counter
 			counter = counter + 1
@@ -114,7 +111,7 @@ function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
 			for param_name, default_value in pairs(pg_val) do
 				local full_param_name = pg_name .. "_" .. param_name
 				-- send new value
-				shader.object:send(param, s:get(full_param_name))
+				shader.object:send(param_name, s:get(full_param_name))
 			end
 		end
 	end

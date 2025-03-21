@@ -1,3 +1,7 @@
+// @param float _time 0 //
+// @param float _swirlmodx 0.1 //
+// @param float _swirlmody 0.1 //
+
 extern float _time, _swirlmodx, _swirlmody;
 vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
 {

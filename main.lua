@@ -58,7 +58,9 @@ function love.load()
 	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	screen.init()  -- Init screen
 	cfgTimers.init()  -- Init timers
-
+	
+	cfgShaders.init()  -- Init shaders
+  
 	-- Set two running patches
 	patchSlots = {}
 	for i=1,#cfgPatches.defaultPatch do
@@ -78,7 +80,7 @@ function love.load()
     slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
   end
 
-	cfgControls.init()  -- Init controls
+  cfgControls.init()  -- Init controls
 
 	connections.init()  -- Init socket
 	main_spout_sender:init() -- Initialize spout sender

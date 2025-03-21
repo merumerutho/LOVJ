@@ -1,3 +1,6 @@
+// @param float _glitchDisplace 0.2 //
+// @param float _glitchFreq 1.0 //
+
 extern float _glitchDisplace;
 extern float _glitchFreq;
 vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
