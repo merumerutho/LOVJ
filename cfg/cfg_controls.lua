@@ -19,6 +19,10 @@ cfg_controls.selectedPatch = 1
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
+-- To bind a key combination to a function:
+-- controls.bind( FUNCTION, {ARGUMENTS}, CHECK_FUNCTION, {KEYS} )
+-- e.g. controls.bind(print , {"tizio"}, controls.onPress, {"lctrl", "p"}) 
+-- will bind press of CTRL+P to function print("tizio")
 
 function cfg_controls.init()
   -- R = RESET  (TODO)
