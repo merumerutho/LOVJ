@@ -19,17 +19,10 @@ cfg_controls.selectedPatch = 1
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
---- @public handleGeneralControls 
---- Main function to handle general keyboard controls (patch-independent)
-function cfg_controls.handleKeyBoard()
-	-- handle shaders
-  patchSlots[cfg_controls.selectedPatch].patch.resources.shaderext = handleShaderCommands(cfg_controls.selectedPatch)
-end
-
 
 function cfg_controls.init()
   -- R = RESET  (TODO)
-  --controls.bindRegular(patch.reset , controls.onPress, {"r"})						                      
+  controls.bind(patchSlots[cfg_controls.selectedPatch].patch.init, {cfg_controls.selectedPatch},  controls.onPress, {"r"})						                      
   
   -- S = CHANGE SHADER
   controls.bind(function () local s = patchSlots[cfg_controls.selectedPatch].shaderext
