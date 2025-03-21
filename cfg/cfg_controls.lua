@@ -19,40 +19,6 @@ cfg_controls.selectedPatch = 1
 local MODKEY_PRIMARY = "lctrl"
 local MODKEY_SECONDARY = "lshift"
 
--- Swap shader with the next one (currently valid only for slot1)
-local function increaseShader()
-	local s = patchSlots[cfg_controls.selectedPatch].shaderext
-	s:set("shaderSlot1", 1 + (s:get("shaderSlot1")) % (#cfgShaders.PostProcessShaders))
-end
-
---- @private handleShaderCommands
---- Handle shader-related keyboard commands
-local function handleShaderCommands(slot)
-	local s = patchSlots[slot].shaderext
-
-	-- toggle shaders on / off
-	if kp.isDown(MODKEY_PRIMARY) and kp.keypressOnAttack("s") then
-		cfgShaders.toggleShaders()
-	end
-	
-	-- warp
-	if kp.isDown("w") then
-		if kp.isDown("up") then s:set("_warpParameter", (s:get("_warpParameter") + 0.1)) end
-		if kp.isDown("down") then s:set("_warpParameter", (s:get("_warpParameter") - 0.1)) end
-	end
-	-- kaleido
-	if kp.isDown("k") then
-		if kp.keypressOnAttack("up") then s:set("_segmentParameter", (s:get("_segmentParameter")+1)) end
-		if kp.keypressOnAttack("down") then s:set("_segmentParameter", (s:get("_segmentParameter")-1)) end
-	end
-	-- blur
-	if kp.isDown("g") then
-		if kp.isDown("up") then s:set("_blurOffset", (s:get("_blurOffset")+0.001)) end
-		if kp.isDown("down") then s:set("_blurOffset", (s:get("_blurOffset")-0.001)) end
-	end
-	return s
-end
-
 --- @public handleGeneralControls 
 --- Main function to handle general keyboard controls (patch-independent)
 function cfg_controls.handleKeyBoard()
@@ -62,14 +28,27 @@ end
 
 
 function cfg_controls.init()
-  --controls.bindRegular(patch.reset , controls.onPress, {"r"})						                      -- R 				= RESET  (TODO)
-  controls.bind(increaseShader, {}, controls.onPress, {"s"})					                          -- S 				= CHANGE SHADER
+  -- R = RESET  (TODO)
+  --controls.bindRegular(patch.reset , controls.onPress, {"r"})						                      
   
-  controls.bind(cfgShaders.toggleShaders, {}, controls.onPress, {MODKEY_PRIMARY, "s"})			    -- CTRL + S 		  = toggle shaders
-  controls.bind(screen.toggleFullscreen, {}, controls.onPress, {MODKEY_PRIMARY, "return"})		  -- CTRL + ENTER 	= toggle fullscreen
-  controls.bind(screen.changeUpscaling, {}, controls.onPress, {MODKEY_PRIMARY, "u"})			      -- CTRL + U 		  = toggle upscaling mode
+  -- S = CHANGE SHADER
+  controls.bind(function () local s = patchSlots[cfg_controls.selectedPatch].shaderext
+                            s:set("shaderSlot1", 1 + (s:get("shaderSlot1")) % (#cfgShaders.PostProcessShaders)) end,
+                {}, 
+                controls.onPress, 
+                {"s"})					                          
+  
+  -- CTRL + S = toggle shaders
+  controls.bind(cfgShaders.toggleShaders, {}, controls.onPress, {MODKEY_PRIMARY, "s"})
+  
+  -- CTRL + ENTER = toggle fullscreen
+  controls.bind(screen.toggleFullscreen, {}, controls.onPress, {MODKEY_PRIMARY, "return"})
+  
+  -- CTRL + U = toggle upscaling mode
+  controls.bind(screen.changeUpscaling, {}, controls.onPress, {MODKEY_PRIMARY, "u"})
   
   -- Controls to load patches / load savestate / save savestate
+  -- F1 ... F12 / CTRL + F1 ... F12 / CTRL + SHIFT + F1 ... F12
   for i=1, 12 do
     controls.bind(rtmgr.loadPatch,      
                   {cfgPatches.patches[i], cfg_controls.selectedPatch}, 
@@ -85,8 +64,9 @@ function cfg_controls.init()
                   {MODKEY_PRIMARY, MODKEY_SECONDARY, "f"..i})
   end
   
+  -- 1, 2, 3... = Change currently selected patch slot
   for i=1, #patchSlots do
-    controls.bind(function() cfg_controls.selectedPatch = i end, {}, controls.onPress, {i}) -- anonymous function example use in this context
+    controls.bind(function() cfg_controls.selectedPatch = i end, {}, controls.onPress, {i})
   end
   
 end
