@@ -67,6 +67,8 @@ function Patch:drawSetup()
 	-- reset color
 	love.graphics.setColor(1, 1, 1, 1)
 
+	cfgShaders.updateTime(self.slot)
+
 	-- select shaders
 	if cfgShaders.enabled then
 		for i = 1, #self.CurrentShaders do

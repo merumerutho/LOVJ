@@ -88,9 +88,21 @@ function cfg_shaders.initShaderExt(slot)
 end
 
 
+--- @public updateTime updates the time for shaders that require it using the globalTimer
+function cfg_shaders.updateTime(p_slot)
+  local s = patchSlots[p_slot].shaderext
+  for idx = 1, #s do
+    local name = s:getName(idx)
+    if string.match(name, "_time") then 
+      s:setByIdx(idx, cfg_timers.globalTimer.T) 
+    end
+  end
+end
+
+
 --- @public selectShader select the post processing shader to apply
 function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
-    local s = patchSlots[p_slot].shaderext
+  local s = patchSlots[p_slot].shaderext
 	local shader
 
     -- select shader
