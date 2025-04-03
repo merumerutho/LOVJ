@@ -52,45 +52,43 @@ You should use them in combination with the **UP** or **DOWN** arrow keys to cha
 ## Porting GLSL shaders
 You can port GLSL shaders to LOVJ by creating a new patch in postProcess and readapt the shader code.
 
-Keep in mind that in order to modify the shader parameters, you need to pass everything in `cfg/cfg_shaders.lua`
+This is how a GLSL shader should be implemented to be compatible with LOVJ.
+```C++
+// @param vec4  _param1 {0.0, 1.0, 0.0, 1.0} //
+// @param vec2  _param2 {-0.1, 0.1} //
+// @param float _param3 -0.1 //
 
-Assuming that your shader is called "porting", this is how a shader should look like:
-```lua
--- lib/shaders/postProcess/19_porting.glsl
+extern vec4  _param1;
+extern vec2  _param2;
+extern float _param3;
+
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
-    -- your shader code here
+    -- your shader code here  (must include usage of _param1, _param2, _param3)
 }
 ```
+Notice the ```@param <type> <name> <default_value>``` tags. 
 
-### Passing time to shader
-One common use case, is pass the time parameter to a shader:
+They are used to automatically instance dedicated resources for each shader parameter, with a default initial value.
+
+These are instanced with the following name structure: _<shadername_paramname>_
+
+### Passing value to shader
+To update the value of the shader parameter, one can use the following in the update cycle, as an example:
 ```lua
 -- cfg/cfg_shaders.lua
-if string.find(shader.name, "porting") then
-    shader.object:send("_time", cfg_timers.globalTimer.T)
+if string.find(shader.name, "yourShaderName") then
+    shader.object:send("_param3", s:get("yourShaderName__param3"))
 end
 ```
 
-### Passing a parameter to shader
-Another useful common use case is to pass a parameter to the shader that can be controlled by the user.
-
-In this specific case, your GLSL shader should look like
-```glsl
-external float _whateverParameter;
-
-vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
-    ...
-}
-```
-
-And in the `cfg_shaders.lua` file, you should add:
+And to change the value:
 ```lua
 -- cfg/cfg_shaders.lua
 -- ...
--- porting
+-- yourShaderName
 if kp.isDown("m") then
-    if kp.isDown("up") then s:set("_whateverParameter", (s:get("_whateverParameter") + 0.1)) end
-    if kp.isDown("down") then s:set("_whateverParameter", (s:get("_whateverParameter") - 0.1)) end
+    if kp.isDown("up") then s:set("yourShaderName__param3", (s:get("yourShaderName__param3") + 0.1)) end
+    if kp.isDown("down") then s:set("yourShaderName__param3", (s:get("yourShaderName__param3") - 0.1)) end
 end
 ```
 
