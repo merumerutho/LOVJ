@@ -10,6 +10,7 @@ local drawingUtils = lovjRequire("lib/utils/drawing")
 ffi.cdef[[
 void SetSenderNameWrapper(const char* senderName);
 bool SendImageWrapper(const unsigned char* pixels, unsigned int width, unsigned int height, unsigned int glFormat, bool bInvert);
+bool SendTextureWrapper(unsigned int TextureID, unsigned int TextureTarget, unsigned int width, unsigned int height, bool bInvert, unsigned int HostFbo);
 bool SendFboWrapper(unsigned int fboId, unsigned int width, unsigned int height, bool bInvert);
 void SetReceiverNameWrapper(const char * SenderName);
 bool IsConnectedWrapper();
@@ -24,6 +25,62 @@ bool ReceiveImageWrapper(const unsigned char* pixels, unsigned int glFormat, boo
 
 local GL_RGBA = 0x1908
 
+-- credits to RNavega for the trick on getting the canvas texture id and pointer
+-- and to s-ol for showing me this clever hack
+-- https://love2d.org/forums/viewtopic.php?t=96388
+
+ffi.cdef([[
+    // https://github.com/malkia/luajit-winapi/blob/master/ffi/winapi/headers/common.lua#L104C3-L106C32
+    // Cheating by making it 'const' or else LuaJIT doesn't do auto-conversion from a Lua string.
+    typedef const char CHAR;
+    typedef CHAR *LPSTR; //Pointer
+    typedef LPSTR LPCSTR; //Alias
+
+    // https://github.com/malkia/luajit-winapi/blob/master/ffi/winapi/headers/common.lua#L28C3-L29C34
+    typedef void VOID; //Alias
+    typedef VOID *LPVOID; //Pointer
+    // https://github.com/malkia/luajit-winapi/blob/master/ffi/winapi/windows/opengl32.lua#L6
+    typedef LPVOID PROC; //Alias
+
+    // https://github.com/malkia/luajit-winapi/blob/master/ffi/winapi/windows/opengl32.lua#L54
+    PROC wglGetProcAddress(LPCSTR lpszProc);
+
+    typedef uint32_t GLuint;
+    typedef int32_t GLint;
+    typedef uint32_t GLenum;
+    void glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment,
+                                               GLenum pname, GLint *params);
+    typedef void (*type_glGetFramebufferAttachmentParameteriv)(GLenum target, GLenum attachment,
+                                                               GLenum pname, GLint *params);
+]])
+
+
+local TYPEOF_GLINT_PTR = ffi.typeof('GLint[1]')
+
+local SDL = (jit.os == "Windows") and ffi.load("SDL2") or ffi.C
+
+-- OpenGL binding from malkia's UFO:
+-- https://github.com/malkia/ufo/blob/master/ffi/OpenGL.lua
+local libs = ffi_OpenGL_libs or {
+   OSX     = { x86 = "OpenGL.framework/OpenGL", x64 = "OpenGL.framework/OpenGL" },
+   Windows = { x86 = "OPENGL32.DLL",            x64 = "OPENGL32.DLL" },
+   Linux   = { x86 = "libGL.so",                x64 = "libGL.so", arm = "libGL.so" },
+   BSD     = { x86 = "libGL.so",                x64 = "libGL.so" },
+   POSIX   = { x86 = "libGL.so",                x64 = "libGL.so" },
+   Other   = { x86 = "libGL.so",                x64 = "libGL.so" },
+}
+local gl = ffi.load(libs[ffi.os][ffi.arch])
+local proc = gl.wglGetProcAddress('glGetFramebufferAttachmentParameteriv')
+local glGetFramebufferAttachmentParameteriv = ffi.cast('type_glGetFramebufferAttachmentParameteriv', proc)
+
+-- https://github.com/KhronosGroup/OpenGL-Registry/blob/main/api/GLES2/gl2.h#L348
+GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 0x8CD1
+-- https://github.com/KhronosGroup/OpenGL-Registry/blob/main/api/GLES2/gl2.h#L351
+GL_COLOR_ATTACHMENT0 = 0x8CE0
+-- https://github.com/KhronosGroup/OpenGL-Registry/blob/main/api/GLES2/gl2.h#L331
+GL_FRAMEBUFFER = 0x8D40
+GL_TEXTURE_2D = 0x0DE1
+
 spout.SpoutSender = {}
 spout.SpoutReceiver = {}
 
@@ -35,7 +92,6 @@ function spout.SpoutSender:new(o, name, w, h)
     self.__index = self
     o.name = name
     o.width, o.height = w, h
-	o.outCanvas = love.graphics.newCanvas(w, h)
 	o.nameMem = love.data.newByteData(2^8)
 	return o
 end
@@ -105,20 +161,24 @@ function spout.SpoutReceiver:init()
 end
 
 --- @public spout.SpoutSender:SendCanvas
---- Send Canvas as Image
+--- Send Canvas as Texture
 function spout.SpoutSender:SendCanvas(canvas)
 	-- Rescale to spout_out
 	local w, h = self.width, self.height
 	local wf, hf = (w / screen.InternalRes.W), (h / screen.InternalRes.H)
-	drawingUtils.drawCanvasToCanvas(canvas, self.outCanvas, 0, 0, 0, wf, hf)
 
-	-- Create picture from spout_out
-    local img = self.outCanvas:newImageData(nil, 1, 0, 0, w, h)
-    local imgptr = img:getFFIPointer()
-	love.graphics.setCanvas()
+	local tempName = TYPEOF_GLINT_PTR()
+    love.graphics.setCanvas(canvas)
+    glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
+                                          GL_COLOR_ATTACHMENT0,
+                                          GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
+                                          tempName)
+    --print('Pointer: ' .. tostring(tempName))
+    --print('Texture ID: ' .. tempName[0])
+
 
 	-- Send picture
-    return self.handle.SendImageWrapper(imgptr, w, h, GL_RGBA, false)
+    return self.handle.SendTextureWrapper(tempName[0], GL_TEXTURE_2D, w, h, false, 0)
 end
 
 --- @private spout.SpoutReceiver:ReceiveImage

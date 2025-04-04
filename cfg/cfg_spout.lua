@@ -4,12 +4,13 @@
 --
 
 local cfg_spout = {}
+cfg_screen = require("cfg/cfg_screen")
 
 cfg_spout.enable = true
 
 cfg_spout.senders = 
 {
-    ["main"] = { ["name"] = "LOVJ_SPOUT_SENDER", ["width"] = 1920, ["height"] = 1080 }
+    ["main"] = { ["name"] = "LOVJ_SPOUT_SENDER", ["width"] = cfg_screen.INTERNAL_RES_WIDTH, ["height"] = cfg_screen.INTERNAL_RES_HEIGHT }
 }
 
 cfg_spout.receivers = 
