@@ -34,11 +34,7 @@ function Patch:setCanvases()
 
 	local resW, resH
 	-- Calculate appropriate size
-	if not screen.isUpscalingHiRes() then
-		resW, resH = screen.InternalRes.W, screen.InternalRes.H
-	else
-		resW, resH = screen.ExternalRes.W, screen.ExternalRes.H
-	end
+	resW, resH = screen.InternalRes.W, screen.InternalRes.H
     
 	-- Generate canvases with calculated size
 	self.canvases.main = love.graphics.newCanvas(resW, resH)
@@ -87,14 +83,6 @@ function Patch:drawExec(hang)
 	hang = false or hang
 	love.graphics.setColor(1, 1, 1, 1)  -- Reset color
 
-	-- Calculate scaling for post process shaders
-	local scalingX, scalingY
-	if not screen.isUpscalingHiRes() then
-		scalingX, scalingY = 1, 1
-	else
-		scalingX, scalingY = screen.Scaling.X, screen.Scaling.Y
-	end
-
 	-- Cycle over post process shaders applying them on respective canvases
 	if cfgShaders.enabled then
 		for i = 1, #self.CurrentShaders do
@@ -102,12 +90,12 @@ function Patch:drawExec(hang)
 			if i == 1 then
 				srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
 			else
-				srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i]
+				srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i]      
 			end
 			-- Set canvas, apply shader, draw and then remove shader
 			love.graphics.setCanvas(dstCanvas)
 			love.graphics.setShader(self.CurrentShaders[i].object)
-			love.graphics.draw(srcCanvas, 0, 0, 0, scalingX, scalingY)
+			love.graphics.draw(srcCanvas)
 			love.graphics.setShader()
 			love.graphics.setCanvas(srcCanvas)
             -- clear if not hanging

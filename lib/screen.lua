@@ -34,18 +34,23 @@ end
 
 --- @private calculateScaling calculate scaling proportions based on internal and external resolution
 local function calculateScaling()
-	screen.Scaling = {}
+  screen.Scaling = {}
+  
+  -- set upscaling mode
+	screen.Scaling.Upscale = cfgScreen.UPSCALE_MODE
+  
+  -- Set Internal Resolution
+  if screen.isUpscalingHiRes() then
+    SetInternalRes(cfgScreen.WINDOW_WIDTH, cfgScreen.WINDOW_HEIGHT)
+  else
+    SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_HEIGHT)
+  end
+  
 	screen.Scaling.RatioX = screen.ExternalRes.W / screen.InternalRes.W
 	screen.Scaling.RatioY = screen.ExternalRes.H / screen.InternalRes.H
 
-	-- set upscaling mode
-	screen.Scaling.Upscale = cfgScreen.UPSCALE_MODE
-
-	-- depending on upscaling mode, set x and y for scaling to "r" or "1/r" => (^1 or ^-1)
-	local upscale = (screen.Scaling.Upscale and 1) or 0
-
-	screen.Scaling.X = screen.Scaling.RatioX ^ (1-2*upscale)
-	screen.Scaling.Y = screen.Scaling.RatioY ^ (1-2*upscale)
+	screen.Scaling.X = screen.Scaling.RatioX
+	screen.Scaling.Y = screen.Scaling.RatioY
 
 end
 
@@ -57,6 +62,7 @@ function screen.toggleFullscreen()
 	else
 		SetExternalRes(cfgScreen.WINDOW_WIDTH, cfgScreen.WINDOW_HEIGHT)
 	end
+  
 	calculateScaling()
 	screen.updateScreenOptions()
 	for i=1,#patchSlots do

@@ -40,8 +40,7 @@ drawingUtils = lovjRequire("lib/utils/drawing")
 love.window.setTitle(cfgApp.title .. " v" ..  version)
 love.window.setIcon(love.image.newImageData(cfgApp.icon))
 
-local downMixCanvas
-local dummyCanvas
+local downMixCanvas, dummyCanvas, spoutCanvas
 
 local main_sender_cfg = cfgSpout.senders["main"]
 local main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"])
@@ -83,15 +82,18 @@ function love.load()
   cfgControls.init()  -- Init controls
 
 	connections.init()  -- Init socket
-	main_spout_sender:init() -- Initialize spout sender
+	
+  downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+  spoutCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	dummyCanvas = love.graphics.newCanvas(1,1)
+  
+  main_spout_sender:init(spoutCanvas) -- Initialize spout sender
     
   -- Initialize spout receivers
   for i = 1, #receivers_obj do
     receivers_obj[i]:init()
   end
-
-	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-	dummyCanvas = love.graphics.newCanvas(1,1)
+  
 end
 
 
@@ -101,18 +103,10 @@ function love.draw()
 	love.graphics.setCanvas(dummyCanvas)
 	-- Clear downmix canvas
 	drawingUtils.clearCanvas(downMixCanvas)
+	drawingUtils.clearCanvas(spoutCanvas)
 
 	-- Clear main screen
 	drawingUtils.clearCanvas(nil)
-
-	local scaleX, scaleY
-	-- Set upscale
-	if screen.isUpscalingHiRes() then
-		love.graphics.scale(screen.Scaling.RatioX, screen.Scaling.RatioY)
-		scaleX, scaleY = screen.Scaling.X, screen.Scaling.Y
-	else
-		scaleX, scaleY = 1, 1
-	end
 
 	-- for receiver in receiver_list do local spoutReceivedImg = receiver:draw() end
 
@@ -120,7 +114,7 @@ function love.draw()
 	for i=1, #patchSlots do
 		local canvas = patchSlots[i].patch.draw()  -- this function may change currently set canvas
 		-- draw canvas to downmix
-		drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, scaleX, scaleY)
+		drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, 1, 1)
 		-- clean canvas after using it
 		canvas = drawingUtils.clearCanvas(canvas)
 	end
@@ -129,9 +123,10 @@ function love.draw()
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
 
 	-- Spout output
-	main_spout_sender:SendCanvas(downMixCanvas)
-  -- Force resetting Canvas
-  love.graphics.setCanvas()
+	drawingUtils.drawCanvasToCanvas(downMixCanvas, spoutCanvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+  main_spout_sender:SendCanvas(spoutCanvas)
+	-- Force resetting Canvas
+	love.graphics.setCanvas()
 end
 
 

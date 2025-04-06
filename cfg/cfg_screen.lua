@@ -5,12 +5,12 @@
 
 local cfg_screen = {}
 
-cfg_screen.INTERNAL_RES_WIDTH = 640
-cfg_screen.INTERNAL_RES_HEIGHT = 360
+cfg_screen.INTERNAL_RES_WIDTH = 160
+cfg_screen.INTERNAL_RES_HEIGHT = 90
 cfg_screen.INTERNAL_RES_RATIO = cfg_screen.INTERNAL_RES_WIDTH / cfg_screen.INTERNAL_RES_HEIGHT
 
-cfg_screen.WINDOW_WIDTH = 320
-cfg_screen.WINDOW_HEIGHT = 160
+cfg_screen.WINDOW_WIDTH = 1280
+cfg_screen.WINDOW_HEIGHT = 720
 
 cfg_screen.WINDOW_WIDTH = math.max(cfg_screen.WINDOW_WIDTH, cfg_screen.INTERNAL_RES_WIDTH)
 cfg_screen.WINDOW_HEIGHT = math.max(cfg_screen.WINDOW_HEIGHT, cfg_screen.INTERNAL_RES_HEIGHT)
