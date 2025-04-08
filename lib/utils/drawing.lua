@@ -9,8 +9,8 @@ function DrawingUtils.drawCanvasToCanvas(src, dst, x, y, r, sx, sy)
 	local x = x or 0
 	local y = y or 0
 	local r = r or 0
-	local sx = sx or 0
-	local sy = sy or 0
+	local sx = sx or 1
+	local sy = sy or 1
 	local currentCanvas = love.graphics.getCanvas()
 	-- set canvas, draw and go back to previous canvas
 	love.graphics.setCanvas(dst)

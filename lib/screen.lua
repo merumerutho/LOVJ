@@ -3,6 +3,7 @@
 -- Handle screen graphical settings
 
 local cfgScreen = require("cfg/cfg_screen")
+local cfgSpout = require("cfg/cfg_spout")
 
 local screen = {}
 
@@ -30,6 +31,7 @@ function screen.updateScreenOptions()
 	love.graphics.setDefaultFilter("linear", "nearest")
 	love.window.setVSync(true)
 	love.window.setFullscreen(screen.isFullscreen)
+	cfgSpout.updateCanvases()
 end
 
 --- @private calculateScaling calculate scaling proportions based on internal and external resolution
@@ -46,11 +48,11 @@ local function calculateScaling()
     SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_HEIGHT)
   end
   
-	screen.Scaling.RatioX = screen.ExternalRes.W / screen.InternalRes.W
-	screen.Scaling.RatioY = screen.ExternalRes.H / screen.InternalRes.H
+  screen.Scaling.WindowRatioX = screen.ExternalRes.W / screen.InternalRes.W
+  screen.Scaling.WindowRatioY = screen.ExternalRes.H / screen.InternalRes.H
 
-	screen.Scaling.X = screen.Scaling.RatioX
-	screen.Scaling.Y = screen.Scaling.RatioY
+  screen.Scaling.SpoutRatioX = cfgScreen.WINDOW_WIDTH / screen.InternalRes.W
+  screen.Scaling.SpoutRatioY = cfgScreen.WINDOW_HEIGHT / screen.InternalRes.H
 
 end
 
@@ -68,7 +70,7 @@ function screen.toggleFullscreen()
 	for i=1,#patchSlots do
 		patchSlots[i].patch:setCanvases()
 	end
-		
+  
 end
 
 --- @public changeUpscaling changes upscaling mode (lowres = 0, highres = 1)

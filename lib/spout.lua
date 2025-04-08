@@ -7,6 +7,8 @@ local log = lovjRequire("lib/utils/logging")
 local screen = lovjRequire("lib/screen")
 local drawingUtils = lovjRequire("lib/utils/drawing")
 
+local cfgScreen = lovjRequire("cfg/cfg_screen")
+
 ffi.cdef[[
 void SetSenderNameWrapper(const char* senderName);
 bool SendImageWrapper(const unsigned char* pixels, unsigned int width, unsigned int height, unsigned int glFormat, bool bInvert);
@@ -93,7 +95,8 @@ function spout.SpoutSender:new(o, name, w, h)
   o.name = name
   o.width, o.height = w, h
 	o.nameMem = love.data.newByteData(2^8)
-  o.textureId = -1
+  o.textureId = 0
+  o.canvas = love.graphics.newCanvas(w, h)
 	return o
 end
 
@@ -101,17 +104,17 @@ end
 --- Create a new SpoutReceiver
 function spout.SpoutReceiver:new(o, name)
 	local o = {} or o
-    setmetatable(o, self)
-    self.__index = self
-    o.name = name
+  setmetatable(o, self)
+  self.__index = self
+  o.name = name
 	o.nameMem = love.data.newByteData(2^8)
 	o.connected = false
 	return o
 end
 
 --- @public spout.SpoutSender:init
---- Initialize SpoutSender
-function spout.SpoutSender:init(canvas)
+--- Initialize SpoutSender with associated Canvas / Texture
+function spout.SpoutSender:init()
 	local name = self.name
 	self.handle = ffi.load("SpoutWrapper.dll")
 
@@ -123,21 +126,9 @@ function spout.SpoutSender:init(canvas)
 	-- Add termination character
 	senderNamePtr[#name] = string.byte('\0')
 	self.handle.SetSenderNameWrapper(senderNamePtr)
-
-	logInfo("SPOUT_SENDER: " .. name .. " - Enabled.")
   
-  -- get texture ID
-  local cur_canvas = love.graphics.getCanvas()
-  love.graphics.setCanvas(canvas)
-  local tempName = TYPEOF_GLINT_PTR()
-
-  glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
-                                            GL_COLOR_ATTACHMENT0,
-                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-                                            tempName)
-                                          
-  self.textureId = tempName[0]                     
-  love.graphics.setCanvas(cur_canvas)
+  -- Done
+  logInfo("SPOUT_SENDER: " .. name .. " - Enabled.")
 end
 
 --- @public spout.SpoutReceiver:init
@@ -176,15 +167,17 @@ end
 
 --- @public spout.SpoutSender:SendCanvas
 --- Send Canvas as Texture
-function spout.SpoutSender:SendCanvas(canvas)
+function spout.SpoutSender:SendCanvas(input_canvas, wf, hf)
+  -- Draw to self.canvas with correct scaling
+  self.textureId = self:getTextureId()
+  drawingUtils.clearCanvas(self.canvas)
+  drawingUtils.drawCanvasToCanvas(input_canvas, self.canvas, 0, 0, 0, wf, hf)
   local cur_canvas = love.graphics.getCanvas()
-  love.graphics.setCanvas(canvas)
-  -- Rescale to spout_out
-  local w, h = self.width, self.height
-  local wf, hf = (w / screen.InternalRes.W), (h / screen.InternalRes.H)
+  love.graphics.setCanvas(self.canvas)
+  -- Send texture
   if self.textureId then
     -- Send picture
-    self.handle.SendTextureWrapper(self.textureId, GL_TEXTURE_2D, screen.ExternalRes.W, screen.ExternalRes.H, false, 0)
+    self.handle.SendTextureWrapper(self.textureId, GL_TEXTURE_2D, self.width, self.height, false, 0)
   end
   love.graphics.setCanvas(cur_canvas)
   return
@@ -231,6 +224,23 @@ function spout.SpoutReceiver:update()
 	if (self.connected == false) then
 		self:init()
 	end
+end
+
+--- @public spout.SpoutSender:getTextureId
+--- Retrieve Texture ID from Canvas
+function spout.SpoutSender:getTextureId()
+  -- get texture ID 
+  local textureId = nil
+  local cur_canvas = love.graphics.getCanvas()
+  love.graphics.setCanvas(self.canvas)
+  local tempName = TYPEOF_GLINT_PTR()
+  glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
+                                            GL_COLOR_ATTACHMENT0,
+                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
+                                            tempName)
+  textureId = tempName[0]
+  love.graphics.setCanvas(cur_canvas)  
+  return textureId
 end
 
 return spout

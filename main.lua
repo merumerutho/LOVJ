@@ -22,6 +22,7 @@ cfgShaders = lovjRequire("cfg/cfg_shaders")
 cfgTimers = lovjRequire("cfg/cfg_timers")
 cfgSpout = lovjRequire("cfg/cfg_spout")
 cfgApp = lovjRequire("cfg/cfg_app")
+cfgScreen = lovjRequire("cfg/cfg_screen")
 
 if (cfgSpout.enable and 
 	love.system.getOS() == "Windows" and
@@ -42,8 +43,9 @@ love.window.setIcon(love.image.newImageData(cfgApp.icon))
 
 local downMixCanvas, dummyCanvas, spoutCanvas
 
+-- Add sender "MAIN" 
 local main_sender_cfg = cfgSpout.senders["main"]
-local main_spout_sender = spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"])
+table.insert(cfgSpout.senderHandles, spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"]))
 
 local receivers_cfg = cfgSpout.receivers
 local receivers_obj = {}
@@ -84,10 +86,10 @@ function love.load()
 	connections.init()  -- Init socket
 	
   downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
-  spoutCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
   
-  main_spout_sender:init(spoutCanvas) -- Initialize spout sender
+  local main_spout_sender = cfgSpout.senderHandles[1]
+  main_spout_sender:init() -- Initialize spout sender
     
   -- Initialize spout receivers
   for i = 1, #receivers_obj do
@@ -101,11 +103,8 @@ end
 --- this function is called upon each draw cycle
 function love.draw()
 	love.graphics.setCanvas(dummyCanvas)
-	-- Clear downmix canvas
+	-- Clear canvases
 	drawingUtils.clearCanvas(downMixCanvas)
-	drawingUtils.clearCanvas(spoutCanvas)
-
-	-- Clear main screen
 	drawingUtils.clearCanvas(nil)
 
 	-- for receiver in receiver_list do local spoutReceivedImg = receiver:draw() end
@@ -113,19 +112,18 @@ function love.draw()
 	-- Draw all patches stacked on top of each other
 	for i=1, #patchSlots do
 		local canvas = patchSlots[i].patch.draw()  -- this function may change currently set canvas
-		-- draw canvas to downmix
-		drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas, 0, 0, 0, 1, 1)
-		-- clean canvas after using it
-		canvas = drawingUtils.clearCanvas(canvas)
+		drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas)  -- draw canvas to downmix
+		canvas = drawingUtils.clearCanvas(canvas)  -- clean canvas after using it
 	end
 
 	-- draw downmix to main screen
-	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
+	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.WindowRatioX, screen.Scaling.WindowRatioY)
 
-	-- Spout output
-	drawingUtils.drawCanvasToCanvas(downMixCanvas, spoutCanvas, 0, 0, 0, screen.Scaling.X, screen.Scaling.Y)
-  main_spout_sender:SendCanvas(spoutCanvas)
-	-- Force resetting Canvas
+	-- Spout output is sent here
+  local main_spout_sender = cfgSpout.senderHandles[1]
+  main_spout_sender:SendCanvas(downMixCanvas, screen.Scaling.SpoutRatioX, screen.Scaling.SpoutRatioY)
+  
+	-- Force resetting canvas
 	love.graphics.setCanvas()
 end
 
