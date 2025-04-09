@@ -50,7 +50,7 @@ table.insert(cfgSpout.senderHandles, spout.SpoutSender:new(nil, main_sender_cfg[
 local receivers_cfg = cfgSpout.receivers
 local receivers_obj = {}
 for i = 1, #receivers_cfg do
-  table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
+	table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
 end
 
 --- @public love.load
@@ -59,7 +59,6 @@ function love.load()
 	if arg[#arg] == "-debug" then require("mobdebug").start() end
 	screen.init()  -- Init screen
 	cfgTimers.init()  -- Init timers
-	
 	cfgShaders.init()  -- Init shaders
   
 	-- Set two running patches
@@ -78,23 +77,22 @@ function love.load()
 	for i, slot in ipairs(patchSlots) do
 		slot.shaderext = ResourceList:newResource()
 		cfgShaders.initShaderExt(i)  -- Assign Shaders globals
-    slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
-  end
+		slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
+	end
 
-  cfgControls.init()  -- Init controls
-
+	cfgControls.init()  -- Init controls
 	connections.init()  -- Init socket
 	
-  downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
+	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
   
-  local main_spout_sender = cfgSpout.senderHandles[1]
-  main_spout_sender:init() -- Initialize spout sender
-    
-  -- Initialize spout receivers
-  for i = 1, #receivers_obj do
-    receivers_obj[i]:init()
-  end
+	local main_spout_sender = cfgSpout.senderHandles[1]
+	main_spout_sender:init() -- Initialize spout sender
+	
+	-- Initialize spout receivers
+	for i = 1, #receivers_obj do
+		receivers_obj[i]:init()
+	end
   
 end
 
@@ -120,8 +118,8 @@ function love.draw()
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.WindowRatioX, screen.Scaling.WindowRatioY)
 
 	-- Spout output is sent here
-  local main_spout_sender = cfgSpout.senderHandles[1]
-  main_spout_sender:SendCanvas(downMixCanvas, screen.Scaling.SpoutRatioX, screen.Scaling.SpoutRatioY)
+	local main_spout_sender = cfgSpout.senderHandles[1]
+	main_spout_sender:SendCanvas(downMixCanvas, screen.Scaling.SpoutRatioX, screen.Scaling.SpoutRatioY)
   
 	-- Force resetting canvas
 	love.graphics.setCanvas()
@@ -137,9 +135,9 @@ function love.update()
 	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:Activated() then
 		logInfo("FPS: " .. fps)
-    for i=1, #receivers_obj do
-      receivers_obj[i]:update() -- Update spout receivers
-    end
+		for i=1, #receivers_obj do
+			receivers_obj[i]:update() -- Update spout receivers
+		end
 	end
 
 	controls.update()
