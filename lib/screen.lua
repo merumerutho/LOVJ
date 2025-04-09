@@ -36,23 +36,23 @@ end
 
 --- @private calculateScaling calculate scaling proportions based on internal and external resolution
 local function calculateScaling()
-  screen.Scaling = {}
+	screen.Scaling = {}
   
-  -- set upscaling mode
+	-- set upscaling mode
 	screen.Scaling.Upscale = cfgScreen.UPSCALE_MODE
   
-  -- Set Internal Resolution
-  if screen.isUpscalingHiRes() then
-    SetInternalRes(cfgScreen.WINDOW_WIDTH, cfgScreen.WINDOW_HEIGHT)
-  else
-    SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_HEIGHT)
-  end
-  
-  screen.Scaling.WindowRatioX = screen.ExternalRes.W / screen.InternalRes.W
-  screen.Scaling.WindowRatioY = screen.ExternalRes.H / screen.InternalRes.H
+	-- Set Internal Resolution
+	if screen.isUpscalingHiRes() then
+		SetInternalRes(cfgScreen.WINDOW_WIDTH, cfgScreen.WINDOW_HEIGHT)
+	else
+		SetInternalRes(cfgScreen.INTERNAL_RES_WIDTH, cfgScreen.INTERNAL_RES_HEIGHT)
+	end
 
-  screen.Scaling.SpoutRatioX = cfgScreen.WINDOW_WIDTH / screen.InternalRes.W
-  screen.Scaling.SpoutRatioY = cfgScreen.WINDOW_HEIGHT / screen.InternalRes.H
+	screen.Scaling.WindowRatioX = screen.ExternalRes.W / screen.InternalRes.W
+	screen.Scaling.WindowRatioY = screen.ExternalRes.H / screen.InternalRes.H
+
+	screen.Scaling.SpoutRatioX = cfgScreen.WINDOW_WIDTH / screen.InternalRes.W
+	screen.Scaling.SpoutRatioY = cfgScreen.WINDOW_HEIGHT / screen.InternalRes.H
 
 end
 

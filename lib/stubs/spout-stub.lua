@@ -47,7 +47,7 @@ end
 --- @public spout.SpoutSender:SendCanvas
 --- (stubbed) Send image:
 --- do nothing
-function spout.SpoutSender:SendCanvas(canvas)
+function spout.SpoutSender:SendCanvas(input_canvas, wf, hf)
 	return true
 end
 
@@ -75,5 +75,11 @@ function spout.SpoutReceiver:update()
 	return
 end
 
+
+--- @public spout.SpoutSender:getTextureId
+--- Retrieve Texture ID from Canvas
+function spout.SpoutSender:getTextureId()
+	return 0
+end
 
 return spout
