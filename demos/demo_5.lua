@@ -1,7 +1,6 @@
 local Patch = lovjRequire("lib/patch")
 local palettes = lovjRequire("lib/utils/palettes")
 local controls = lovjRequire("lib/controls")
-local kp = lovjRequire("lib/utils/keypress")
 local cfg_timers = lovjRequire("cfg/cfg_timers")
 local cfg_shaders = lovjRequire("cfg/cfg_shaders")
 
@@ -29,14 +28,14 @@ end
 --- @private patchControls Checks the input controls locally
 function patch.patchControls()
 	-- reset
-	if kp.keypressOnAttack("r") then patch.reset() end
-	if kp.isDown("lshift") and kp.isDown("r") then
-		patch.reset()
-	end
+	--if kp.keypressOnAttack("r") then patch.init(self.slot) end
+	--if kp.isDown("lshift") and kp.isDown("r") then
+	--	patch.reset()
+	--end
 	-- hang
-	if kp.keypressOnAttack("x") then
-		patch.hang = not patch.hang
-	end
+	--if kp.keypressOnAttack("x") then
+	--	patch.hang = not patch.hang
+	--end
 	-- fallback to general controls callback
 	controls.handleKeyBoard()
 end
@@ -142,7 +141,7 @@ function patch.draw()
 				love.graphics.setShader(patch.shader_trail) -- apply shader
 				-- draw content of main buffer onto trail buffer
 					love.graphics.draw(patch.canvases.main,
-							0, 0, 0, 1 / screen.Scaling.RatioX, 1 / screen.Scaling.RatioY)
+							0, 0, 0, 1, 1)
 				love.graphics.setShader() -- remove shader
 			end)
 	end

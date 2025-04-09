@@ -22,7 +22,7 @@ local function parseShaderParams(shaderContent)
 	for line in shaderContent:gmatch("[^\r\n]+") do
 		local param_type, param_name, param_value = string.match(line, "//%s+@param%s+([%a%d_]*)%s+([%a_]*)%s+([%-%d%.{},%s]*)%s*//")
 		if param_name and param_type and param_value then
-      params[param_name] = load("return " .. param_value)() -- Extremely dangerous move because I'm lazy
+			params[param_name] = load("return " .. param_value)() -- Extremely dangerous move because I'm lazy
                                                             -- pls no injecterino
 		end
 	end
@@ -30,29 +30,29 @@ local function parseShaderParams(shaderContent)
 end
 
 function cfg_shaders.init()
-  local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
-  for i=1, #input_files do
-    local name = string.match(input_files[i], "(.*).glsl")
-    if name then
-      local shaderContent = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
-      table.insert(cfg_shaders.PostProcessShaders, { name = name, value = shaderContent })
-      -- Parse GLSL to find parameters and their initial value
-      local parsed_params = parseShaderParams(shaderContent)
-      cfg_shaders.OverallParams[name] = parsed_params
-    end
-  end
+	local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
+	for i=1, #input_files do
+			local name = string.match(input_files[i], "(.*).glsl")
+			if name then
+			local shaderContent = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
+			table.insert(cfg_shaders.PostProcessShaders, { name = name, value = shaderContent })
+			-- Parse GLSL to find parameters and their initial value
+			local parsed_params = parseShaderParams(shaderContent)
+			cfg_shaders.OverallParams[name] = parsed_params
+		end
+	end
 
-  input_files = love.filesystem.getDirectoryItems("lib/shaders/other/")
-  for i=1,#input_files do
-    local name = string.match(input_files[i], "(.*).glsl")
-    if name then
-      local shaderContent = love.filesystem.read("lib/shaders/other/" .. input_files[i])
-      table.insert(cfg_shaders.OtherShaders, {name = name, value = shaderContent})
-      -- Parse GLSL to find parameters and their initial value
-      local parsed_params = parseShaderParams(shaderContent)
-      cfg_shaders.OverallParams[name] = parsed_params
-    end
-  end
+	input_files = love.filesystem.getDirectoryItems("lib/shaders/other/")
+	for i=1,#input_files do
+		local name = string.match(input_files[i], "(.*).glsl")
+		if name then
+			local shaderContent = love.filesystem.read("lib/shaders/other/" .. input_files[i])
+			table.insert(cfg_shaders.OtherShaders, {name = name, value = shaderContent})
+			-- Parse GLSL to find parameters and their initial value
+			local parsed_params = parseShaderParams(shaderContent)
+			cfg_shaders.OverallParams[name] = parsed_params
+		end
+	end
 end
 
 --- @public toggleShaders enable / disable shaders
@@ -90,19 +90,19 @@ end
 
 --- @public updateTime updates the time for shaders that require it using the globalTimer
 function cfg_shaders.updateTime(p_slot)
-  local s = patchSlots[p_slot].shaderext
-  for idx = 1, #s do
-    local name = s:getName(idx)
-    if string.match(name, "_time") then 
-      s:setByIdx(idx, cfg_timers.globalTimer.T) 
-    end
-  end
+	local s = patchSlots[p_slot].shaderext
+		for idx = 1, #s do
+		local name = s:getName(idx)
+		if string.match(name, "_time") then 
+			s:setByIdx(idx, cfg_timers.globalTimer.T) 
+		end
+	end
 end
 
 
 --- @public selectShader select the post processing shader to apply
 function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
-  local s = patchSlots[p_slot].shaderext
+	local s = patchSlots[p_slot].shaderext
 	local shader
 
     -- select shader
@@ -126,10 +126,8 @@ function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
 				shader.object:send(param_name, s:get(full_param_name))
 			end
 		end
-	end
-		
+	end	
 	return shader
 end
-
 
 return cfg_shaders
