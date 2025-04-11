@@ -1,2 +1,2 @@
-wget https://github.com/leadedge/Spout2/raw/refs/heads/master/SPOUTSDK/SpoutLibrary/SpoutLibraryExample/bin/SpoutLibrary.dll
-wget https://github.com/merumerutho/SpoutWrapper/releases/download/1.1.0/SpoutWrapper.dll
+curl -o SpoutLibrary.dll https://github.com/leadedge/Spout2/raw/refs/heads/master/SPOUTSDK/SpoutLibrary/SpoutLibraryExample/bin/SpoutLibrary.dll
+curl -o SpoutWrapper.dll https://github.com/merumerutho/SpoutWrapper/releases/download/1.1.0/SpoutWrapper.dll
