@@ -52,22 +52,24 @@ function cfg_controls.init()
 		controls.bind(rtmgr.loadPatch,      
 					  {cfgPatches.patches[i], cfg_controls.selectedPatch}, 
 					  controls.onPress, 
-					  {"f"..i})
+					  {"f"..tostring(i)})
 		controls.bind(rtmgr.loadResources,
 					  {patchSlots[cfg_controls.selectedPatch].name, i, cfg_controls.selectedPatch},
 					  controls.onPress,
-					  {MODKEY_PRIMARY, "f"..i})
+					  {MODKEY_PRIMARY, "f"..tostring(i)})
 		controls.bind(rtmgr.saveResources,
 					  {patchSlots[cfg_controls.selectedPatch].name, i, cfg_controls.selectedPatch},
 					  controls.onPress,
-					  {MODKEY_PRIMARY, MODKEY_SECONDARY, "f"..i})
+					  {MODKEY_PRIMARY, MODKEY_SECONDARY, "f"..tostring(i)})
 	end
 
 	-- 1, 2, 3... = Change currently selected patch slot
 	for i=1, #patchSlots do
-		controls.bind(function() cfg_controls.selectedPatch = i end, {}, controls.onPress, {i})
+		controls.bind(function() cfg_controls.selectedPatch = i end, {}, controls.onPress, {tostring(i)})
 	end
-  
+	
+	-- sort controls at the end to guarantee high keycount controls evaluated first
+	controls.sort()
 end
 
 return cfg_controls

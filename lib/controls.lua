@@ -107,7 +107,8 @@ function Controls.update(dt)
 		local action_func = Controls
 		-- If button check is activated, trigger the action
 		if action["check"](action["keyCombs"]) then
-		  action["func"](unpack(action["args"]))
+			action["func"](unpack(action["args"]))
+			break  	-- Stop the loop here (only one function can be executed per cycle)
 		end
 	end
   
@@ -116,6 +117,22 @@ function Controls.update(dt)
 		local keyCombs = Controls.actionsList[i]["keyCombs"]
 		Controls.PreviouslyPressed[keyCombs] = Controls.NowPressed[keyCombs]
 	end
+end
+
+-- Function to retrieve maximum number of keys used for an action
+local function keyCount(action)
+	local kcs = action["keyCombs"]
+	local max_val = 0
+	for i=1, #kcs do
+		max_val = math.max(max_val, #kcs[i])
+	end
+	return max_val
+end
+
+
+function Controls.sort()
+	-- sorting based on keycount: higher keycount first
+	table.sort(Controls.actionsList, function (a, b) return keyCount(a) > keyCount(b) end)
 end
 
 return Controls
