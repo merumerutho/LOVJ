@@ -26,9 +26,12 @@ Moreover, it supports advanced functionalities such as:
 
 
 ## Setup
-- [LÖVE](https://love2d.org/) version 11.4+
+- Install [LÖVE](https://love2d.org/) version 11.4+
 - Add LOVE2D bin folder to your PATH variable
-- Download/clone this repository.
+- Clone this repository, with all submodules, by running
+```
+git clone --recurse-submodules git@github.com:merumerutho/LOVJ.git
+```
 - From this repo main folder (containing the main.lua script), run:
 ```sh
 love .
