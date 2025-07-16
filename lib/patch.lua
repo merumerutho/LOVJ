@@ -115,7 +115,7 @@ end
 function Patch:mainUpdate()
 	-- apply keyboard patch controls
 		-- only handle controls if patch is selected
-		if controls.selectedPatch == self.slot then
+		if cfgControls.selectedPatch == self.slot then
 			self.resources.parameters,
 			self.resources.graphics,
 			self.resources.globals = self.patchControls()
