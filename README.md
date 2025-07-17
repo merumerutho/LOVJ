@@ -1,5 +1,6 @@
+<center><img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png" width=500 /></center>
 
-# # LOVJ - A LÖVE-based VJing Framework
+# LOVJ - A LÖVE-based VJing Framework
 
 
 
@@ -19,12 +20,12 @@ LOVJ is a framework for the LÖVE 2D game engine, designed to create a live-codi
 
 ## 📹 Screenshots
 
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/1.png" width=300/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/2.png" width=300/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/4.png" width=300/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/3.png" width=300/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/5.png" width=300/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/6.png" width=300/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/1.png" width=250/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/2.png" width=250/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/4.png" width=250/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/3.png" width=250/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/5.png" width=250/>
+<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/6.png" width=250/>
 
 
 ## 📋 Prerequisites
