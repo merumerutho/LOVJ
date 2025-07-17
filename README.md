@@ -1,21 +1,23 @@
-<center><img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png" width=500 /></center>
 
-# LOVE2D VJing Framework
-LOVJ aims to be a [LÖVE](https://love2d.org/) framework to create a live-coding, interactive VJing environment mainly targeted at live music performances.
-It revolves around the concept of video patches: these can be loaded, sequenced, and mixed in several ways.
+# # LOVJ - A LÖVE-based VJing Framework
 
-It allows interaction with the patches through:
-- code editing (with **livecoding** hot-reload features)
-- common controls (mouse / keyboard / touch)
-- external controls (**OSC**)
 
-Moreover, it supports advanced functionalities such as:
-- **GLSL** shaders support (for advanced rendering techniques, such as ray-marching).
-- **Spout** Send/Receive functions (allowing streaming to/from external apps, feedback loops, etc.).
-- **Savestates** (save/recall patches internal status quickly).
-- **OSC** network server via **UDP**.
 
-## Screenshots
+## 📖 Overview
+
+LOVJ is a framework for the LÖVE 2D game engine, designed to create a live-coding and interactive VJing environment. It's primarily aimed at live music performances, allowing for the creation, sequencing, and mixing of video patches in various ways.
+
+## ✨ Features
+
+- **Live-Coding:** Edit code on-the-fly with hot-reloading capabilities.
+- **Interactive Controls:** Control patches through mouse, keyboard, touch, and OSC.
+- **GLSL Shaders:** Advanced rendering with GLSL shaders, including support for ray-marching.
+- **Spout Integration:** Stream video to and from other applications using Spout.
+- **Savestates:** Quickly save and recall the internal state of patches.
+- **OSC Networking:** Built-in OSC server for external control.
+- **Patch-based Architecture:** Modular design based on video patches that can be loaded, sequenced, and mixed.
+
+## 📹 Screenshots
 
 <img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/1.png" width=300/>
 <img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/2.png" width=300/>
@@ -25,34 +27,47 @@ Moreover, it supports advanced functionalities such as:
 <img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/6.png" width=300/>
 
 
-## Setup
-- Install [LÖVE](https://love2d.org/) version 11.4+
-- Add LOVE2D bin folder to your PATH variable
-- Clone this repository, with all submodules, by running
-```
-git clone --recurse-submodules git@github.com:merumerutho/LOVJ.git
-```
-- From this repo main folder (containing the main.lua script), run:
-```sh
-love .
-```
+## 📋 Prerequisites
 
-## Usage
-### General
-- **F1 ... F12** to switch between patches.
-- **CTRL + Return** toggle fullscreen.
-- **CTRL + S** toggle shader on/off
-- **CTRL + U** upscale
-- **S** cycle through effects
+- [LÖVE](https://love2d.org/) version 11.4 or higher.
 
-### Visual effects adjustments
-You should use them in combination with the **UP** or **DOWN** arrow keys to change the effect intensity, after selecting the corresponding effect with the **S** key.
+## 🚀 Installation
 
-- **W** for warp effect
-- **K** kaleidoscope effect
-- **G** blur effect
+1.  Clone the repository with all submodules:
+    ```sh
+    git clone --recurse-submodules https://github.com/merumerutho/LOVJ.git
+    ```
+2.  Add the LÖVE binary directory to your system's PATH variable.
+3.  Navigate to the cloned repository's root directory (the one containing `main.lua`).
+4.  Run the application with the following command:
+    ```sh
+    love .
+    ```
 
-## Porting GLSL shaders
+## 🔧 Usage
+
+### General Controls
+
+-   **F1 - F12:** Switch between loaded patches.
+-   **Ctrl + Enter:** Toggle fullscreen mode.
+-   **Ctrl + S:** Toggle shaders on or off.
+-   **Ctrl + U:** Change the upscaling mode.
+-   **S:** Cycle through available visual effects.
+
+
+## ⚙️ Configuration (Optional)
+
+LOVJ's behavior can be customized through the various `.lua` files in the `cfg` directory. Here are some of the key configuration files:
+
+-   `cfg/cfg_app.lua`: Application title and icon.
+-   `cfg/cfg_connections.lua`: UDP and OSC connection settings.
+-   `cfg/cfg_controls.lua`: General (non-patch-specific) input controls.
+-   `cfg/cfg_patches.lua`: Default patch and the list of patches to load.
+-   `cfg/cfg_screen.lua`: Screen resolution and windowing settings.
+-   `cfg/cfg_shaders.lua`: Shader configurations.
+-   `cfg/cfg_spout.lua`: Spout sender and receiver settings.
+
+### Porting GLSL shaders
 You can port GLSL shaders to LOVJ by creating a new patch in postProcess and readapt the shader code.
 
 This is how a GLSL shader should be implemented to be compatible with LOVJ.
@@ -99,23 +114,18 @@ Feel free to adapt the parameter name and the value to your needs, this is just 
 
 Then, in order to use the shader, you need to cycle through the effects with the **S** key, until you reach the desired effect.
 
-## Issues
-LOVJ is still in a work-in-progress state. Development is messy and several features are kind of broken. 
-It can be played with, but don't expect the software to be working reliably in its current state. Check Issue tracker for more info.
 
-## Running the demos
-- Open _cfg/cfg_patches.lua_.
-- Edit the _defaultPatch_ or the _patches_ list.
-- Run LOVJ.
-- Select the chosen demo from _patches_ with the [F1 ... F12] keys.
+## 🤝 Contributing
 
+Contributions are welcome! Please feel free to open an issue or submit a pull request.
 
-## Credits
-- [lick](https://github.com/usysrc/lick) original *LICK* implementation for live-coding features (MIT license).
-- [json.lua v.0.1.2](https://github.com/rxi/json.lua) Json library (MIT license).
-- [losc v.1.0.1](https://github.com/davidgranstrom/losc) Lua OSC library (MIT license).
-- [Spout](https://spout.zeal.co/) Spout library (BSD-2 license).
+## 📄 License
 
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
-## MIDI to OSC
-A simple tool to relay MIDI messages to OSC messages based on some configuration can be found [here](https://github.com/merumerutho/MIDI2OSC).
+## 🙏 Acknowledgments (Optional)
+
+- [lick](https://github.com/usysrc/lick): For the live-coding features.
+- [json.lua](https://github.com/rxi/json.lua): JSON library.
+- [losc](https://github.com/davidgranstrom/losc): Lua OSC library.
+- [Spout](https://spout.zeal.co/): Spout library for video sharing.
