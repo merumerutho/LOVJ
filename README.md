@@ -4,7 +4,8 @@
 
 ## 📖 Overview
 
-LOVJ is a framework for the LÖVE 2D game engine, designed as a live-coding and interactive VJing environment. It's primarily aimed at live music performances, allowing for the creation, sequencing, and mixing of video patches.
+LOVJ is a framework based on LÖVE2D, designed as a live-coding and interactive VJing environment.
+It's primarily aimed at live music performances, allowing for the creation, sequencing, and mixing of video patches.
 
 ## ✨ Features
 
@@ -20,16 +21,6 @@ LOVJ is a framework for the LÖVE 2D game engine, designed as a live-coding and 
 
 - **Live-Coding:** Edit code on-the-fly with hot-reloading capabilities.
 - **OSC Networking:** Built-in OSC server for external control.
-
-## 📹 Screenshots
-
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/1.png" width=250/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/2.png" width=250/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/4.png" width=250/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/3.png" width=250/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/5.png" width=250/>
-<img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/screen/6.png" width=250/>
-
 
 ## 📋 Prerequisites
 
