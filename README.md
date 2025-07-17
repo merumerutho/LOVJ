@@ -1,22 +1,25 @@
 <center><img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png" width=500 /></center>
 
-# LOVJ - A LÖVE-based VJing Framework
-
-
+# LOVJ - LÖVE2D VJing Framework
 
 ## 📖 Overview
 
-LOVJ is a framework for the LÖVE 2D game engine, designed to create a live-coding and interactive VJing environment. It's primarily aimed at live music performances, allowing for the creation, sequencing, and mixing of video patches in various ways.
+LOVJ is a framework for the LÖVE 2D game engine, designed as a live-coding and interactive VJing environment. It's primarily aimed at live music performances, allowing for the creation, sequencing, and mixing of video patches.
 
 ## ✨ Features
 
-- **Live-Coding:** Edit code on-the-fly with hot-reloading capabilities.
-- **Interactive Controls:** Control patches through mouse, keyboard, touch, and OSC.
-- **GLSL Shaders:** Advanced rendering with GLSL shaders, including support for ray-marching.
+### Current
+
+- **Interactive Controls:** Control patches through mouse, keyboard, touch and gamepads.
+- **GLSL Shaders:** Builtin support for GLSL shaders, write your own filters, ray-marchers, etc.
 - **Spout Integration:** Stream video to and from other applications using Spout.
 - **Savestates:** Quickly save and recall the internal state of patches.
-- **OSC Networking:** Built-in OSC server for external control.
 - **Patch-based Architecture:** Modular design based on video patches that can be loaded, sequenced, and mixed.
+
+### Planned
+
+- **Live-Coding:** Edit code on-the-fly with hot-reloading capabilities.
+- **OSC Networking:** Built-in OSC server for external control.
 
 ## 📹 Screenshots
 
@@ -124,7 +127,7 @@ Contributions are welcome! Please feel free to open an issue or submit a pull re
 
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments (Optional)
+## 🙏 Acknowledgments
 
 - [lick](https://github.com/usysrc/lick): For the live-coding features.
 - [json.lua](https://github.com/rxi/json.lua): JSON library.
