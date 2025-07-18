@@ -4,3 +4,6 @@
 [submodule "demos"]
 	path = demos
 	url = https://github.com/merumerutho/LOVJ-Demos.git
+[submodule "lib/shaders"]
+	path = lib/shaders
+	url = https://github.com/merumerutho/LOVJ-Shaders.git

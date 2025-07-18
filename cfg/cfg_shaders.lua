@@ -30,11 +30,11 @@ local function parseShaderParams(shaderContent)
 end
 
 function cfg_shaders.init()
-	local input_files = love.filesystem.getDirectoryItems("lib/shaders/postProcess/")
+	local input_files = love.filesystem.getDirectoryItems("lib/shaders/source/postProcess/")
 	for i=1, #input_files do
 			local name = string.match(input_files[i], "(.*).glsl")
 			if name then
-			local shaderContent = love.filesystem.read("lib/shaders/postProcess/" .. input_files[i])
+			local shaderContent = love.filesystem.read("lib/shaders/source/postProcess/" .. input_files[i])
 			table.insert(cfg_shaders.PostProcessShaders, { name = name, value = shaderContent })
 			-- Parse GLSL to find parameters and their initial value
 			local parsed_params = parseShaderParams(shaderContent)
@@ -42,11 +42,11 @@ function cfg_shaders.init()
 		end
 	end
 
-	input_files = love.filesystem.getDirectoryItems("lib/shaders/other/")
+	input_files = love.filesystem.getDirectoryItems("lib/shaders/source/other/")
 	for i=1,#input_files do
 		local name = string.match(input_files[i], "(.*).glsl")
 		if name then
-			local shaderContent = love.filesystem.read("lib/shaders/other/" .. input_files[i])
+			local shaderContent = love.filesystem.read("lib/shaders/source/other/" .. input_files[i])
 			table.insert(cfg_shaders.OtherShaders, {name = name, value = shaderContent})
 			-- Parse GLSL to find parameters and their initial value
 			local parsed_params = parseShaderParams(shaderContent)
