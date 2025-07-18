@@ -30,7 +30,7 @@ function screen.updateScreenOptions()
 	love.window.setMode(screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setDefaultFilter("linear", "nearest")
 	love.window.setVSync(true)
-	love.window.setFullscreen(screen.isFullscreen)
+	love.window.setFullscreen(screen.isFullscreen, "desktop")
 	cfgSpout.updateCanvases()
 end
 

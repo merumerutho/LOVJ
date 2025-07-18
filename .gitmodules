@@ -1,3 +1,6 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/merumerutho/json.lua.git
+[submodule "demos"]
+	path = demos
+	url = https://github.com/merumerutho/LOVJ-Demos.git
