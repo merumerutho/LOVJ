@@ -27,7 +27,7 @@ local MODKEY_SECONDARY = "lshift"
 -- will bind press of CTRL+P to function print("tizio")
 
 function cfg_controls.init()
-	-- R = RESET  (TODO)
+	-- R = RESET
 	controls.bind(patchSlots[cfg_controls.selectedPatch].patch.init, {cfg_controls.selectedPatch},  controls.onPress, {"r"})						                      
 
 	-- S = CHANGE SHADER
