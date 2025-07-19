@@ -83,18 +83,20 @@ function Controls.checkPressed(keyCombs)
 	return ret 
 end
 
+
 -- Detect if an action was just pressed (on key attack)
 function Controls.onPress(keyCombs)
 	return (Controls.NowPressed[keyCombs] and not Controls.PreviouslyPressed[keyCombs])
 end
+
 
 -- Detect if an action was just released (on key release)
 function Controls.onRelease(keyCombs)
 	return (not Controls.NowPressed[keyCombs] and Controls.PreviouslyPressed[keyCombs])
 end
 
+
 function Controls.update(dt)
-  
 	-- Update NowPressed for action bindings
 	for i=1, #Controls.actionsList do
 		local keyCombs = Controls.actionsList[i]["keyCombs"]
@@ -119,6 +121,7 @@ function Controls.update(dt)
 	end
 end
 
+
 -- Function to retrieve maximum number of keys used for an action
 local function keyCount(action)
 	local kcs = action["keyCombs"]
@@ -134,5 +137,6 @@ function Controls.sort()
 	-- sorting based on keycount: higher keycount first
 	table.sort(Controls.actionsList, function (a, b) return keyCount(a) > keyCount(b) end)
 end
+
 
 return Controls
