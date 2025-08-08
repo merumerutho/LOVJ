@@ -1,4 +1,4 @@
-<center><img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/doc/img/logo.png" width=500 /></center>
+<center><img src="https://raw.githubusercontent.com/merumerutho/LOVJ/main/data/app/LOVJ.png" width=500 /></center>
 
 # LOVJ - LÖVE2D VJing Framework
 
