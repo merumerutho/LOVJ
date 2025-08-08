@@ -15,6 +15,7 @@ ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
 connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
+bpmEstimator = lovjRequire("lib/bpm_estimator")
 
 cfgControls = lovjRequire("cfg/cfg_controls")
 cfgPatches = lovjRequire("cfg/cfg_patches")
@@ -51,6 +52,15 @@ local receivers_cfg = cfgSpout.receivers
 local receivers_obj = {}
 for i = 1, #receivers_cfg do
 	table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
+end
+
+bpm_est = bpmEstimator:new()
+
+-- Override love.mousepressed(x,y,button)
+function love.mousepressed(x, y, button)
+  if button == 1 then -- left mouse button
+	  bpm_est:trigger()
+  end
 end
 
 --- @public love.load

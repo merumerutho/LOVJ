@@ -29,6 +29,11 @@ function Lfo:new(f, p)
 end
 
 
+function Lfo:UpdateFreq(f)
+	self.frequency = f
+end
+
+
 function Lfo:Sine(t)
     local y = math.sin(2 * math.pi * ( self.frequency * t + self.phase) )
     return y * SMath.b2n(self:isTriggerActive())
