@@ -1,5 +1,5 @@
 -- Regular requirements
-require("lib/utils/tableExtensions")
+require("lib/utils/table_extensions")
 debug = require("debug")
 lick = require("lib/lick")
 requirements = require("lib/utils/require")

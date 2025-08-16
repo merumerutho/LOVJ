@@ -8,7 +8,7 @@ local Keypress = {}
 Keypress.currentlyPressed = {}
 
 --- @private checkSinglePress Check to see if a button was pressed a single time, either on attack or release
-local function checkSinglePress(key, onrelease)
+local function check_single_press(key, onrelease)
     -- If some key is pressed
     if love.keyboard.isDown(key) then
         local was_pressed = false
@@ -37,12 +37,12 @@ end
 
 --- @public keypressOnAttack Check if a key was pressed (on pression attack)
 function Keypress.keypressOnAttack(key)
-    return checkSinglePress(key, false)
+    return check_single_press(key, false)
 end
 
 --- @public keypressOnRelease Check if a key was pressed (on pression release)
 function Keypress.keypressOnRelease(key)
-    return checkSinglePress(key, true)
+    return check_single_press(key, true)
 end
 
 --- @public isDown Check if a button is currently being pressed (on hold)
