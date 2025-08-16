@@ -92,6 +92,7 @@ function love.load()
 
 	cfgControls.init()  -- Init controls
 	connections.init()  -- Init socket
+	dispatcher.init()  -- Init OSC dispatcher
 	
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -151,7 +152,7 @@ function love.update()
 	end
 
 	controls.update()
-	-- dispatcher.update(response)  -- TODO: implement dispatcher method
+	dispatcher.update()  -- Process OSC messages
 
 	for i=1, #patchSlots do
 		patchSlots[i].patch.update()  -- call current patch update method

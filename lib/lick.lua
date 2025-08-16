@@ -51,16 +51,16 @@ local function checkReset()
     return {}
 end
 
---- @private closeUDPThread used to close the UDP threads (if present)
-local function closeUDPThread()
+--- @private closeOSCThreads used to close the OSC threads (if present)
+local function closeOSCThreads()
     local Connections = require("lib/connections")
     local cfg_connections = require("cfg/cfg_connections")
-    if Connections.UdpThreads == nil then return end
+    if Connections.OscThreads == nil then return end
 
-    -- If there are UDP_threads open, send them "quitMsg"
-	for k, th in ipairs(Connections.UdpThreads) do
-        logInfo("Closing UDP thread #" .. k)
-        Connections.stopThread(th)
+    -- If there are OSC threads open, send them quit signal
+	for k, th in ipairs(Connections.OscThreads) do
+        logInfo("Closing OSC thread #" .. k)
+        Connections.stopOSCThread(th)
     end
 end
 
@@ -69,7 +69,7 @@ end
 function lick.hardReset(component)
     logInfo("Hard reset.")
     -- Close UDP socket and thread
-    closeUDPThread()
+    closeOSCThreads()
     -- re-load main file
     success, chunk = pcall(love.filesystem.load, MAIN_FILE)
     if not success then
@@ -191,7 +191,7 @@ function love.run()
                 if not love.quit or not love.quit() then
                     if love.audio then
                         love.audio.stop()
-                        closeUDPThread()
+                        closeOSCThreads()
                     end
                 return
                 end
