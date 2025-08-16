@@ -52,7 +52,7 @@ end
 
 --- @public New Initializer for a resource object
 function Resource:new(o, n)
-    local o = {} or o
+    local o = o or {}
     setmetatable(o, self)
     self.__index = self
     for i=1,n do

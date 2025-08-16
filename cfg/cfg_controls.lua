@@ -4,7 +4,7 @@
 --
 
 local controls = lovjRequire("lib/controls")
-local rtmgr = lovjRequire("lib/realtimemgr")
+local saveMgr = lovjRequire("lib/savemgr")
 local patch = lovjRequire("lib/patch")
 
 local cfgShaders = lovjRequire("cfg/cfg_shaders")
@@ -32,7 +32,7 @@ function cfg_controls.init()
 
 	-- S = CHANGE SHADER
 	controls.bind(function () local s = patchSlots[cfg_controls.selectedPatch].shaderext
-							s:set("shaderSlot1", 1 + (s:get("shaderSlot1")) % (#cfgShaders.PostProcessShaders)) end,
+						s:set("shaderSlot1", 1 + (s:get("shaderSlot1")) % (#cfgShaders.PostProcessShaders)) end,
 					{}, 
 					controls.onPress, 
 					{"s"})					                          
@@ -49,15 +49,15 @@ function cfg_controls.init()
 	-- Controls to load patches / load savestate / save savestate
 	-- F1 ... F12 / CTRL + F1 ... F12 / CTRL + SHIFT + F1 ... F12
 	for i=1, 12 do
-		controls.bind(rtmgr.loadPatch,      
+		controls.bind(saveMgr.loadPatch,      
 					  {cfgPatches.patches[i], cfg_controls.selectedPatch}, 
 					  controls.onPress, 
 					  {"f"..tostring(i)})
-		controls.bind(rtmgr.loadResources,
+		controls.bind(saveMgr.loadResources,
 					  {patchSlots[cfg_controls.selectedPatch].name, i, cfg_controls.selectedPatch},
 					  controls.onPress,
 					  {MODKEY_PRIMARY, "f"..tostring(i)})
-		controls.bind(rtmgr.saveResources,
+		controls.bind(saveMgr.saveResources,
 					  {patchSlots[cfg_controls.selectedPatch].name, i, cfg_controls.selectedPatch},
 					  controls.onPress,
 					  {MODKEY_PRIMARY, MODKEY_SECONDARY, "f"..tostring(i)})

@@ -117,10 +117,33 @@ local function checkForModifications()
             logInfo(patchSlots[i].name .. " - patch reset.")
             lovjUnrequire(patchSlots[i].name)
         end
-        -- re-load all patches
+        -- re-load all patches with error handling
         for i=1,#patchSlots do
-            patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
-            patchSlots[i].patch.init(i)
+            local success, patch = pcall(lovjRequire, patchSlots[i].name, lick.PATCH_RESET)
+            if success then
+                patchSlots[i].patch = patch
+                -- Safe patch initialization
+                if errorHandler then
+                    local initSuccess, err = errorHandler.safePatchCall(i, "init", patchSlots[i].patch.init, i, globalSettings, patchSlots[i].shaderext)
+                    if not initSuccess then
+                        logError("Failed to initialize reloaded patch " .. i .. ": " .. tostring(err))
+                        patchSlots[i].patch = errorHandler.createFallbackPatch(i)
+                    else
+                        errorHandler.clearError(i)  -- Clear any previous errors
+                    end
+                else
+                    -- Fallback if errorHandler not available
+                    local initSuccess, err = pcall(patchSlots[i].patch.init, i, globalSettings, patchSlots[i].shaderext)
+                    if not initSuccess then
+                        logError("Failed to initialize reloaded patch " .. i .. ": " .. tostring(err))
+                    end
+                end
+            else
+                logError("Failed to reload patch " .. i .. " (" .. patchSlots[i].name .. "): " .. tostring(patch))
+                if errorHandler then
+                    patchSlots[i].patch = errorHandler.createFallbackPatch(i)
+                end
+            end
         end
 	-- for components that require a soft reset
     elseif resetComponent.resetType == lick.SOFT_RESET then
