@@ -2,8 +2,8 @@
 --
 -- Handle screen graphical settings
 
-local cfgScreen = require("cfg/cfg_screen")
-local cfgSpout = require("cfg/cfg_spout")
+local cfgScreen = lovjRequire("cfg/cfg_screen")
+local cfgSpout = lovjRequire("cfg/cfg_spout")
 
 local screen = {}
 

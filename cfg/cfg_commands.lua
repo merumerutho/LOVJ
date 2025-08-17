@@ -5,10 +5,10 @@
 --
 
 local cfg_commands = {}
+local CommandSystem = lovjRequire("lib/command_system")
 
 -- Initialize command system with all LOVJ commands
 function cfg_commands.init()
-    local CommandSystem = require("lib/command_system")
     
     -- Global commands
     CommandSystem.registerCommand("setSelectedPatch", {
@@ -123,19 +123,20 @@ function cfg_commands.init()
     })
     
     CommandSystem.registerCommand("setPatchParameter", {
-        description = "Set a parameter value for a patch",
+        description = "Set a parameter value for a patch by ID",
         category = "patch",
         parameters = {
             {name = "slot", type = "int", min = 1, max = 12, required = true},
-            {name = "paramName", type = "string", required = true},
+            {name = "paramId", type = "int", min = 1, required = true},
             {name = "value", type = "float", required = true}
         },
-        execute = function(slot, paramName, value)
+        execute = function(slot, paramId, value)
             if patchSlots and patchSlots[slot] and patchSlots[slot].patch then
                 local patch = patchSlots[slot].patch
                 if patch.resources and patch.resources.parameters then
-                    patch.resources.parameters:set(paramName, value)
-                    logInfo("Set " .. paramName .. " = " .. value .. " in patch " .. slot)
+                    patch.resources.parameters:setByIdx(paramId, value)
+                    local paramName = patch.resources.parameters:getName(paramId) or ("param" .. paramId)
+                    logInfo("Set parameter " .. paramId .. " (" .. paramName .. ") = " .. value .. " in patch " .. slot)
                 end
             end
         end

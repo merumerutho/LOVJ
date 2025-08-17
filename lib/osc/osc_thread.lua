@@ -139,8 +139,8 @@ while true do
         -- Parse incoming OSC packet
         local oscAddress, oscValue = parseOSCPacket(oscPacket)
         if oscAddress and oscValue ~= nil then
-            -- Forward parsed OSC message to main thread dispatcher
-            local oscMessage = oscAddress .. " " .. tostring(oscValue)
+            -- Forward parsed OSC message to main thread dispatcher with sender info
+            local oscMessage = (senderIP or "unknown") .. ":" .. (senderPort or "0") .. "|" .. oscAddress .. " " .. tostring(oscValue)
             oscMessageChannel:push(oscMessage)
         else
             -- Forward raw packet if OSC parsing fails (for debugging)

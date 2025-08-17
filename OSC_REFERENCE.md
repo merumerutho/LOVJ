@@ -25,15 +25,15 @@ LOVJ implements a hierarchical OSC control system that maps to its internal arch
 ### Patch Controls (per slot 1-N)
 - `/lovj/patch/<slot>/load <string>` - Load specific patch by name
 - `/lovj/patch/<slot>/reset <trigger>` - Reset patch
-- `/lovj/patch/<slot>/parameters/<param_name> <float>` - Set patch parameter
-- `/lovj/patch/<slot>/savestate/load <int>` - Load savestate (1-12)
-- `/lovj/patch/<slot>/savestate/save <int>` - Save savestate (1-12)
+- `/lovj/patch/<slot>/param/<param_id> <float>` - Set patch parameter by ID
+- `/lovj/patch/<slot>/savestate/<savestate_id>/load <trigger>` - Load savestate (1-12)
+- `/lovj/patch/<slot>/savestate/<savestate_id>/save <trigger>` - Save savestate (1-12)
 - `/lovj/patch/<slot>/graphics/<resource_name> <variant>` - Set graphics resource
-- `/lovj/patch/<slot>/globals/<global_name> <variant>` - Set global resource
+- `/lovj/patch/<slot>/global/<global_name> <variant>` - Set global resource
 
 ### Shader Controls (per patch slot)
-- `/lovj/shader/<slot>/postprocess/<layer>/select <int>` - Select shader for layer
-- `/lovj/shader/<slot>/postprocess/<layer>/<param_name> <float>` - Set shader parameter
+- `/lovj/shader/<slot>/<layer>/select <int>` - Select shader for layer
+- `/lovj/shader/<slot>/<layer>/param/<param_name> <float>` - Set shader parameter
 
 ## Message Format
 
@@ -48,19 +48,19 @@ For testing and simple applications: `"<address> <value>"`
 Examples:
 ```
 "/lovj/global/selectedPatch 2"
-"/lovj/patch/1/parameters/moonSize 1.5"
+"/lovj/patch/1/param/1 1.5"
 "/lovj/system/fullscreen 1"
 ```
 
 ## Configuration
 
 ### Connection Settings
-Edit `cfg/cfg_osc_handlers.lua` to configure OSC connections:
+Edit `cfg/cfg_osc_mapping.lua` to configure OSC connections:
 
 ```lua
-cfg_osc_handlers.connections = {
+cfg_osc_mapping.connections = {
     {
-        id = "main",
+        id = "touchosc",
         address = "127.0.0.1", 
         port = 8000,
         enabled = true
@@ -68,16 +68,24 @@ cfg_osc_handlers.connections = {
 }
 ```
 
-### Adding Custom Handlers
-Add new OSC addresses to the handlers table:
+### Adding Custom Mappings
+Add new OSC addresses to the mappings:
 
 ```lua
-cfg_osc_handlers.handlers["/lovj/custom/mycontrol"] = {
-    target = "global",
-    action = "myCustomAction", 
-    type = "float",
-    range = {0, 1}
+cfg_osc_mapping.directMappings["/lovj/custom/mycontrol"] = {
+    command = "myCustomCommand",
+    args = {"$1"}
 }
+```
+
+Or use pattern mappings for dynamic addresses:
+
+```lua
+table.insert(cfg_osc_mapping.patternMappings, {
+    pattern = "^/lovj/custom/(%d+)/(.+)$",
+    command = "myCustomCommand",
+    args = {"$1", "$2", "$3"}
+})
 ```
 
 ## Usage Examples
@@ -93,21 +101,21 @@ cfg_osc_handlers.handlers["/lovj/custom/mycontrol"] = {
 # Toggle fullscreen
 /lovj/system/fullscreen 1
 
-# Set patch 1 parameter "moonSize" to 1.5
-/lovj/patch/1/parameters/moonSize 1.5
+# Set patch 1 parameter ID 1 to 1.5
+/lovj/patch/1/param/1 1.5
 
 # Load demo_3 into patch slot 2
-/lovj/patch/2/load demos/demo3/source/demo_3
+/lovj/patch/2/load demo_3
 
 # Select shader 5 for layer 1 of patch 1
-/lovj/shader/1/postprocess/1/select 5
+/lovj/shader/1/1/select 5
 ```
 
 ### Pure Data / Max/MSP
 ```
 # Send to udpsend object at 127.0.0.1:8000
 /lovj/global/selectedPatch 2
-/lovj/patch/1/parameters/brightness 0.8
+/lovj/patch/1/param/1 0.8
 ```
 
 ### Python (python-osc)
@@ -116,7 +124,7 @@ from pythonosc import udp_client
 
 client = udp_client.SimpleUDPClient("127.0.0.1", 8000)
 client.send_message("/lovj/global/selectedPatch", 3)
-client.send_message("/lovj/patch/1/parameters/moonSize", 1.5)
+client.send_message("/lovj/patch/1/param/1", 1.5)
 ```
 
 ## Testing
@@ -153,9 +161,9 @@ echo "/lovj/global/selectedPatch 2" | nc -u 127.0.0.1 8000
 
 ## Extending the System
 
-1. Add new handlers to `cfg_osc_handlers.lua`
-2. Implement corresponding actions in `dispatcher.lua` 
-3. Add validation rules for new data types
-4. Test with the provided test script
+1. Add new mappings to `cfg_osc_mapping.lua`
+2. Implement corresponding commands in `cfg_commands.lua` 
+3. Register commands in the command system
+4. Test with OSC clients or test scripts
 
 For advanced OSC parsing or bundle support, extend `OSCThread.lua` with a full OSC library like `losc`.

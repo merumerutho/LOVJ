@@ -10,8 +10,9 @@ local OSCDispatcher = {}
 local OSC_THREAD_FILE = "lib/osc/osc_thread.lua"
 
 -- Dependencies
-local CommandSystem = require("lib/command_system")
-local oscMapping = require("cfg/cfg_osc_mapping")
+local CommandSystem = lovjRequire("lib/command_system")
+local oscMapping = lovjRequire("cfg/cfg_osc_mapping")
+local OSCFeedback = lovjRequire("lib/osc/osc_feedback")
 
 -- Active OSC channels from OSCThread instances
 local activeOSCChannels = {}
@@ -33,10 +34,41 @@ function OSCDispatcher.unregisterOSCChannel(channelName)
     logInfo("OSCDispatcher: Unregistered OSC channel " .. channelName)
 end
 
--- Parse simple OSC message format: "address value1 value2 ..."
+-- Parse OSC message format: "senderIP:senderPort|address value1 value2 ..."
 local function parseOSCMessage(rawMsg)
+    -- Extract sender info and message parts
+    local senderInfo, messagePart = rawMsg:match("^([^|]+)|(.+)$")
+    if not senderInfo or not messagePart then
+        -- Fallback to old format without sender info
+        local parts = {}
+        for part in rawMsg:gmatch("%S+") do
+            table.insert(parts, part)
+        end
+        
+        if #parts < 1 then return nil end
+        
+        local address = parts[1]
+        local args = {}
+        
+        for i = 2, #parts do
+            local value = tonumber(parts[i])
+            if value then
+                table.insert(args, value)
+            else
+                table.insert(args, parts[i])
+            end
+        end
+        
+        return address, args, nil, nil
+    end
+    
+    -- Parse sender information
+    local senderIP, senderPort = senderInfo:match("^([^:]+):(%d+)$")
+    senderPort = tonumber(senderPort)
+    
+    -- Parse message parts
     local parts = {}
-    for part in rawMsg:gmatch("%S+") do
+    for part in messagePart:gmatch("%S+") do
         table.insert(parts, part)
     end
     
@@ -45,17 +77,16 @@ local function parseOSCMessage(rawMsg)
     local address = parts[1]
     local args = {}
     
-    -- Convert remaining parts to appropriate types
     for i = 2, #parts do
         local value = tonumber(parts[i])
         if value then
             table.insert(args, value)
         else
-            table.insert(args, parts[i])  -- Keep as string
+            table.insert(args, parts[i])
         end
     end
     
-    return address, args
+    return address, args, senderIP, senderPort
 end
 
 -- Apply value transformations
@@ -137,14 +168,38 @@ local function tryPatternMapping(address, oscArgs)
 end
 
 -- Route OSC message to appropriate command
-local function routeOSCMessage(address, oscArgs)
-    -- Try direct mapping first
+local function routeOSCMessage(address, oscArgs, senderIP, senderPort)
+    -- Check for discovery/feedback commands first
+    if address == OSCFeedback.discoveryAddresses.REQUEST_ALL then
+        OSCFeedback.registerClient(senderIP, senderPort)
+        local clientId = senderIP .. ":" .. senderPort
+        OSCFeedback.sendParameterDiscovery(clientId, nil)
+        return true
+    elseif address == OSCFeedback.discoveryAddresses.REQUEST_CATEGORY and #oscArgs > 0 then
+        OSCFeedback.registerClient(senderIP, senderPort)
+        local clientId = senderIP .. ":" .. senderPort
+        OSCFeedback.sendParameterDiscovery(clientId, oscArgs[1])
+        return true
+    elseif address == OSCFeedback.discoveryAddresses.UPDATE_TICK then
+        OSCFeedback.handleUpdateTick(senderIP, senderPort)
+        return true
+    end
+    
+    -- Try direct mapping
     if tryDirectMapping(address, oscArgs) then
+        -- Send parameter update notification to feedback system
+        if #oscArgs > 0 then
+            OSCFeedback.sendParameterUpdate(address, oscArgs[1])
+        end
         return true
     end
     
     -- Try pattern mappings
     if tryPatternMapping(address, oscArgs) then
+        -- Send parameter update notification to feedback system
+        if #oscArgs > 0 then
+            OSCFeedback.sendParameterUpdate(address, oscArgs[1])
+        end
         return true
     end
     
@@ -159,9 +214,9 @@ function OSCDispatcher.update()
             local rawOSCMsg = channel:pop()
             if not rawOSCMsg then break end
             
-            local address, args = parseOSCMessage(rawOSCMsg)
+            local address, args, senderIP, senderPort = parseOSCMessage(rawOSCMsg)
             if address then
-                local routed = routeOSCMessage(address, args)
+                local routed = routeOSCMessage(address, args, senderIP, senderPort)
                 if not routed then
                     logInfo("OSCDispatcher: No mapping for address: " .. address)
                 end

@@ -43,17 +43,17 @@ cfg_midi_mapping.ccMappings = {
     -- Device-specific CC mappings
     ["controller1_1_20"] = {
         command = "setPatchParameter",
-        args = {"1", "brightness", "$value"},
+        args = {"1", "1", "$value"},  -- slot 1, param ID 1
         transform = {"midiNormalize"}
     },
     ["controller1_1_21"] = {
         command = "setPatchParameter", 
-        args = {"1", "contrast", "$value"},
+        args = {"1", "2", "$value"},  -- slot 1, param ID 2
         transform = {"midiNormalize"}
     },
     ["controller1_1_22"] = {
         command = "setPatchParameter",
-        args = {"2", "speed", "$value"},
+        args = {"2", "1", "$value"},  -- slot 2, param ID 1
         transform = {"midiNormalize"}
     },
     
@@ -93,7 +93,7 @@ cfg_midi_mapping.noteMappings = {
     -- Velocity-sensitive mappings
     [64] = { -- E
         command = "setPatchParameter",
-        args = {"1", "trigger", "$velocity"},
+        args = {"1", "3", "$velocity"},  -- slot 1, param ID 3
         type = "noteOn",
         transform = {"midiNormalize"}
     },

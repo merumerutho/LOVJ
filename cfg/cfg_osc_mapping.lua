@@ -50,6 +50,20 @@ cfg_osc_mapping.directMappings = {
     ["/lovj/system/reset"] = {
         command = "systemReset",
         args = {"$1"}
+    },
+    
+    -- OSC Parameter Discovery commands (handled internally by OSC dispatcher)
+    ["/lovj/discovery/request/all"] = {
+        command = "requestAllParameters",
+        args = {"$sender_ip", "$sender_port"}
+    },
+    ["/lovj/discovery/request/category"] = {
+        command = "requestParametersByCategory", 
+        args = {"$sender_ip", "$sender_port", "$1"}
+    },
+    ["/lovj/discovery/update_tick"] = {
+        command = "oscUpdateTick",
+        args = {"$sender_ip", "$sender_port"}
     }
 }
 
@@ -67,9 +81,9 @@ cfg_osc_mapping.patternMappings = {
         args = {"$1"}
     },
     {
-        pattern = "^/lovj/patch/(%d+)/param/(.+)$",
+        pattern = "^/lovj/patch/(%d+)/param/(%d+)$",
         command = "setPatchParameter",
-        args = {"$1", "$2", "$3"}  -- slot, param name, value
+        args = {"$1", "$2", "$3"}  -- slot, param ID, value
     },
     {
         pattern = "^/lovj/patch/(%d+)/savestate/(%d+)/load$",

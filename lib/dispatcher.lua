@@ -11,17 +11,22 @@ local dispatcher = {}
 local OSCDispatcher = lovjRequire("lib/osc/osc_dispatcher")
 local MIDIDispatcher = lovjRequire("lib/midi/midi_dispatcher")
 local CommandSystem = lovjRequire("lib/command_system")
+local OSCFeedback = lovjRequire("lib/osc/osc_feedback")
+
+local cfgCommands = lovjRequire("cfg/cfg_commands")
 
 -- Initialize all protocol dispatchers and command system
 function dispatcher.init()
     logInfo("Main Dispatcher: Initializing command system and protocol handlers")
     
     -- Initialize command system with all LOVJ commands
-    local cfgCommands = require("cfg/cfg_commands")
     cfgCommands.init()
     
     -- Initialize OSC dispatcher
     OSCDispatcher.init()
+    
+    -- Initialize OSC feedback system
+    OSCFeedback.init()
     
     -- Initialize MIDI dispatcher
     MIDIDispatcher.init()
@@ -34,6 +39,9 @@ function dispatcher.update()
     -- Update all protocol dispatchers (they queue commands)
     OSCDispatcher.update()
     MIDIDispatcher.update()
+    
+    -- Update OSC feedback system
+    OSCFeedback.update()
     
     -- Execute all queued commands in main thread
     CommandSystem.processCommands()

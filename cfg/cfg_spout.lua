@@ -4,7 +4,7 @@
 --
 
 local cfg_spout = {}
-cfg_screen = require("cfg/cfg_screen")
+cfg_screen = lovjRequire("cfg/cfg_screen")
 
 cfg_spout.enable = true
 

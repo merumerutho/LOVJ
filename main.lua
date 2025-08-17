@@ -26,6 +26,7 @@ cfgTimers = lovjRequire("cfg/cfg_timers")
 cfgSpout = lovjRequire("cfg/cfg_spout")
 cfgApp = lovjRequire("cfg/cfg_app")
 cfgScreen = lovjRequire("cfg/cfg_screen")
+cfgGlobals = lovjRequire("cfg/cfg_globals")
 
 -- Initialize Spout support
 if (cfgSpout.enable and 
@@ -70,7 +71,7 @@ function love.load()
 	cfgTimers.init()  -- Init timers
 	cfgShaders.init()  -- Init shaders
   
-	-- Set two running patches
+	-- Set running patches
 	patchSlots = {}
 	for i=1,#cfgPatches.defaultPatch do
 		table.insert(patchSlots, {name = cfgPatches.defaultPatch[i]})
@@ -81,6 +82,13 @@ function love.load()
 
 	-- global setting resources
 	globalSettings = ResourceList:newResource()
+	
+	-- Populate global settings from configuration
+	for i, setting in ipairs(cfgGlobals.settings) do
+		globalSettings:setByIdx(i, setting.value)
+		globalSettings:setName(i, setting.name)
+		logInfo("Global setting " .. i .. ": " .. setting.name .. " = " .. tostring(setting.value))
+	end
 
 	-- Initialize patches with error handling
 	for i, slot in ipairs(patchSlots) do

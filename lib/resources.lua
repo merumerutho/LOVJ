@@ -3,11 +3,12 @@
 -- Generate and handle patch resources
 --
 
--- TODO: Move this to cfg_resources
-local DEFAULT_SIZE = 128
-
 local Resource = {}
 local ResourceList = {}
+
+local cfg_globals = lovjRequire("cfg/cfg_globals")
+
+local DEFAULT_SIZE = cfg_globals.SETTINGS_MAX_COUNT
 
 -- functions
 --- @public setByIdx setter for resource value by idx

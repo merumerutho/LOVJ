@@ -10,8 +10,8 @@ local MIDIDispatcher = {}
 local MIDI_THREAD_FILE = "lib/midi/midi_thread.lua"
 
 -- Dependencies
-local CommandSystem = require("lib/command_system")
-local midiMapping = require("cfg/cfg_midi_mapping")
+local CommandSystem = lovjRequire("lib/command_system")
+local midiMapping = lovjRequire("cfg/cfg_midi_mapping")
 
 -- Active MIDI channels from MIDIThread instances
 local activeMIDIChannels = {}
