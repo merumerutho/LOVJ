@@ -151,3 +151,4 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) 
 - [lick](https://github.com/usysrc/lick): For the live-coding features.
 - [json.lua](https://github.com/rxi/json.lua): JSON library.
 - [Spout](https://spout.zeal.co/): Spout library for video sharing.
+- [SiENcE/lovemidi](https://github.com/SiENcE/lovemidi) SiENcE for lovemidi.

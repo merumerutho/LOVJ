@@ -53,37 +53,6 @@ device = "controller"  -- Matches any device with "controller" in name
 device = "launchpad"   -- Matches "Novation Launchpad Mini"
 ```
 
-## MIDI Learning Mode
-
-### Enable Learning
-```lua
-cfg_midi_mapping.learning = {
-    enabled = true,     -- Enable MIDI learn
-    timeout = 5000,     -- 5 second timeout per learn
-    excludeChannels = {10}  -- Skip drum channel
-}
-```
-
-### Learning Workflow
-1. **Start Learning:** Send OSC message `/lovj/midi/learn start parameterName`
-2. **Move Controller:** Wiggle the knob/slider you want to map
-3. **Auto-Map:** System automatically creates mapping
-4. **Confirm:** Mapping saved to active configuration
-
-### Example Learning Session
-```lua
--- Via OSC or command system:
--- 1. Start learning for patch brightness
-/lovj/midi/learn start patch1_brightness
-
--- 2. Move CC knob #20 on your controller
--- 3. System creates:
-["controller1_1_20"] = {
-    command = "setPatchParameter",
-    args = {"1", "brightness", "$value"},
-    transform = {"midiNormalize"}
-}
-```
 
 ## Common Mappings
 
@@ -195,10 +164,6 @@ end
 - Verify device name/index in console output
 - Ensure MIDI controller is sending on expected channel
 
-### Learning Not Working
-- Set `learning.enabled = true`
-- Check learning timeout (default 5 seconds)
-- Avoid drum channel 10 (excluded by default)
 
 ## Advanced Usage
 

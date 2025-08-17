@@ -187,11 +187,5 @@ cfg_midi_mapping.autoDetect = {
     }
 }
 
--- MIDI learning mode settings
-cfg_midi_mapping.learning = {
-    enabled = false,  -- Set to true to enable MIDI learn mode
-    timeout = 5000,   -- Learning timeout in milliseconds
-    excludeChannels = {10}  -- Exclude drum channel from learning
-}
 
 return cfg_midi_mapping
