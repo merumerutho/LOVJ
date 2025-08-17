@@ -15,7 +15,7 @@ timer = lovjRequire("lib/timer")
 ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
 dispatcher = lovjRequire("lib/dispatcher")
-bpmEstimator = lovjRequire("lib/bpm_estimator")
+bpmEstimator = lovjRequire("lib/utils/bpm_estimator")
 errorHandler = lovjRequire("lib/utils/error_handler")
 
 -- Load configuration modules as globals
