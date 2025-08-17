@@ -121,12 +121,7 @@ client.send_message("/lovj/patch/1/parameters/moonSize", 1.5)
 
 ## Testing
 
-Run the included test script:
-```bash
-lua test_osc.lua
-```
-
-Or send manual messages using netcat:
+Send manual messages using netcat:
 ```bash
 echo "/lovj/global/selectedPatch 2" | nc -u 127.0.0.1 8000
 ```

@@ -16,11 +16,12 @@ It's primarily aimed at live music performances, allowing for the creation, sequ
 - **Spout Integration:** Stream video to and from other applications using Spout.
 - **Savestates:** Quickly save and recall the internal state of patches.
 - **Patch-based Architecture:** Modular design based on video patches that can be loaded, sequenced, and mixed.
+- **MIDI Support:** Connect MIDI controllers for real-time parameter control and patch triggering.
+- **OSC Networking:** Built-in OSC server for external control and integration with other applications.
 
 ### Planned
 
 - **Live-Coding:** Edit code on-the-fly with hot-reloading capabilities.
-- **OSC Networking:** Built-in OSC server for external control.
 
 ## 📋 Prerequisites
 
@@ -48,6 +49,33 @@ It's primarily aimed at live music performances, allowing for the creation, sequ
 -   **Ctrl + S:** Toggle shaders on or off.
 -   **Ctrl + U:** Change the upscaling mode.
 -   **S:** Cycle through available visual effects.
+
+### MIDI and OSC Control
+
+LOVJ supports external control through MIDI and OSC protocols:
+
+#### MIDI Setup
+1. Configure MIDI connections in `cfg/cfg_midi_mapping.lua`
+2. Set `enabled = true` for your MIDI device in the connections section
+3. Map MIDI CC, notes, and program changes to LOVJ commands
+4. Use auto-detection or specify device names/indices
+
+**Example MIDI mappings:**
+- CC1: Switch patches
+- CC7: Global volume control  
+- Notes 60-67: Trigger patches 1-8
+- Program changes: Load specific patches
+
+#### OSC Setup
+1. Configure OSC connections in `cfg/cfg_osc_mapping.lua`
+2. Set connection address, port, and enable the connection
+3. Map OSC addresses to LOVJ commands using direct or pattern mappings
+
+**Example OSC addresses:**
+- `/lovj/global/selectedPatch <slot>`: Switch to patch slot
+- `/lovj/patch/<slot>/param/<name> <value>`: Set patch parameter
+- `/lovj/shader/<slot>/<layer>/param/<name> <value>`: Set shader parameter
+- `/lovj/system/fullscreen <0|1>`: Toggle fullscreen
 
 
 ## ⚙️ Configuration (Optional)
@@ -122,5 +150,4 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) 
 
 - [lick](https://github.com/usysrc/lick): For the live-coding features.
 - [json.lua](https://github.com/rxi/json.lua): JSON library.
-- [losc](https://github.com/davidgranstrom/losc): Lua OSC library.
 - [Spout](https://spout.zeal.co/): Spout library for video sharing.

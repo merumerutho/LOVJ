@@ -9,6 +9,7 @@ local dispatcher = {}
 
 -- Protocol handlers
 local OSCDispatcher = lovjRequire("lib/osc/osc_dispatcher")
+local MIDIDispatcher = lovjRequire("lib/midi/midi_dispatcher")
 local CommandSystem = lovjRequire("lib/command_system")
 
 -- Initialize all protocol dispatchers and command system
@@ -22,6 +23,9 @@ function dispatcher.init()
     -- Initialize OSC dispatcher
     OSCDispatcher.init()
     
+    -- Initialize MIDI dispatcher
+    MIDIDispatcher.init()
+    
     logInfo("Main Dispatcher: Initialization complete")
 end
 
@@ -29,6 +33,7 @@ end
 function dispatcher.update()
     -- Update all protocol dispatchers (they queue commands)
     OSCDispatcher.update()
+    MIDIDispatcher.update()
     
     -- Execute all queued commands in main thread
     CommandSystem.processCommands()
@@ -44,10 +49,21 @@ function dispatcher.unregisterOSCChannel(channelName)
     OSCDispatcher.unregisterOSCChannel(channelName)
 end
 
+-- Register MIDI channel (delegated to MIDI dispatcher)
+function dispatcher.registerMIDIChannel(channelName)
+    MIDIDispatcher.registerMIDIChannel(channelName)
+end
+
+-- Unregister MIDI channel (delegated to MIDI dispatcher)
+function dispatcher.unregisterMIDIChannel(channelName)
+    MIDIDispatcher.unregisterMIDIChannel(channelName)
+end
+
 -- Get status of all dispatchers
 function dispatcher.getStatus()
     return {
         osc = OSCDispatcher.getStatus(),
+        midi = MIDIDispatcher.getStatus(),
         commands = {
             queueLength = #CommandSystem.commandQueue,
             availableCommands = table.getn(CommandSystem.getCommands())
@@ -60,10 +76,16 @@ function dispatcher.stopAllOSCThreads()
     OSCDispatcher.stopAllOSCThreads()
 end
 
+-- Stop all MIDI threads (for cleanup during resets)
+function dispatcher.stopAllMIDIThreads()
+    MIDIDispatcher.stopAllMIDIThreads()
+end
+
 -- Emergency reset all dispatchers
 function dispatcher.reset()
     CommandSystem.clearQueue()
     OSCDispatcher.stopAllOSCThreads()
+    MIDIDispatcher.stopAllMIDIThreads()
     logInfo("Main Dispatcher: Reset complete")
 end
 
