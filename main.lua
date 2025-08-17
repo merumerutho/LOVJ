@@ -173,7 +173,7 @@ function love.update()
 
 	-- Timer "callback"
 	local fps = love.timer.getFPS()
-	if cfgTimers.consoleTimer:Activated() then
+	if cfgTimers.consoleTimer:activated() then
 		logInfo("FPS: " .. fps)
 		for i=1, #receivers_obj do
 			receivers_obj[i]:update() -- Update spout receivers

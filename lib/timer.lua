@@ -9,46 +9,46 @@ Timer.__index = Timer
 function Timer:new(reset_time)
 	local self = setmetatable({}, Timer)
 
-	self.initTime = love.timer.getTime()  -- get time of initialization
+	self.init_tme = love.timer.getTime()  -- get time of initialization
 	self.T = 0  -- initialize timer to 0
 	self.delta = 0  -- delta to the reset time
-	self.resetT = reset_time  -- the reset time
-	self.hasReset = false  -- becomes true upon reset
+	self.reset_t = reset_time  -- the reset time
+	self.has_reset = false  -- becomes true upon reset
 
 	return self
 end
 
---- @public setResetT Setter for reset time
-function Timer:setResetT(value)
-	self.resetT = value
+--- @public set_reset_t Setter for reset time
+function Timer:set_reset_t(value)
+	self.reset_t = value
 end
 
---- @public checkResetT Check if reset time was reached. In such case, trigger the "hasReset" flag
-function Timer:checkResetT()
-	if self.resetT == nil then return false end
-	self.hasReset = false
-	if (self.T - self.delta) >= self.resetT then
+--- @public check_reset_t Check if reset time was reached. In such case, trigger the "has_reset" flag
+function Timer:check_reset_t()
+	if self.reset_t == nil then return false end
+	self.has_reset = false
+	if (self.T - self.delta) >= self.reset_t then
 		self.delta = self.T
-		self.hasReset = true
+		self.has_reset = true
 	end
 end
 
 --- @public update Update current time count in the timer
 function Timer:update()
-	self.T = love.timer.getTime() - self.initTime
-	self:checkResetT()
+	self.T = love.timer.getTime() - self.init_tme
+	self:check_reset_t()
 end
 
---- @public Activated return whether the timer trigger was activated or not
-function Timer:Activated()
-	return self.hasReset
+--- @public activated return whether the timer trigger was activated or not
+function Timer:activated()
+	return self.has_reset
 end
 
 --- @public reset Reset the timer to count from 0.
 function Timer:reset()
 	self.T = 0
 	self.delta = 0
-	self.initTime = love.timer.getTime()
+	self.init_tme = love.timer.getTime()
 end
 
 --- @public dt Obtain the timer delta (difference between current time and previously counted time)
