@@ -38,7 +38,7 @@ function logError(msg)
 end
 
 --- @public logDebug provide log debug, printing also the component name
-function logError(msg)
+function logDebug(msg)
 	if bit.band(logging.logLevel, logging.LOG_DEBUG) then
 		local filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
 		-- filename = "" or filename
