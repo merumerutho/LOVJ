@@ -53,14 +53,9 @@ end
 
 --- @private closeOSCThreads used to close the OSC threads (if present)
 local function closeOSCThreads()
-    local Connections = require("lib/connections")
-    local cfg_connections = require("cfg/cfg_connections")
-    if Connections.OscThreads == nil then return end
-
-    -- If there are OSC threads open, send them quit signal
-	for k, th in ipairs(Connections.OscThreads) do
-        logInfo("Closing OSC thread #" .. k)
-        Connections.stopOSCThread(th)
+    -- Use the new dispatcher system to clean up OSC threads
+    if dispatcher and dispatcher.stopAllOSCThreads then
+        dispatcher.stopAllOSCThreads()
     end
 end
 

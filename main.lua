@@ -14,7 +14,6 @@ screen = lovjRequire("lib/screen")
 timer = lovjRequire("lib/timer")
 ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
-connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
 bpmEstimator = lovjRequire("lib/bpm_estimator")
 errorHandler = lovjRequire("lib/utils/error_handler")
@@ -98,8 +97,7 @@ function love.load()
 	end
 
 	cfgControls.init()  -- Init controls
-	connections.init()  -- Init socket
-	dispatcher.init()  -- Init OSC dispatcher
+	dispatcher.init()  -- Init OSC dispatcher and command system
 	
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)

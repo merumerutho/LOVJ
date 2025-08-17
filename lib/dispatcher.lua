@@ -8,8 +8,8 @@
 local dispatcher = {}
 
 -- Protocol handlers
-local OSCDispatcher = require("lib/osc_dispatcher")
-local CommandSystem = require("lib/command_system")
+local OSCDispatcher = lovjRequire("lib/osc/osc_dispatcher")
+local CommandSystem = lovjRequire("lib/command_system")
 
 -- Initialize all protocol dispatchers and command system
 function dispatcher.init()
@@ -55,9 +55,15 @@ function dispatcher.getStatus()
     }
 end
 
+-- Stop all OSC threads (for cleanup during resets)
+function dispatcher.stopAllOSCThreads()
+    OSCDispatcher.stopAllOSCThreads()
+end
+
 -- Emergency reset all dispatchers
 function dispatcher.reset()
     CommandSystem.clearQueue()
+    OSCDispatcher.stopAllOSCThreads()
     logInfo("Main Dispatcher: Reset complete")
 end
 

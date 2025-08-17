@@ -1,4 +1,4 @@
--- OSCThread.lua
+-- osc_thread.lua
 --
 -- OSC (Open Sound Control) message receiver thread
 -- Listens for OSC messages over UDP and forwards them to the main dispatcher

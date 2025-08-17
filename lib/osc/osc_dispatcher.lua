@@ -7,12 +7,17 @@
 
 local OSCDispatcher = {}
 
+local OSC_THREAD_FILE = "lib/osc/osc_thread.lua"
+
 -- Dependencies
 local CommandSystem = require("lib/command_system")
 local oscMapping = require("cfg/cfg_osc_mapping")
 
 -- Active OSC channels from OSCThread instances
 local activeOSCChannels = {}
+
+-- Active OSC threads for cleanup during resets
+local activeOSCThreads = {}
 
 -- Register a new OSC channel from an OSCThread
 function OSCDispatcher.registerOSCChannel(channelName)
@@ -181,9 +186,33 @@ end
 
 -- Start OSC thread for a connection
 function OSCDispatcher.startOSCThread(connectionConfig)
-    local oscThread = love.thread.newThread("lib/OSCThread.lua")
+    local oscThread = love.thread.newThread(OSC_THREAD_FILE)
     oscThread:start(connectionConfig.id, connectionConfig)
+    
+    -- Track the thread for cleanup
+    activeOSCThreads[connectionConfig.id] = oscThread
+    
     logInfo("OSCDispatcher: Started OSC thread for " .. connectionConfig.id .. " on " .. connectionConfig.address .. ":" .. connectionConfig.port)
+end
+
+-- Stop OSC thread by connection ID
+function OSCDispatcher.stopOSCThread(connectionId)
+    local thread = activeOSCThreads[connectionId]
+    if thread then
+        thread:release()
+        activeOSCThreads[connectionId] = nil
+        logInfo("OSCDispatcher: Stopped OSC thread for " .. connectionId)
+    end
+end
+
+-- Stop all OSC threads (for cleanup during resets)
+function OSCDispatcher.stopAllOSCThreads()
+    for connectionId, thread in pairs(activeOSCThreads) do
+        thread:release()
+        logInfo("OSCDispatcher: Stopped OSC thread for " .. connectionId)
+    end
+    activeOSCThreads = {}
+    activeOSCChannels = {}
 end
 
 -- Get dispatcher status

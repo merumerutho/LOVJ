@@ -1,3 +1,9 @@
+-- polygon.lua
+--
+-- A utility library for polygon handling
+--
+
+
 local Polygon = {}
 Polygon.__index = Polygon
 
