@@ -1,66 +1,100 @@
 -- dispatcher.lua
 --
--- dispatch the content of a received msg to the relative section
+-- Main Protocol Dispatcher for LOVJ
+-- Coordinates all external protocol handlers and the generic command system
+-- Routes messages from OSC, MIDI, and other protocols to unified commands
 --
-
-local resources = require("lib/resources")
-local oscConfig = require("cfg/cfg_osc_handlers")
 
 local dispatcher = {}
 
--- Table to store dynamically registered channels
-local activeChannels = {}
+-- Protocol handlers
+local OSCDispatcher = lovjRequire("lib/osc/osc_dispatcher")
+local MIDIDispatcher = lovjRequire("lib/midi/midi_dispatcher")
+local CommandSystem = lovjRequire("lib/command_system")
+local OSCFeedback = lovjRequire("lib/osc/osc_feedback")
 
--- Table to store the latest values for feedback
-local currentValues = {}
+local cfgCommands = lovjRequire("cfg/cfg_commands")
 
--- Function to register a new channel
-function dispatcher.registerChannel(channelName)
-    if not activeChannels[channelName] then
-        activeChannels[channelName] = love.thread.getChannel(channelName)
-    end
-end
-
--- Function to unregister a channel (e.g., when a UDP thread disconnects)
-function dispatcher.unregisterChannel(channelName)
-    activeChannels[channelName] = nil
-end
-
--- Generate the dynamic handler table
-local oscHandlers = {}
-for address, functionName in pairs(oscConfig) do
-    if resources[functionName] then
-        oscHandlers[address] = function(args)
-            resources[functionName](args[1])
-            currentValues[address] = args[1] -- Store the value for feedback
-        end
-    else
-        print("Warning: Function", functionName, "not found in resources")
-    end
-end
-
--- Function to process received OSC messages from dynamically tracked channels
-function dispatcher.update()
-    for channelName, oscChannel in pairs(activeChannels) do
-        while true do
-            local rawMsg = oscChannel:pop()
-            if not rawMsg then break end
-            
-            local address, value = rawMsg:match("([^ ]+) (.+)")
-            if address and value then
-                local handler = oscHandlers[address]
-                if handler then
-                    handler({tonumber(value)})
-                else
-                    print("No handler for OSC address:", address)
-                end
-            end
-        end
-    end
+-- Initialize all protocol dispatchers and command system
+function dispatcher.init()
+    logInfo("Main Dispatcher: Initializing command system and protocol handlers")
     
-    -- Push the latest values to a feedback channel for UDPThread to process
-    local feedbackChannel = love.thread.getChannel("oscFeedback")
-    feedbackChannel:push(currentValues)
+    -- Initialize command system with all LOVJ commands
+    cfgCommands.init()
+    
+    -- Initialize OSC dispatcher
+    OSCDispatcher.init()
+    
+    -- Initialize OSC feedback system
+    OSCFeedback.init()
+    
+    -- Initialize MIDI dispatcher
+    MIDIDispatcher.init()
+    
+    logInfo("Main Dispatcher: Initialization complete")
+end
+
+-- Main update function - processes all protocol messages and executes commands
+function dispatcher.update()
+    -- Update all protocol dispatchers (they queue commands)
+    OSCDispatcher.update()
+    MIDIDispatcher.update()
+    
+    -- Update OSC feedback system
+    OSCFeedback.update()
+    
+    -- Execute all queued commands in main thread
+    CommandSystem.processCommands()
+end
+
+-- Register OSC channel (delegated to OSC dispatcher)
+function dispatcher.registerOSCChannel(channelName)
+    OSCDispatcher.registerOSCChannel(channelName)
+end
+
+-- Unregister OSC channel (delegated to OSC dispatcher)  
+function dispatcher.unregisterOSCChannel(channelName)
+    OSCDispatcher.unregisterOSCChannel(channelName)
+end
+
+-- Register MIDI channel (delegated to MIDI dispatcher)
+function dispatcher.registerMIDIChannel(channelName)
+    MIDIDispatcher.registerMIDIChannel(channelName)
+end
+
+-- Unregister MIDI channel (delegated to MIDI dispatcher)
+function dispatcher.unregisterMIDIChannel(channelName)
+    MIDIDispatcher.unregisterMIDIChannel(channelName)
+end
+
+-- Get status of all dispatchers
+function dispatcher.getStatus()
+    return {
+        osc = OSCDispatcher.getStatus(),
+        midi = MIDIDispatcher.getStatus(),
+        commands = {
+            queueLength = #CommandSystem.commandQueue,
+            availableCommands = table.getn(CommandSystem.getCommands())
+        }
+    }
+end
+
+-- Stop all OSC threads (for cleanup during resets)
+function dispatcher.stopAllOSCThreads()
+    OSCDispatcher.stopAllOSCThreads()
+end
+
+-- Stop all MIDI threads (for cleanup during resets)
+function dispatcher.stopAllMIDIThreads()
+    MIDIDispatcher.stopAllMIDIThreads()
+end
+
+-- Emergency reset all dispatchers
+function dispatcher.reset()
+    CommandSystem.clearQueue()
+    OSCDispatcher.stopAllOSCThreads()
+    MIDIDispatcher.stopAllMIDIThreads()
+    logInfo("Main Dispatcher: Reset complete")
 end
 
 return dispatcher

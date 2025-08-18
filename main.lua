@@ -5,34 +5,36 @@ lick = require("lib/lick")
 requirements = require("lib/utils/require")
 version = require("cfg/cfg_version")
 
--- From here on, use lovjRequire
-log = lovjRequire("lib/utils/logging")
+-- From here on, use lovjRequire and load modules as globals
+local log = lovjRequire("lib/utils/logging")
 logging.setLogLevel({ logging.LOG_ERROR, logging.LOG_INFO })
 
+-- Load and create global references to core modules
 screen = lovjRequire("lib/screen")
 timer = lovjRequire("lib/timer")
 ResourceList = lovjRequire("lib/resources")
 controls = lovjRequire("lib/controls")
-connections = lovjRequire("lib/connections")
 dispatcher = lovjRequire("lib/dispatcher")
-bpmEstimator = lovjRequire("lib/bpm_estimator")
+bpmEstimator = lovjRequire("lib/utils/bpm_estimator")
+errorHandler = lovjRequire("lib/utils/error_handler")
 
-cfgControls = lovjRequire("cfg/cfg_controls")
+-- Load configuration modules as globals
+cfgKbMapping = lovjRequire("cfg/cfg_kb_mapping")
 cfgPatches = lovjRequire("cfg/cfg_patches")
 cfgShaders = lovjRequire("cfg/cfg_shaders")
 cfgTimers = lovjRequire("cfg/cfg_timers")
 cfgSpout = lovjRequire("cfg/cfg_spout")
 cfgApp = lovjRequire("cfg/cfg_app")
 cfgScreen = lovjRequire("cfg/cfg_screen")
+cfgGlobals = lovjRequire("cfg/cfg_globals")
 
+-- Initialize Spout support
 if (cfgSpout.enable and 
 	love.system.getOS() == "Windows" and
 	love.filesystem.getInfo("SpoutLibrary.dll") and
 	love.filesystem.getInfo("SpoutWrapper.dll")) then
-	spout_support = true
 	spout = lovjRequire("lib/spout")
 else
-	spout_support = false
 	spout = lovjRequire("lib/stubs/spout-stub")
 end
 
@@ -42,14 +44,12 @@ drawingUtils = lovjRequire("lib/utils/drawing")
 love.window.setTitle(cfgApp.title .. " v" ..  version)
 love.window.setIcon(love.image.newImageData(cfgApp.icon))
 
-local downMixCanvas, dummyCanvas, spoutCanvas
-
 -- Add sender "MAIN" 
 local main_sender_cfg = cfgSpout.senders["main"]
 table.insert(cfgSpout.senderHandles, spout.SpoutSender:new(nil, main_sender_cfg["name"], main_sender_cfg["width"], main_sender_cfg["height"]))
 
 local receivers_cfg = cfgSpout.receivers
-local receivers_obj = {}
+receivers_obj = {}
 for i = 1, #receivers_cfg do
 	table.insert(receivers_obj, spout.SpoutReceiver:new(nil, receivers_cfg[i]))
 end
@@ -71,7 +71,7 @@ function love.load()
 	cfgTimers.init()  -- Init timers
 	cfgShaders.init()  -- Init shaders
   
-	-- Set two running patches
+	-- Set running patches
 	patchSlots = {}
 	for i=1,#cfgPatches.defaultPatch do
 		table.insert(patchSlots, {name = cfgPatches.defaultPatch[i]})
@@ -82,16 +82,30 @@ function love.load()
 
 	-- global setting resources
 	globalSettings = ResourceList:newResource()
+	
+	-- Populate global settings from configuration
+	for i, setting in ipairs(cfgGlobals.settings) do
+		globalSettings:setByIdx(i, setting.value)
+		globalSettings:setName(i, setting.name)
+		logInfo("Global setting " .. i .. ": " .. setting.name .. " = " .. tostring(setting.value))
+	end
 
-	-- Initialize patches
+	-- Initialize patches with error handling
 	for i, slot in ipairs(patchSlots) do
 		slot.shaderext = ResourceList:newResource()
 		cfgShaders.initShaderExt(i)  -- Assign Shaders globals
-		slot.patch.init(i, globalSettings, slot.shaderext)  -- Init actual patch for this patch slot
+		
+		-- Safe patch initialization
+		local success, err = errorHandler.safePatchCall(i, "init", slot.patch.init, i, globalSettings, slot.shaderext)
+		if not success then
+			logError("Failed to initialize patch " .. i .. ": " .. tostring(err))
+			-- Replace with fallback patch
+			slot.patch = errorHandler.createFallbackPatch(i)
+		end
 	end
 
-	cfgControls.init()  -- Init controls
-	connections.init()  -- Init socket
+	cfgKbMapping.init()  -- Init keyboard mappings
+	dispatcher.init()  -- Init OSC dispatcher and command system
 	
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)
 	dummyCanvas = love.graphics.newCanvas(1,1)
@@ -117,11 +131,24 @@ function love.draw()
 
 	-- for receiver in receiver_list do local spoutReceivedImg = receiver:draw() end
 
-	-- Draw all patches stacked on top of each other
+	-- Draw all patches stacked on top of each other with error handling
 	for i=1, #patchSlots do
-		local canvas = patchSlots[i].patch.draw()  -- this function may change currently set canvas
-		drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas)  -- draw canvas to downmix
-		canvas = drawingUtils.clearCanvas(canvas)  -- clean canvas after using it
+		local success, canvas = errorHandler.safePatchCall(i, "draw", patchSlots[i].patch.draw)
+		if success and canvas then
+			drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas)  -- draw canvas to downmix
+			canvas = drawingUtils.clearCanvas(canvas)  -- clean canvas after using it
+		else
+			-- Use fallback patch if draw failed
+			if not errorHandler.hasError(i) then
+				logError("Patch " .. i .. " draw failed, switching to fallback")
+				patchSlots[i].patch = errorHandler.createFallbackPatch(i)
+			end
+			local fallbackCanvas = patchSlots[i].patch.draw()
+			if fallbackCanvas then
+				drawingUtils.drawCanvasToCanvas(fallbackCanvas, downMixCanvas)
+				fallbackCanvas = drawingUtils.clearCanvas(fallbackCanvas)
+			end
+		end
 	end
 
 	-- draw downmix to main screen
@@ -133,6 +160,9 @@ function love.draw()
   
 	-- Force resetting canvas
 	love.graphics.setCanvas()
+	
+	-- Draw error overlay on top of everything
+	errorHandler.drawErrorOverlay()
 end
 
 
@@ -143,7 +173,7 @@ function love.update()
 
 	-- Timer "callback"
 	local fps = love.timer.getFPS()
-	if cfgTimers.consoleTimer:Activated() then
+	if cfgTimers.consoleTimer:activated() then
 		logInfo("FPS: " .. fps)
 		for i=1, #receivers_obj do
 			receivers_obj[i]:update() -- Update spout receivers
@@ -151,9 +181,14 @@ function love.update()
 	end
 
 	controls.update()
-	-- dispatcher.update(response)  -- TODO: implement dispatcher method
+	dispatcher.update()  -- Process OSC messages
 
+	-- Update all patches with error handling
 	for i=1, #patchSlots do
-		patchSlots[i].patch.update()  -- call current patch update method
+		local success, err = errorHandler.safePatchCall(i, "update", patchSlots[i].patch.update)
+		if not success and not errorHandler.hasError(i) then
+			logError("Patch " .. i .. " update failed, switching to fallback")
+			patchSlots[i].patch = errorHandler.createFallbackPatch(i)
+		end
 	end
 end

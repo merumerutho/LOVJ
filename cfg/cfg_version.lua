@@ -3,5 +3,5 @@
 -- Configure LOVJ version
 --
 
-version = "0.5.1"
+version = "0.6"
 return version

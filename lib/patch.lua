@@ -5,6 +5,7 @@
 
 local cfgScreen = lovjRequire("cfg/cfg_screen")
 local cfgShaders = lovjRequire("cfg/cfg_shaders")
+local cfg_patches = lovjRequire("cfg/cfg_patches")
 
 local Patch = {}
 
@@ -115,7 +116,7 @@ end
 function Patch:mainUpdate()
 	-- apply keyboard patch controls
 		-- only handle controls if patch is selected
-		if cfgControls.selectedPatch == self.slot then
+		if cfg_patches.selectedPatch == self.slot then
 			self.resources.parameters,
 			self.resources.graphics,
 			self.resources.globals = self.patchControls()

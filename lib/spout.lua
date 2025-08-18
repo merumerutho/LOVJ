@@ -1,3 +1,7 @@
+-- spout.lua
+--
+-- Interfacing with spout library for video texture sharing (server/client)
+
 local spout = {}
 
 local ffi = require("ffi")

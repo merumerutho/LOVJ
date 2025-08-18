@@ -13,7 +13,7 @@ end
 
 -- unpack xy
 function unpackXY(v)
-    local x = table.filter(v, function(i,x) return (i//2 == 1) end)
-    local y = table.filter(v, function(i,x) return (i//2 == 0) end)
+    local x = table.filter(v, function(i,x) return (math.floor(i/2) == 1) end)
+    local y = table.filter(v, function(i,x) return (math.floor(i/2) == 0) end)
     return x, y
 end

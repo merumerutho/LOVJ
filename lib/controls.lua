@@ -48,7 +48,7 @@ function Controls.bind(actionFunc, actionArgs, checkFunc, keyCombination)
 	if not checkFunc then logError("CheckFunc is nil") return end
 	for i=1, #Controls.actionsList do
 		-- If entry found (already existing)
-		if (Controls.actionsList[i]["func"] == action and
+		if (Controls.actionsList[i]["func"] == actionFunc and
 			Controls.actionsList[i]["check"] == checkFunc and
 			checkMatchingArguments(actionArgs, Controls.actionsList[i]["args"])) then
 			-- Check if key-combination is also already present

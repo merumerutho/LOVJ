@@ -51,16 +51,11 @@ local function checkReset()
     return {}
 end
 
---- @private closeUDPThread used to close the UDP threads (if present)
-local function closeUDPThread()
-    local Connections = require("lib/connections")
-    local cfg_connections = require("cfg/cfg_connections")
-    if Connections.UdpThreads == nil then return end
-
-    -- If there are UDP_threads open, send them "quitMsg"
-	for k, th in ipairs(Connections.UdpThreads) do
-        logInfo("Closing UDP thread #" .. k)
-        Connections.stopThread(th)
+--- @private closeOSCThreads used to close the OSC threads (if present)
+local function closeOSCThreads()
+    -- Use the new dispatcher system to clean up OSC threads
+    if dispatcher and dispatcher.stopAllOSCThreads then
+        dispatcher.stopAllOSCThreads()
     end
 end
 
@@ -69,7 +64,7 @@ end
 function lick.hardReset(component)
     logInfo("Hard reset.")
     -- Close UDP socket and thread
-    closeUDPThread()
+    closeOSCThreads()
     -- re-load main file
     success, chunk = pcall(love.filesystem.load, MAIN_FILE)
     if not success then
@@ -117,10 +112,33 @@ local function checkForModifications()
             logInfo(patchSlots[i].name .. " - patch reset.")
             lovjUnrequire(patchSlots[i].name)
         end
-        -- re-load all patches
+        -- re-load all patches with error handling
         for i=1,#patchSlots do
-            patchSlots[i].patch = lovjRequire(patchSlots[i].name, lick.PATCH_RESET)
-            patchSlots[i].patch.init(i)
+            local success, patch = pcall(lovjRequire, patchSlots[i].name, lick.PATCH_RESET)
+            if success then
+                patchSlots[i].patch = patch
+                -- Safe patch initialization
+                if errorHandler then
+                    local initSuccess, err = errorHandler.safePatchCall(i, "init", patchSlots[i].patch.init, i, globalSettings, patchSlots[i].shaderext)
+                    if not initSuccess then
+                        logError("Failed to initialize reloaded patch " .. i .. ": " .. tostring(err))
+                        patchSlots[i].patch = errorHandler.createFallbackPatch(i)
+                    else
+                        errorHandler.clearError(i)  -- Clear any previous errors
+                    end
+                else
+                    -- Fallback if errorHandler not available
+                    local initSuccess, err = pcall(patchSlots[i].patch.init, i, globalSettings, patchSlots[i].shaderext)
+                    if not initSuccess then
+                        logError("Failed to initialize reloaded patch " .. i .. ": " .. tostring(err))
+                    end
+                end
+            else
+                logError("Failed to reload patch " .. i .. " (" .. patchSlots[i].name .. "): " .. tostring(patch))
+                if errorHandler then
+                    patchSlots[i].patch = errorHandler.createFallbackPatch(i)
+                end
+            end
         end
 	-- for components that require a soft reset
     elseif resetComponent.resetType == lick.SOFT_RESET then
@@ -191,7 +209,7 @@ function love.run()
                 if not love.quit or not love.quit() then
                     if love.audio then
                         love.audio.stop()
-                        closeUDPThread()
+                        closeOSCThreads()
                     end
                 return
                 end

@@ -73,4 +73,11 @@ function BPMEstimator:getClickCount()
     return #self.click_times
 end
 
+--- @public setBPM Manually set the BPM (for OSC control)
+function BPMEstimator:setBPM(bpm)
+    if bpm and bpm > 0 then
+        self.estimated_bpm = bpm
+    end
+end
+
 return BPMEstimator

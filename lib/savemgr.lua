@@ -1,18 +1,18 @@
--- realtimemgr.lua
+-- savemgr.lua
 --
 -- Handle real-time management of patches
 -- i.e. loading patches, loading / saving parameter status
 --
 
-local json = require("lib/json/json")
+local json = lovjRequire("lib/json/json")
 
-local rtMgr = {}
+local saveMgr = {}
 
--- TODO: move this to cfg_rtmgr
-rtMgr.savestatePath = "savestates/"
+-- TODO: move this to cfg_saveMgr
+saveMgr.savestatePath = "savestates/"
 
 --- @public controls.loadPatch remove previous patch, load and init a new patch based on its relative path
-function rtMgr.loadPatch(patchName, slot)
+function saveMgr.loadPatch(patchName, slot)
 	-- Search if patch already loaded somewhere else
 	local unrequire = true
 	for i = 1, #patchSlots do
@@ -34,8 +34,8 @@ function rtMgr.loadPatch(patchName, slot)
 end
 
 
---- @public rtMgr.saveResources save current resources status as a JSON savestate
-function rtMgr.saveResources(filename, idx, slot)
+--- @public saveMgr.saveResources save current resources status as a JSON savestate
+function saveMgr.saveResources(filename, idx, slot)
 	local data = {}
 	data.patchName = patchSlots[slot].name
 	data.parameters = patchSlots[slot].patch.resources.parameters
@@ -45,7 +45,7 @@ function rtMgr.saveResources(filename, idx, slot)
 	local jsonEncoded = json.encode(data)
 
 	-- Assemble filepath
-	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+	local filepath = (saveMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	logInfo("Saving " .. filepath)
 	local f = assert(io.open(filepath, "w"))
 	f:write(jsonEncoded)
@@ -53,9 +53,9 @@ function rtMgr.saveResources(filename, idx, slot)
 end
 
 
---- @public rtMgr.loadResources load JSON savestate onto resources
-function rtMgr.loadResources(filename, idx, slot)
-	local filepath = (rtMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
+--- @public saveMgr.loadResources load JSON savestate onto resources
+function saveMgr.loadResources(filename, idx, slot)
+	local filepath = (saveMgr.savestatePath .. (filename .. "_slot" .. tostring(idx) ..".json"):gsub(".*/", ""))
 	local f = io.open(filepath, "r")
 	if (f == nil) then logError("Couldn't open " .. filepath) return end
 	local jsonEncoded = f:read("a")
@@ -90,4 +90,4 @@ function rtMgr.loadResources(filename, idx, slot)
 	end
 end
 
-return rtMgr
+return saveMgr
