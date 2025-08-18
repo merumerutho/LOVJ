@@ -16,10 +16,11 @@ CommandSystem.maxQueueSize = 1000
 -- Command validation functions
 local validators = {
     int = function(value, min, max)
+		if type(value) == "string" then value = tonumber(value) end
         if type(value) ~= "number" then return false end
         if min and value < min then return false end
         if max and value > max then return false end
-        return math.floor(value) == value
+        return math.floor(value)
     end,
     
     float = function(value, min, max)

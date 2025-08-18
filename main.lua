@@ -19,7 +19,7 @@ bpmEstimator = lovjRequire("lib/utils/bpm_estimator")
 errorHandler = lovjRequire("lib/utils/error_handler")
 
 -- Load configuration modules as globals
-cfgControls = lovjRequire("cfg/cfg_controls")
+cfgKbMapping = lovjRequire("cfg/cfg_kb_mapping")
 cfgPatches = lovjRequire("cfg/cfg_patches")
 cfgShaders = lovjRequire("cfg/cfg_shaders")
 cfgTimers = lovjRequire("cfg/cfg_timers")
@@ -104,7 +104,7 @@ function love.load()
 		end
 	end
 
-	cfgControls.init()  -- Init controls
+	cfgKbMapping.init()  -- Init keyboard mappings
 	dispatcher.init()  -- Init OSC dispatcher and command system
 	
 	downMixCanvas = love.graphics.newCanvas(screen.ExternalRes.W, screen.ExternalRes.H)

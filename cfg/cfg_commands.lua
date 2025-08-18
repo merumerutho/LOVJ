@@ -6,6 +6,8 @@
 
 local cfg_commands = {}
 local CommandSystem = lovjRequire("lib/command_system")
+local cfg_patches = lovjRequire("cfg/cfg_patches")
+local saveMgr = lovjRequire("lib/savemgr")
 
 -- Initialize command system with all LOVJ commands
 function cfg_commands.init()
@@ -18,7 +20,7 @@ function cfg_commands.init()
             {name = "slot", type = "int", min = 1, max = 12, required = true}
         },
         execute = function(slot)
-            cfgControls.selectedPatch = slot
+            cfg_patches.selectedPatch = slot
             logInfo("Selected patch slot: " .. slot)
         end
     })
@@ -247,6 +249,23 @@ function cfg_commands.init()
                     patch.shaderext:set(fullParamName, value)
                     logInfo("Set shader param " .. fullParamName .. " = " .. value .. " in patch " .. slot)
                 end
+            end
+        end
+    })
+    
+    CommandSystem.registerCommand("cycleShader", {
+        description = "Cycle to next shader in a patch layer",
+        category = "shader",
+        parameters = {
+            {name = "slot", type = "int", min = 1, max = 12, required = true},
+            {name = "layer", type = "int", min = 1, max = 3, required = true}
+        },
+        execute = function(slot, layer)
+            if patchSlots and patchSlots[slot] and patchSlots[slot].shaderext then
+                local current = patchSlots[slot].shaderext:get("shaderSlot" .. layer)
+                local next_shader = 1 + (current % (#cfgShaders.PostProcessShaders))
+                patchSlots[slot].shaderext:set("shaderSlot" .. layer, next_shader)
+                logInfo("Cycled shader in slot " .. slot .. " layer " .. layer .. " to " .. next_shader)
             end
         end
     })

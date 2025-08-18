@@ -5,6 +5,9 @@
 
 local cfg_patches = {}
 
+-- Current state
+cfg_patches.selectedPatch = 1
+
 --- @public DEFAULT_PATCH default patch loaded at startup
 cfg_patches.defaultPatch = {"demos/demo24/source/demo_24"}
 
