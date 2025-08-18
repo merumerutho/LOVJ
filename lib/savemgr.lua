@@ -37,9 +37,9 @@ end
 --- @public saveMgr.saveResources save current resources status as a JSON savestate
 function saveMgr.saveResources(filename, idx, slot)
 	local data = {}
+	data.globals = globalSettings
 	data.patchName = patchSlots[slot].name
 	data.parameters = patchSlots[slot].patch.resources.parameters
-	data.globals = patchSlots[slot].patch.resources.globals
 	data.graphics = patchSlots[slot].patch.resources.graphics
 	data.shaderext = patchSlots[slot].patch.resources.shaderext
 	local jsonEncoded = json.encode(data)
@@ -65,24 +65,40 @@ function saveMgr.loadResources(filename, idx, slot)
 	-- If the name of the patch is correct, load data
 	if patchSlots[slot].name == data.patchName then
 		-- Load parameters resources
-		for k,t in pairs(data.parameters) do
-			patchSlots[slot].patch.resources.parameters:setName(k, t.name)
-			patchSlots[slot].patch.resources.parameters:setByIdx(k, t.value)
+		if data.parameters then
+			for k,t in pairs(data.parameters) do
+				patchSlots[slot].patch.resources.parameters:setName(k, t.name)
+				patchSlots[slot].patch.resources.parameters:setByIdx(k, t.value)
+			end
+		else 
+			logError("Not loaded: data.parameters")
 		end
 		-- Load globals resources
-		for k,t in pairs(data.globals) do
-			patchSlots[slot].patch.resources.globals:setName(k, t.name)
-			patchSlots[slot].patch.resources.globals:setByIdx(k, t.value)
+		if data.globals then
+			for k,t in pairs(data.globals) do
+				globalSettings:setName(k, t.name)
+				globalSettings:setByIdx(k, t.value)
+			end
+		else 
+			logError("Not loaded: data.globals")
 		end
 		-- Load graphics resources
-		for k,t in pairs(data.graphics) do
-			patchSlots[slot].patch.resources.graphics:setName(k, t.name)
-			patchSlots[slot].patch.resources.graphics:setByIdx(k, t.value)
+		if data.graphics then
+			for k,t in pairs(data.graphics) do
+				patchSlots[slot].patch.resources.graphics:setName(k, t.name)
+				patchSlots[slot].patch.resources.graphics:setByIdx(k, t.value)
+			end
+		else 
+			logError("Not loaded: data.graphics")
 		end
 		-- Load shader resources
-		for k,t in pairs(data.shaderext) do
-			patchSlots[slot].patch.resources.shaderext:setName(k, t.name)
-			patchSlots[slot].patch.resources.shaderext:setByIdx(k, t.value)
+		if data.shaderext then
+			for k,t in pairs(data.shaderext) do
+				patchSlots[slot].patch.resources.shaderext:setName(k, t.name)
+				patchSlots[slot].patch.resources.shaderext:setByIdx(k, t.value)
+			end
+		else 
+			logError("Not loaded: data.shaderext")
 		end
 		logInfo("Loaded " .. filepath .. " savestate.")
 	else
