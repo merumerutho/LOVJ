@@ -248,6 +248,15 @@ function love.update()
 	saveMgr.tick()
 	if globalSequencer then globalSequencer:tick() end
 	if globalSceneSequencer then globalSceneSequencer:tick() end
+	-- Copy baseValue → value for all params before modulators apply on top
+	for i = 1, #patchSlots do
+		if patchSlots[i].patch and patchSlots[i].patch.resources then
+			patchSlots[i].patch.resources.parameters:resetModulation()
+		end
+		if patchSlots[i].shaderext then
+			patchSlots[i].shaderext:resetModulation()
+		end
+	end
 	modulator.tick()
 	studioProtocol.flush()
 

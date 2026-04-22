@@ -132,7 +132,7 @@ function cfg_commands.init()
         },
         execute = function(slot)
             if patchSlots and patchSlots[slot] and patchSlots[slot].patch then
-                local success, err = pcall(patchSlots[slot].patch.init, slot, globalSettings, patchSlots[slot].shaderext)
+                local success, err = pcall(function() patchSlots[slot].patch:init(slot, globalSettings, patchSlots[slot].shaderext) end)
                 if success then
                     logInfo("Reset patch in slot " .. slot)
                 else

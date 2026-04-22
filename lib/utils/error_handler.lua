@@ -18,7 +18,7 @@ local ErrorHandler = {}
 -- Records failures into lick.errors so they show up in the persistent banner.
 function ErrorHandler.safePatchCall(patchSlot, operation)
     local patch = patchSlots and patchSlots[patchSlot] and patchSlots[patchSlot].patch
-    if not patch or not patch[operation] then
+    if not patch or not patch[operation] or not patch.resources then
         return false
     end
 

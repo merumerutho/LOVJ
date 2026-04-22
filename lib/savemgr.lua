@@ -95,7 +95,7 @@ function saveMgr.loadPatch(patchName, slot)
 	end
 	patchSlots[slot].name = patchName
 	patchSlots[slot].patch = lovjRequire(patchName, lick.REBUILD)
-	patchSlots[slot].patch.init(slot, globalSettings, patchSlots[slot].shaderext)
+	patchSlots[slot].patch:init(slot, globalSettings, patchSlots[slot].shaderext)
 	-- Re-bind this slot to lick so subsequent edits to the new patch file
 	-- trigger a rebuild targeting this slot.
 	if bindPatchSlot then bindPatchSlot(slot) end
