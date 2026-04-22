@@ -7,3 +7,6 @@
 [submodule "lib/shaders"]
 	path = lib/shaders
 	url = https://github.com/merumerutho/LOVJ-Shaders.git
+[submodule "studio"]
+	path = studio
+	url = https://github.com/merumerutho/lovj-deck.git
