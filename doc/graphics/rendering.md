@@ -1,6 +1,6 @@
 # Patch Rendering Pipeline
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 Each frame, LOVJ renders visible patch slots through a multi-stage canvas pipeline with post-process shader support.
 
@@ -76,7 +76,7 @@ Shaders are GLSL fragment programs with the signature:
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
 ```
 
-See [Writing Shaders](shaders.md) for details.
+See [Writing Shaders](../getting-started/shaders.md) for details.
 
 ## Feedback Integration
 
@@ -97,7 +97,7 @@ Patches should use `screen.InternalRes` for coordinates and check `screen.isUpsc
 
 ## Related
 
-- [Creating Patches](creating-patches.md) — full patch anatomy
-- [Writing Shaders](shaders.md) — post-process shader pipeline
+- [Creating Patches](../getting-started/creating-patches.md) — full patch anatomy
+- [Writing Shaders](../getting-started/shaders.md) — post-process shader pipeline
 - [Feedback Buffers](feedback.md) — echo/trail effects
 - [Screen & Resolution](screen.md) — resolution modes

@@ -1,6 +1,6 @@
 # Savestates
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 Savestates persist patch parameter snapshots to disk as JSON files. They enable recalling specific parameter configurations during live performance.
 
@@ -90,7 +90,7 @@ local data = saveMgr.captureSlot(slot)                       -- snapshot current
 saveMgr.applyScene(data, slot)                                -- restore from snapshot
 ```
 
-These are used by the [scene sequencer](scene-sequencer.md) for beat-quantized state transitions.
+These are used by the [scene sequencer](../sequencing/scene-sequencer.md) for beat-quantized state transitions.
 
 ## Studio GUI
 
@@ -106,10 +106,10 @@ The **Savestates** tab shows:
 | `saveSavestate` | Save current slot state to a savestate |
 | `loadSavestate` | Load a savestate into a slot |
 
-Available via [keyboard](keyboard.md), [MIDI](midi.md), [OSC](osc.md), and [Studio GUI](studio.md).
+Available via [keyboard](../controls/keyboard.md), [MIDI](../controls/midi.md), [OSC](../controls/osc.md), and [Studio GUI](../studio/studio.md).
 
 ## Related
 
-- [Scene Sequencer](scene-sequencer.md) — automate savestate recall on beats
-- [Resource System](resources.md) — what's being saved
+- [Scene Sequencer](../sequencing/scene-sequencer.md) — automate savestate recall on beats
+- [Resource System](../architecture/resources.md) — what's being saved
 - [Modulators](modulators.md) — modulator state included in savestates

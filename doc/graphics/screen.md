@@ -1,6 +1,6 @@
 # Screen & Resolution
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 The screen module (`lib/screen.lua`) manages LOVJ's rendering resolution, window configuration, and upscaling modes.
 
@@ -70,5 +70,5 @@ end
 
 ## Related
 
-- [Creating Patches](creating-patches.md) — canvas setup in patches
-- [Configuration](configuration.md) — screen config options
+- [Creating Patches](../getting-started/creating-patches.md) — canvas setup in patches
+- [Configuration](../architecture/configuration.md) — screen config options

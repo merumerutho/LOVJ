@@ -1,6 +1,6 @@
 # Easing & Interpolation
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 ## Easing Curves (`lib/signals/easing.lua`)
 
@@ -91,4 +91,4 @@ When `mode = "beats"`, the interpolator uses `clock.beat` for timing instead of 
 ## Related
 
 - [LFO & Envelope](signals.md) — continuous modulation signals
-- [Scene Sequencer](scene-sequencer.md) — interpolator can drive crossfade transitions
+- [Scene Sequencer](../sequencing/scene-sequencer.md) — interpolator can drive crossfade transitions

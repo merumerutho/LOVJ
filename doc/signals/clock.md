@@ -1,8 +1,8 @@
 # Clock & Transport
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
-The global clock (`lib/clock.lua`) is LOVJ's master timing source. All [sequencers](sequencer.md), [modulators](modulators.md), and beat-synced features derive their position from it.
+The global clock (`lib/clock.lua`) is LOVJ's master timing source. All [sequencers](../sequencing/sequencer.md), [modulators](../state/modulators.md), and beat-synced features derive their position from it.
 
 ## Properties
 
@@ -32,15 +32,15 @@ clock.update()           -- Advance all fields (called once per frame)
 
 ## Tap Tempo
 
-`clock.tap()` is bound to mouse left-click by default. It averages the intervals of the last 8 taps to estimate BPM. The [Studio GUI](studio.md) also provides a tap tempo button and BPM input.
+`clock.tap()` is bound to mouse left-click by default. It averages the intervals of the last 8 taps to estimate BPM. The [Studio GUI](../studio/studio.md) also provides a tap tempo button and BPM input.
 
 ## Phase Reset
 
 `clock.resetPhase()` aligns beat 0 to the current moment. Use this to sync LOVJ to a live performance downbeat. Available via:
 
-- Keyboard: configurable in [keyboard mapping](keyboard.md)
+- Keyboard: configurable in [keyboard mapping](../controls/keyboard.md)
 - Studio GUI: "Reset Phase" button in the Project Bar
-- OSC/MIDI: via the `resetPhase` [command](commands.md)
+- OSC/MIDI: via the `resetPhase` [command](../controls/commands.md)
 
 ## Usage in Patches
 
@@ -54,6 +54,6 @@ local bar = math.floor(clock.beatPhase)  -- current beat within bar
 
 ## Related
 
-- [Step Sequencer](sequencer.md) — uses clock for step advancement
-- [Scene Sequencer](scene-sequencer.md) — beat-quantized scene transitions
-- [Modulators](modulators.md) — envelope triggers can sync to beats
+- [Step Sequencer](../sequencing/sequencer.md) — uses clock for step advancement
+- [Scene Sequencer](../sequencing/scene-sequencer.md) — beat-quantized scene transitions
+- [Modulators](../state/modulators.md) — envelope triggers can sync to beats

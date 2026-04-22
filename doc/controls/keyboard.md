@@ -1,6 +1,6 @@
 # Keyboard Mapping
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 Keyboard controls are configured in `cfg/cfg_kb_mapping.lua` and bind key combinations to [commands](commands.md).
 

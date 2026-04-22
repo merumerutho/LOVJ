@@ -1,12 +1,12 @@
 # Step Sequencer
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 The step sequencer (`lib/sequencer.lua`) provides Elektron-style parameter automation with per-step p-locks and polyrhythmic channels.
 
 ## Overview
 
-A global `Sequencer` instance (`globalSequencer`) is created in `main.lua`. Channels can be added and configured through the [Studio GUI](studio.md), [OSC](osc.md), or [MIDI](midi.md).
+A global `Sequencer` instance (`globalSequencer`) is created in `main.lua`. Channels can be added and configured through the [Studio GUI](../studio/studio.md), [OSC](../controls/osc.md), or [MIDI](../controls/midi.md).
 
 Each channel targets a specific parameter and has its own step count and clock divider, enabling polyrhythmic patterns.
 
@@ -73,7 +73,7 @@ globalSequencer:toggle()   -- play/stop toggle
 globalSequencer:realign()  -- reset all channels to step 1
 ```
 
-Playback is driven by the global [clock](clock.md). Each frame, `globalSequencer:tick()` advances channels based on beat position and applies p-lock values.
+Playback is driven by the global [clock](../signals/clock.md). Each frame, `globalSequencer:tick()` advances channels based on beat position and applies p-lock values.
 
 ## Channel Configuration
 
@@ -92,7 +92,7 @@ local state = globalSequencer:getState()
 
 ## Related
 
-- [Clock & Transport](clock.md) — drives sequencer timing
+- [Clock & Transport](../signals/clock.md) — drives sequencer timing
 - [Scene Sequencer](scene-sequencer.md) — meta-level scene triggering
-- [Modulators](modulators.md) — continuous parameter modulation
-- [Studio Overview](studio.md) — Sequencer tab in web GUI
+- [Modulators](../state/modulators.md) — continuous parameter modulation
+- [Studio Overview](../studio/studio.md) — Sequencer tab in web GUI

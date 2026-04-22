@@ -1,6 +1,6 @@
 # OSC
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 LOVJ receives OSC messages via background threads and routes them to [commands](commands.md) through `lib/osc/osc_dispatcher.lua`.
 
@@ -122,4 +122,4 @@ This keeps external controllers in sync regardless of whether the change came fr
 
 - [Command System](commands.md) — available commands
 - [MIDI](midi.md) — alternative control protocol
-- [Studio Overview](studio.md) — web-based alternative to OSC control
+- [Studio Overview](../studio/studio.md) — web-based alternative to OSC control

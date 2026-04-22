@@ -1,6 +1,6 @@
 # Configuration
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 All configuration lives in `cfg/` as Lua modules. They are loaded at startup and exposed as globals in `main.lua`.
 
@@ -10,16 +10,16 @@ All configuration lives in `cfg/` as Lua modules. They are loaded at startup and
 |--------|--------|---------|
 | `cfg_app.lua` | `cfgApp` | Application title and icon path |
 | `cfg_bpm.lua` | — | Default BPM (`default_bpm = 128`) |
-| `cfg_commands.lua` | `cfgCommands` | [Command](commands.md) registration |
+| `cfg_commands.lua` | `cfgCommands` | [Command](../controls/commands.md) registration |
 | `cfg_globals.lua` | `cfgGlobals` | Global settings (max parameter count, shared values) |
-| `cfg_kb_mapping.lua` | `cfgKbMapping` | [Keyboard](keyboard.md) → command bindings |
-| `cfg_midi_mapping.lua` | — | [MIDI](midi.md) → command bindings |
-| `cfg_osc_mapping.lua` | — | [OSC](osc.md) → command bindings |
+| `cfg_kb_mapping.lua` | `cfgKbMapping` | [Keyboard](../controls/keyboard.md) → command bindings |
+| `cfg_midi_mapping.lua` | — | [MIDI](../controls/midi.md) → command bindings |
+| `cfg_osc_mapping.lua` | — | [OSC](../controls/osc.md) → command bindings |
 | `cfg_patches.lua` | `cfgPatches` | Patch list and default patch |
 | `cfg_screen.lua` | `cfgScreen` | Resolution and upscaling |
-| `cfg_shaders.lua` | `cfgShaders` | [Shader](shaders.md) loading and parameters |
+| `cfg_shaders.lua` | `cfgShaders` | [Shader](../getting-started/shaders.md) loading and parameters |
 | `cfg_spout.lua` | `cfgSpout` | Spout video streaming |
-| `cfg_studio.lua` | — | [Studio](studio.md) server ports and address |
+| `cfg_studio.lua` | — | [Studio](../studio/studio.md) server ports and address |
 | `cfg_timers.lua` | `cfgTimers` | Timer configuration |
 | `cfg_version.lua` | `version` | Version string |
 
@@ -50,7 +50,7 @@ cfg_screen.HIGH_RES = 1
 cfg_screen.UPSCALE_MODE = cfg_screen.LOW_RES  -- or HIGH_RES
 ```
 
-See [Screen & Resolution](screen.md) for runtime behavior.
+See [Screen & Resolution](../graphics/screen.md) for runtime behavior.
 
 ## Global Settings (`cfg_globals.lua`)
 
@@ -76,4 +76,4 @@ Set `bindAddress = "0.0.0.0"` to allow access from other devices on the network.
 
 ## Shaders (`cfg_shaders.lua`)
 
-Shaders are auto-discovered from `lib/shaders/source/postProcess/` and `lib/shaders/source/other/`. See [Writing Shaders](shaders.md) for the `@param` annotation system.
+Shaders are auto-discovered from `lib/shaders/source/postProcess/` and `lib/shaders/source/other/`. See [Writing Shaders](../getting-started/shaders.md) for the `@param` annotation system.

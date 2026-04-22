@@ -1,6 +1,6 @@
 # Writing Shaders
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 LOVJ uses GLSL shaders for post-process effects. Shaders are auto-discovered from the filesystem and their parameters are parsed from `@param` annotations.
 
@@ -25,7 +25,7 @@ Post-process shaders are sorted alphabetically, so use numeric prefixes for orde
 ...
 ```
 
-The name (without prefix number and extension) is used as the display name in the [Studio GUI](studio.md).
+The name (without prefix number and extension) is used as the display name in the [Studio GUI](../studio/studio.md).
 
 ## Shader Signature
 
@@ -77,13 +77,13 @@ extern float _zoom;
 
 ### Naming Convention
 
-Parameter names should start with `_` to distinguish them from GLSL built-ins. The full parameter name in the [resource system](resources.md) is `shaderName_paramName` (e.g., `blurzoom__zoom`).
+Parameter names should start with `_` to distinguish them from GLSL built-ins. The full parameter name in the [resource system](../architecture/resources.md) is `shaderName_paramName` (e.g., `blurzoom__zoom`).
 
 ## How Parameters Are Managed
 
 1. `cfgShaders.init()` parses all `.glsl` files and extracts `@param` annotations
 2. `cfgShaders.initShaderExt(slot)` creates `shaderext` resource entries for each parameter
-3. The [Studio GUI](studio.md) Shaders tab exposes sliders for all shader parameters
+3. The [Studio GUI](../studio/studio.md) Shaders tab exposes sliders for all shader parameters
 4. `cfgShaders.selectPPShader()` sends current parameter values to the shader via `shader:send()`
 
 ## Example: Chromakey Shader
@@ -146,6 +146,6 @@ vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
 
 ## Related
 
-- [Studio Overview](studio.md) — Shaders tab for real-time control
-- [Patch Rendering Pipeline](rendering.md) — where shaders are applied
-- [Resource System](resources.md) — how shader parameters are stored
+- [Studio Overview](../studio/studio.md) — Shaders tab for real-time control
+- [Patch Rendering Pipeline](../graphics/rendering.md) — where shaders are applied
+- [Resource System](../architecture/resources.md) — how shader parameters are stored

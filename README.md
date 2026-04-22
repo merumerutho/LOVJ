@@ -51,16 +51,16 @@ installSpout.bat
 
 Full documentation is in [`doc/`](doc/index.md), covering:
 
-- [Getting Started](doc/getting-started.md) — installation, dependencies, first run
-- [Creating Patches](doc/creating-patches.md) — patch anatomy, lifecycle, drawing
-- [Writing Shaders](doc/shaders.md) — GLSL pipeline, `@param` annotations
-- [Clock & BPM](doc/clock.md) — transport, syncRate, tap-tempo
-- [Signals](doc/signals.md) — LFO, envelope, easing curves
-- [Sequencer](doc/sequencer.md) — step sequencer, p-locks, morph easing
-- [Keyboard / MIDI / OSC](doc/keyboard.md) — input mapping and control protocols
-- [LOVJ Deck](doc/studio.md) — web control surface
-- [Rendering Pipeline](doc/rendering.md) — canvas flow, shader layers
-- [Savestates](doc/savestates.md) — save/load with morph transitions
+- [Getting Started](doc/getting-started/getting-started.md) — installation, dependencies, first run
+- [Creating Patches](doc/getting-started/creating-patches.md) — patch anatomy, lifecycle, drawing
+- [Writing Shaders](doc/getting-started/shaders.md) — GLSL pipeline, `@param` annotations
+- [Clock & BPM](doc/signals/clock.md) — transport, syncRate, tap-tempo
+- [Signals](doc/signals/signals.md) — LFO, envelope, easing curves
+- [Sequencer](doc/sequencing/sequencer.md) — step sequencer, p-locks, morph easing
+- [Keyboard / MIDI / OSC](doc/controls/keyboard.md) — input mapping and control protocols
+- [LOVJ Deck](doc/studio/studio.md) — web control surface
+- [Rendering Pipeline](doc/graphics/rendering.md) — canvas flow, shader layers
+- [Savestates](doc/state/savestates.md) — save/load with morph transitions
 
 ## Contributing
 

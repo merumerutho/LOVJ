@@ -1,6 +1,6 @@
 # LOVJ Deck
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 LOVJ Deck is a browser-based control surface built with Svelte 5, served directly by LOVJ over HTTP and communicating via WebSocket. It replaces a traditional settings panel with a layout designed for live performance — always-visible transport, parameters and modulators on the same screen, and collapsible sequencer/scene trays.
 
@@ -194,7 +194,7 @@ This starts Vite's dev server on port 5173.
 ## Related
 
 - [WebSocket Protocol](studio-protocol.md) — message format and types
-- [Command System](commands.md) — commands triggered by the GUI
-- [Modulators](modulators.md) — LFO/envelope binding to parameters
-- [Step Sequencer](sequencer.md) — channels, p-locks, morph
-- [Scene Sequencer](scene-sequencer.md) — scene caching, transitions
+- [Command System](../controls/commands.md) — commands triggered by the GUI
+- [Modulators](../state/modulators.md) — LFO/envelope binding to parameters
+- [Step Sequencer](../sequencing/sequencer.md) — channels, p-locks, morph
+- [Scene Sequencer](../sequencing/scene-sequencer.md) — scene caching, transitions

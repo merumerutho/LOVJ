@@ -1,6 +1,6 @@
 # Scene Sequencer
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 The scene sequencer (`lib/scene_sequencer.lua`) is a meta-level sequencer that triggers patch/savestate loads on beat-quantized boundaries. It enables pre-programmed visual set transitions during live performances.
 
@@ -82,7 +82,7 @@ local scenes = globalSceneSequencer:getSceneList()
 
 ## Related
 
-- [Clock & Transport](clock.md) — drives step timing
+- [Clock & Transport](../signals/clock.md) — drives step timing
 - [Step Sequencer](sequencer.md) — parameter-level automation
-- [Savestates](savestates.md) — parameter snapshot persistence
-- [Easing & Interpolation](easing.md) — crossfade transitions between scenes
+- [Savestates](../state/savestates.md) — parameter snapshot persistence
+- [Easing & Interpolation](../signals/easing.md) — crossfade transitions between scenes

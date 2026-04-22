@@ -1,8 +1,8 @@
 # Command System
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
-The command system (`lib/command_system.lua`) provides a protocol-agnostic way to define and execute actions. Commands can be triggered from [keyboard](keyboard.md), [MIDI](midi.md), [OSC](osc.md), or the [Studio GUI](studio.md).
+The command system (`lib/command_system.lua`) provides a protocol-agnostic way to define and execute actions. Commands can be triggered from [keyboard](keyboard.md), [MIDI](midi.md), [OSC](osc.md), or the [Studio GUI](../studio/studio.md).
 
 ## Architecture
 

@@ -1,6 +1,6 @@
 # Creating a Patch
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 ## Anatomy
 
@@ -49,7 +49,7 @@ cfg_patches.patches = {
 }
 ```
 
-The patch will then appear in the Studio web GUI's [Patches tab](studio.md) and be discoverable via the filesystem scan.
+The patch will then appear in the Studio web GUI's [Patches tab](../studio/studio.md) and be discoverable via the filesystem scan.
 
 ## Lifecycle Methods
 
@@ -94,7 +94,7 @@ end
 
 ## Parameters
 
-Parameters are stored in `patch.resources.parameters`, a [Resource](resources.md) object:
+Parameters are stored in `patch.resources.parameters`, a [Resource](../architecture/resources.md) object:
 
 ```lua
 local function init_params()
@@ -105,7 +105,7 @@ local function init_params()
 end
 ```
 
-Parameters are automatically exposed in the Studio GUI's Parameters tab. They can be modulated by [LFOs/envelopes](modulators.md), automated by the [step sequencer](sequencer.md), and saved/restored via [savestates](savestates.md).
+Parameters are automatically exposed in the Studio GUI's Parameters tab. They can be modulated by [LFOs/envelopes](../state/modulators.md), automated by the [step sequencer](../sequencing/sequencer.md), and saved/restored via [savestates](../state/savestates.md).
 
 ## Graphics Resources
 
@@ -118,7 +118,7 @@ g:setName(1, "sprite")    g:set("sprite", "demos/myPatch/assets/image.png")
 
 ## Custom Canvases
 
-For multi-pass rendering (e.g. [feedback effects](feedback.md)):
+For multi-pass rendering (e.g. [feedback effects](../graphics/feedback.md)):
 
 ```lua
 function patch:setCanvases()
@@ -132,7 +132,7 @@ Always call `Patch.setCanvases(patch)` first to create the base `main` canvas.
 
 ## Using Feedback
 
-The [Feedback](feedback.md) class simplifies echo/trail effects:
+The [Feedback](../graphics/feedback.md) class simplifies echo/trail effects:
 
 ```lua
 local Feedback = lovjRequire("lib/feedback")

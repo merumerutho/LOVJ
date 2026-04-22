@@ -1,6 +1,6 @@
 # Runtime & Main Loop
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 ## Initialization Sequence
 
@@ -74,4 +74,4 @@ Errors during reload are caught by the error handler and displayed as persistent
 | `lickBinding` | handle | Hot-reload binding |
 | `lickBindingPath` | string | Path being watched |
 
-See also: [Resource System](resources.md), [Creating Patches](creating-patches.md)
+See also: [Resource System](resources.md), [Creating Patches](../getting-started/creating-patches.md)

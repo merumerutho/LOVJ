@@ -1,6 +1,6 @@
 # Resource System
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 Resources are LOVJ's storage layer for named, indexed values. Every patch has a `ResourceList` containing multiple `Resource` objects.
 
@@ -103,4 +103,4 @@ The `shaderext` Resource stores per-slot shader selections and shader parameter 
 - `shaderSlot1`, `shaderSlot2`, `shaderSlot3` — post-process shader indices
 - `shaderName_paramName` — individual shader parameter values (parsed from `@param` annotations)
 
-See [Writing Shaders](shaders.md) for how shader parameters are defined and managed.
+See [Writing Shaders](../getting-started/shaders.md) for how shader parameters are defined and managed.

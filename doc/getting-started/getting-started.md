@@ -1,6 +1,6 @@
 # Installation & Running
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 ## Dependencies
 
@@ -18,7 +18,7 @@ From the project root:
 love .
 ```
 
-This launches LOVJ with the default patch configured in [`cfg/cfg_patches.lua`](configuration.md).
+This launches LOVJ with the default patch configured in [`cfg/cfg_patches.lua`](../architecture/configuration.md).
 
 The LOVE2D console window opens alongside the graphics window, showing log output.
 
@@ -30,7 +30,7 @@ To enable video output streaming via Spout:
 installSpout.bat
 ```
 
-This copies `SpoutLibrary.dll` and `SpoutWrapper.dll` into the project root. Spout senders/receivers are configured in [`cfg/cfg_spout.lua`](configuration.md).
+This copies `SpoutLibrary.dll` and `SpoutWrapper.dll` into the project root. Spout senders/receivers are configured in [`cfg/cfg_spout.lua`](../architecture/configuration.md).
 
 ## Studio Web GUI
 
@@ -46,9 +46,9 @@ The built output goes to `studio/dist/` and is served by LOVJ's built-in HTTP se
 
 ## Project Layout
 
-See [Project Structure](project-structure.md) for the full file tree.
+See [Project Structure](../architecture/project-structure.md) for the full file tree.
 
 ## Next Steps
 
 - [Creating a Patch](creating-patches.md) — write your first visual patch
-- [Configuration](configuration.md) — customize resolution, controls, network
+- [Configuration](../architecture/configuration.md) — customize resolution, controls, network

@@ -1,6 +1,6 @@
 # MIDI
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 LOVJ routes MIDI messages to [commands](commands.md) through `lib/midi/midi_dispatcher.lua` using mappings defined in `cfg/cfg_midi_mapping.lua`.
 

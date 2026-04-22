@@ -1,6 +1,6 @@
 # WebSocket Protocol
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 The Studio GUI communicates with LOVJ via JSON messages over WebSocket (port 8765). Messages have a `type` field and an optional `id` for request/response correlation.
 
@@ -118,4 +118,4 @@ Errors are returned as `{type: "error", id?, message}`. The client's transport l
 ## Related
 
 - [Studio Overview](studio.md) — GUI architecture and tabs
-- [Command System](commands.md) — commands available through the protocol
+- [Command System](../controls/commands.md) — commands available through the protocol

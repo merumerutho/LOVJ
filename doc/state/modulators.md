@@ -1,8 +1,8 @@
 # Modulators
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
-The modulator system (`lib/modulator.lua`) binds [LFO and envelope](signals.md) signals to patch parameters, providing continuous automated modulation.
+The modulator system (`lib/modulator.lua`) binds [LFO and envelope](../signals/signals.md) signals to patch parameters, providing continuous automated modulation.
 
 ## Overview
 
@@ -63,7 +63,7 @@ local id = modulator.create({
 
 ## Available LFO Shapes
 
-`modulator.LFO_SHAPES` is derived from the LFO shape registry (`Lfo.shapeNames`). Built-in shapes: `Sine`, `Square`, `Triangle`, `RampUp`, `RampDown`, `SmoothRampUp`, `SmoothRampDown`, `Pulse`, `RandomSH`. Custom shapes can be added via `Lfo.registerShape()` — see [LFO & Envelope](signals.md).
+`modulator.LFO_SHAPES` is derived from the LFO shape registry (`Lfo.shapeNames`). Built-in shapes: `Sine`, `Square`, `Triangle`, `RampUp`, `RampDown`, `SmoothRampUp`, `SmoothRampDown`, `Pulse`, `RandomSH`. Custom shapes can be added via `Lfo.registerShape()` — see [LFO & Envelope](../signals/signals.md).
 
 ## Modulator Type Registry
 
@@ -123,7 +123,7 @@ The Studio protocol marks parameters as `modulated: true` in the schema when a m
 
 ## Related
 
-- [LFO & Envelope](signals.md) — signal generators used by modulators
-- [Step Sequencer](sequencer.md) — discrete step automation (complementary to continuous modulation)
+- [LFO & Envelope](../signals/signals.md) — signal generators used by modulators
+- [Step Sequencer](../sequencing/sequencer.md) — discrete step automation (complementary to continuous modulation)
 - [Savestates](savestates.md) — modulator state is preserved
-- [Resource System](resources.md) — parameters being modulated
+- [Resource System](../architecture/resources.md) — parameters being modulated

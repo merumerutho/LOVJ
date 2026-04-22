@@ -1,6 +1,6 @@
 # Feedback Buffers
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 The `Feedback` class (`lib/feedback.lua`) provides a reusable ping-pong buffer for creating echo, trail, and recursive visual effects.
 
@@ -195,5 +195,5 @@ Always reset to `"alpha"` afterward so the post-process shader pipeline isn't af
 
 ## Related
 
-- [Creating Patches](creating-patches.md) — using feedback in patches
+- [Creating Patches](../getting-started/creating-patches.md) — using feedback in patches
 - [Patch Rendering Pipeline](rendering.md) — where feedback fits in the draw flow

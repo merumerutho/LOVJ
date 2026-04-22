@@ -1,6 +1,6 @@
 # LFO & Envelope
 
-[Back to index](index.md)
+[Back to index](../index.md)
 
 Signal generators for modulation and animation. Both inherit from a common `Signals` base class that provides trigger/gate management.
 
@@ -48,7 +48,7 @@ local val = lfo:Sine(t)        -- evaluate at time t
 
 ### Shape Registry
 
-Shapes are registered by name in `Lfo.shapes`. The [modulator](modulators.md) system looks them up via `Lfo.shapeNames`. To add a custom shape without modifying core code:
+Shapes are registered by name in `Lfo.shapes`. The [modulator](../state/modulators.md) system looks them up via `Lfo.shapeNames`. To add a custom shape without modifying core code:
 
 ```lua
 local Lfo = lovjRequire("lib/signals/lfo")
@@ -119,5 +119,5 @@ end
 
 ## Related
 
-- [Modulators](modulators.md) — bind LFOs/envelopes to parameters automatically
+- [Modulators](../state/modulators.md) — bind LFOs/envelopes to parameters automatically
 - [Easing & Interpolation](easing.md) — shaping curves for transitions
