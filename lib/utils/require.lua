@@ -1,56 +1,49 @@
 -- require.lua
 --
--- Functions for loading, unloading and reloading libraries
+-- lovjRequire / lovjUnrequire / lovjTest — wrappers around `require` that
+-- register files with the `lick` hot-reload system.
 --
 
 lick = require("lib/lick")
 
-requirements = {}
 
----
---- Wrapper function for "require", integrated with the "lick" library for livecoding purposes.
----
---- Wrapping the require enables the possibility to keep track of the files "required" by simply adding them to a list,
---- which in turn can be checked by the lick library that allows the livecoding feature.
----
---- In principle, the lick library performs checks on the date of modification of a list of files, and if
---- the date has changed, it triggers reset procedures. For files which require hard-resets, the whole program is
---- reloaded, but for some files it is necessary to perform only a patch reload.
---- @param component string
---- @param resetType string
+--- @public lovjRequire
+--- Requires a Lua module and registers the file with lick for hot-reload.
+--- @param component string   module path without ".lua"
+--- @param resetType string?  one of lick.HARD / lick.MODULE / lick.REBUILD.
+---                           Defaults to lick.HARD (safe but most aggressive).
 --- @return table
 function lovjRequire(component, resetType)
-    resetType = resetType or lick.HARD_RESET  -- default value
-    local ret = require(component)  -- safe if protected by lovjTest
-
-    if lick.resetList[component] ~= nil then return ret end  -- if already present, skip
-    -- Otherwise add to lick reset list
-    lick.resetList[component] = {time = love.filesystem.getInfo(component .. ".lua").modtime ,
-                                 resetType = resetType }
-    logInfo("Added " .. component .. " to " .. resetType .." list.")
+    resetType = resetType or lick.HARD
+    local ret = require(component)
+    lick.register(component, resetType)
     return ret
 end
 
---- @public lovjUnrequire removes component from the list of loaded packages and the resetlist
+
+--- @public lovjUnrequire
+--- Drops a module from package cache and removes it from the lick watch list.
 function lovjUnrequire(component)
     logInfo("Unrequiring " .. component)
     package.loaded[component] = nil
-    _G[component] = nil
-    lick.resetList[component] = nil
+    lick.unregister(component)
 end
 
---- @public lovjTest test if a component can be loaded without issues
+
+--- @public lovjTest
+--- Cheap syntax check — can we load this file without it running?
+--- Returns true on success, false + logs on failure.
 function lovjTest(component)
     if not component then return false end
-    local status, ret = pcall(love.filesystem.load, component..".lua")
-    -- if error found:
+    local status, ret = pcall(love.filesystem.load, component .. ".lua")
     if not status then
-        logError(component.." - Check failed.")
-        logError(ret) -- print error
+        logError(component .. " - Check failed.")
+        logError(ret)
         return false
     end
-    logInfo(component.." - Check passed.")
+    logInfo(component .. " - Check passed.")
     return true
 end
 
-return requirements
+
+return nil
