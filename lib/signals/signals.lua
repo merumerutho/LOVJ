@@ -6,8 +6,8 @@
 -- The underlying function depends on the type of signal
 --
 
-SMath = lovjRequire("lib/signals/signal_math")
-cfg_timers = lovjRequire("cfg/cfg_timers")
+local SMath = lovjRequire("lib/signals/signal_math")
+local cfg_timers = lovjRequire("cfg/cfg_timers")
 
 local Signals = {}
 Signals.__index = Signals
