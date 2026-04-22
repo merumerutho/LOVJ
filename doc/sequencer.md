@@ -35,6 +35,24 @@ globalSequencer:clearChannel("myChannel")         -- clear all locks
 
 When the sequencer lands on a step with a p-lock, it writes that value to the target parameter. Steps without locks use the channel's `default` value (in `"hold"` mode) or leave the parameter unchanged (in `"snap"` mode).
 
+### Per-step easing
+
+Each p-lock can include morph parameters for smooth transitions:
+
+```lua
+globalSequencer:plock(step, "myChannel", 0.75, {
+    morphDuration = 200,       -- transition time in ms
+    morphMode     = "time",    -- "time" (ms) or "beats"
+    morphEasing   = "sineOut", -- any easing curve name (see easing.md)
+})
+```
+
+When the sequencer hits a step with morph settings, it interpolates from the previous value to the target using the specified easing curve. The morph runs independently of step advancement.
+
+### Inactive steps and morph continuation
+
+If a step has no value (inactive), any in-progress morph from a previous active step continues running until it completes. This lets you set a long easing on one step and leave subsequent steps empty — the transition plays out across multiple steps without being interrupted.
+
 ## Target Types
 
 Channels can target different destinations:

@@ -49,10 +49,30 @@ Serializes current state of the given slot to a JSON file.
 ### Load
 
 ```lua
-saveMgr.loadResources(patchName, savestateId, slot)
+saveMgr.loadResources(patchName, savestateId, slot, opts)
 ```
 
-Reads a JSON file and restores parameters, graphics, shader extensions, and modulators for the given slot.
+Reads a JSON file and restores parameters, graphics, shader extensions, and modulators for the given slot. Parameters are matched by **name** (not index), so savestates remain valid even if a patch reorders or adds new parameters.
+
+#### Morph transitions
+
+When `saveMgr.morphEnabled` is `true` (the default), numeric parameters transition smoothly from their current values to the savestate values using an easing curve:
+
+```lua
+saveMgr.morphEnabled      = true        -- enable/disable globally
+saveMgr.defaultMorphTime  = 500         -- transition time in ms
+saveMgr.defaultMorphEasing = "sineInOut" -- easing curve name
+```
+
+Per-load overrides can be passed via `opts`:
+
+```lua
+saveMgr.loadResources(name, id, slot, { morphTime = 1000, morphEasing = "cubicOut" })
+```
+
+Setting `morphTime = 0` forces an instant load. Discrete values like shader slot indices always snap instantly regardless of morph settings.
+
+The morph settings can be queried and changed at runtime via the Studio protocol (`getMorphSettings` / `setMorphSettings`), and are exposed in the LOVJ Deck savestates panel.
 
 ### Patch Loading
 

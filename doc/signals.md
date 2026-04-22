@@ -113,6 +113,10 @@ function patch.draw()
 end
 ```
 
+## Easing Curves
+
+26 built-in easing curves are available for shaping transitions, morph interpolation, and sequencer per-step easing. See [Easing & Interpolation](easing.md) for the full catalog and API.
+
 ## Related
 
 - [Modulators](modulators.md) — bind LFOs/envelopes to parameters automatically

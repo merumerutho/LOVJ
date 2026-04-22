@@ -14,9 +14,7 @@ patch.draw()
         │
         ▼
 main.lua draw loop
-  ├── Apply post-process shader layer 1
-  ├── Apply post-process shader layer 2
-  ├── Apply post-process shader layer 3
+  ├── Apply post-process shader layers 1–10 (active only)
   ├── Composite to screen
   └── Send to Spout (if enabled)
 ```
@@ -68,7 +66,9 @@ Finalizes and returns the rendered canvas for the main loop to apply shaders and
 
 ## Post-Process Shaders
 
-Each slot has 3 shader layers, selected via `shaderext` resources (`shaderSlot1`, `shaderSlot2`, `shaderSlot3`). The main loop applies them sequentially using `cfgShaders.selectPPShader()`.
+Each slot has up to 10 shader layers, selected via `shaderext` resources (`shaderSlot1` through `shaderSlot10`). Layers set to `00_default` are skipped entirely — no GPU draw call occurs for them.
+
+Shader canvases are allocated lazily: the first time a non-default shader activates on a given layer, a canvas is created for it. Patches with no active post-process shaders allocate zero extra canvases.
 
 Shaders are GLSL fragment programs with the signature:
 
