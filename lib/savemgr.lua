@@ -70,10 +70,10 @@ function saveMgr.tick()
         local elapsed = now - m.startTime
         local t = elapsed / m.duration
         if t >= 1 then
-            m.res:setByIdx(m.idx, m.toVal)
+            m.res:setBaseByIdx(m.idx, m.toVal)
         else
             local shaped = m.easingFn(t)
-            m.res:setByIdx(m.idx, m.fromVal + (m.toVal - m.fromVal) * shaped)
+            m.res:setBaseByIdx(m.idx, m.fromVal + (m.toVal - m.fromVal) * shaped)
             table.insert(alive, m)
         end
     end

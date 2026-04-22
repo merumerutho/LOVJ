@@ -16,14 +16,13 @@ local ErrorHandler = {}
 
 -- Safe patch operation wrapper.
 -- Records failures into lick.errors so they show up in the persistent banner.
-function ErrorHandler.safePatchCall(patchSlot, operation, func, ...)
-    if not func then
-        logError("ErrorHandler: nil function passed for " .. operation)
+function ErrorHandler.safePatchCall(patchSlot, operation)
+    local patch = patchSlots and patchSlots[patchSlot] and patchSlots[patchSlot].patch
+    if not patch or not patch[operation] then
         return false
     end
 
-    local args = {...}
-    local ok, result = xpcall(function() return func(unpack(args)) end, debug.traceback)
+    local ok, result = xpcall(function() return patch[operation](patch) end, debug.traceback)
 
     local key = "patch:" .. tostring(patchSlot) .. ":" .. operation
     if ok then

@@ -49,7 +49,7 @@ local function resolveTarget(target)
                     res = patch.resources[resType]
                 end
             end
-            if res then res:set(param, v) end
+            if res then res:setBase(param, v) end
         end
     end
 

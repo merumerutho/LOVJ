@@ -22,6 +22,19 @@ function Resource:setByIdx(idx, v)
     if self._onChange then self._onChange(entry.name, v) end
 end
 
+--- @public setBaseByIdx setter for the base value only.
+--- Used by the sequencer so modulators can modulate on top.
+function Resource:setBaseByIdx(idx, v)
+    local entry = self[idx]
+    if not entry then return end
+    entry.baseValue = v
+end
+
+--- @public setBase setter for base value by name.
+function Resource:setBase(name, v)
+    return self:setBaseByIdx(self:getIdxByName(name), v)
+end
+
 --- @public setModulatedByIdx write only the output value (used by modulators).
 --- Does not touch baseValue. Fires _onChange so the GUI sees the live value.
 function Resource:setModulatedByIdx(idx, v)
@@ -63,6 +76,7 @@ function Resource:setName(idx, n)
     local entry = self[idx]
     if not entry then return end
     entry.name = n
+    self._nameCache = nil
 end
 
 --- @public getName getter for resource name by idx
@@ -86,10 +100,17 @@ function Resource:getMeta(idx)
     return entry.meta
 end
 
---- @public getIdxByName Obtain idx of resource based on its name
+--- @public getIdxByName Obtain idx of resource based on its name.
+--- Uses a lazy cache for O(1) repeat lookups.
 function Resource:getIdxByName(name)
-    for idx=1,#self do
-        if self[idx].name == name then return idx end
+    if not self._nameCache then self._nameCache = {} end
+    local cached = self._nameCache[name]
+    if cached and self[cached] and self[cached].name == name then return cached end
+    for idx = 1, #self do
+        if self[idx].name == name then
+            self._nameCache[name] = idx
+            return idx
+        end
     end
     return -1
 end

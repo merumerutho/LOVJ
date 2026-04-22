@@ -108,6 +108,10 @@ function cfg_shaders.initShaderExt(slot)
 			s:set(full_param_name, param_value)
 			-- increase index counter
 			counter = counter + 1
+			if counter > #s then
+				logError("cfg_shaders: shaderext capacity exceeded at " .. (counter - 1) .. " entries (param: " .. full_param_name .. ")")
+				return
+			end
 		end
 	end
 end

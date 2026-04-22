@@ -112,7 +112,7 @@ end
 --- nil'd the resources for any demo that forgot to return them.
 function Patch:mainUpdate()
 	if cfg_patches.selectedPatch == self.slot then
-		self.patchControls()
+		self:patchControls()
 	end
 end
 

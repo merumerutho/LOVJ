@@ -167,7 +167,7 @@ function love.load()
 		cfgShaders.initShaderExt(i)
 		wireShaderNotifications(i)
 
-		local success = errorHandler.safePatchCall(i, "init", slot.patch.init, i, globalSettings, slot.shaderext)
+		local success = xpcall(function() slot.patch:init(i, globalSettings, slot.shaderext) end, debug.traceback)
 		if not success then
 			slot.patch = errorHandler.createFallbackPatch(i)
 		end
@@ -210,7 +210,7 @@ function love.draw()
 	-- in place (no fallback swap) — the error is visible via the banner,
 	-- and the next successful reload will clear it.
 	for i=1, #patchSlots do
-		local success, canvas = errorHandler.safePatchCall(i, "draw", patchSlots[i].patch.draw)
+		local success, canvas = errorHandler.safePatchCall(i, "draw")
 		if success and canvas then
 			drawingUtils.drawCanvasToCanvas(canvas, downMixCanvas)
 			canvas = drawingUtils.clearCanvas(canvas)
@@ -246,13 +246,13 @@ function love.update()
 	dispatcher.update()
 	studioBridge.update()
 	saveMgr.tick()
-	modulator.tick()
 	if globalSequencer then globalSequencer:tick() end
 	if globalSceneSequencer then globalSceneSequencer:tick() end
+	modulator.tick()
 	studioProtocol.flush()
 
 	-- Update all patches. Failures surface in the banner; instance stays live.
 	for i=1, #patchSlots do
-		errorHandler.safePatchCall(i, "update", patchSlots[i].patch.update)
+		errorHandler.safePatchCall(i, "update")
 	end
 end
