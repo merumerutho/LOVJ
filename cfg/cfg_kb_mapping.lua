@@ -86,7 +86,7 @@ function cfg_kb_mapping.init()
 	-- Sort controls to ensure high keycount combinations are evaluated first
 	controls.sort()
 	
-	logInfo("KB Mapping: Initialized " .. table.getn(cfg_kb_mapping.directMappings) .. " keyboard bindings")
+	logInfo("KB Mapping: Initialized " .. table.count(cfg_kb_mapping.directMappings) .. " keyboard bindings")
 end
 
 -- Auto-generate repetitive mappings

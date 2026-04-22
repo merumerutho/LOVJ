@@ -3,7 +3,7 @@
 -- A generalized controls manager for handling multiple input sources in LOVJ.
 -- Supports keyboard, mouse, gamepad.
 
-log = lovjRequire("lib/utils/logging")
+local log = lovjRequire("lib/utils/logging")
 
 local Controls = {}
 

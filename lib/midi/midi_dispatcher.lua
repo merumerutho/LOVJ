@@ -247,8 +247,8 @@ end
 -- Get dispatcher status
 function MIDIDispatcher.getStatus()
     return {
-        activeChannels = table.getn(activeMIDIChannels),
-        activeThreads = table.getn(activeMIDIThreads)
+        activeChannels = table.count(activeMIDIChannels),
+        activeThreads = table.count(activeMIDIThreads)
     }
 end
 

@@ -273,7 +273,7 @@ end
 -- Get dispatcher status
 function OSCDispatcher.getStatus()
     return {
-        activeChannels = table.getn(activeOSCChannels),
+        activeChannels = table.count(activeOSCChannels),
         commandQueueLength = #CommandSystem.commandQueue
     }
 end

@@ -21,10 +21,12 @@ end
 
 --- @public setShaders set-up shader list for patch with default shader
 function Patch:setShaders()
-	local default = table.getValueByName("default", cfgShaders.PostProcessShaders)
-	self.CurrentShaders = { {name = default, object = nil},
-							{name = default, object = nil},
-							{name = default, object = nil} }
+	local first = cfgShaders.PostProcessShaders[1]
+	local defaultName = first and first.name or "00_default"
+	self.CurrentShaders = {}
+	for i = 1, 10 do
+		self.CurrentShaders[i] = {name = defaultName, object = nil}
+	end
 end
 
 
@@ -32,21 +34,16 @@ end
 function Patch:setCanvases()
 	self.canvases = {}
 	self.canvases.ShaderCanvases = {}
-
-	local resW, resH
-	-- Calculate appropriate size
-	resW, resH = screen.InternalRes.W, screen.InternalRes.H
-    
-	-- Generate canvases with calculated size
-	self.canvases.main = love.graphics.newCanvas(resW, resH)
-	for i = 1, #self.CurrentShaders do
-		table.insert(self.canvases.ShaderCanvases, love.graphics.newCanvas(resW, resH))
-	end
+	self.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 end
 
 
 function Patch:init(slot, globals, shaderext)
 	self.slot = slot
+	-- Preserve existing globals/shaderext if caller didn't pass them
+	-- (e.g. internal reset calls like patch.init(patch.slot))
+	globals = globals or (self.resources and self.resources.globals)
+	shaderext = shaderext or (self.resources and self.resources.shaderext)
 	self.resources = ResourceList:new(globals, shaderext)
 	self:setShaders()
 	self:assignDefaultDraw()
@@ -73,8 +70,6 @@ function Patch:drawSetup()
 		end
 	end
 
-	love.graphics.setCanvas(self.canvases.ShaderCanvases[#self.CurrentShaders])
-	-- set canvas
 	love.graphics.setCanvas(self.canvases.main)
 end
 
@@ -82,45 +77,43 @@ end
 --- @public drawExec Draw procedure shared across all patches
 function Patch:drawExec(hang)
 	hang = false or hang
-	love.graphics.setColor(1, 1, 1, 1)  -- Reset color
+	love.graphics.setColor(1, 1, 1, 1)
 
-	-- Cycle over post process shaders applying them on respective canvases
 	if cfgShaders.enabled then
+		local lastCanvas = self.canvases.main
+		local sc = self.canvases.ShaderCanvases
 		for i = 1, #self.CurrentShaders do
-			local srcCanvas, dstCanvas
-			if i == 1 then
-				srcCanvas, dstCanvas = self.canvases.main, self.canvases.ShaderCanvases[1]
-			else
-				srcCanvas, dstCanvas = self.canvases.ShaderCanvases[i-1], self.canvases.ShaderCanvases[i]      
-			end
-			-- Set canvas, apply shader, draw and then remove shader
-			love.graphics.setCanvas(dstCanvas)
-			love.graphics.setShader(self.CurrentShaders[i].object)
-			love.graphics.draw(srcCanvas)
-			love.graphics.setShader()
-			love.graphics.setCanvas(srcCanvas)
-            -- clear if not hanging
-			if not hang then
-				love.graphics.clear(0, 0, 0, 0)
+			if self.CurrentShaders[i].name ~= "00_default" and self.CurrentShaders[i].object then
+				if not sc[i] then
+					sc[i] = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+				end
+				local dstCanvas = sc[i]
+				love.graphics.setCanvas(dstCanvas)
+				love.graphics.setShader(self.CurrentShaders[i].object)
+				love.graphics.draw(lastCanvas)
+				love.graphics.setShader()
+				if not hang then
+					love.graphics.setCanvas(lastCanvas)
+					love.graphics.clear(0, 0, 0, 0)
+				end
+				lastCanvas = dstCanvas
 			end
 		end
-		-- return last shader canvas
-		return self.canvases.ShaderCanvases[#self.CurrentShaders]
+		return lastCanvas
 	else
-		-- If shaders disabled, return main
 		return self.canvases.main
 	end
 end
 
---- @public mainUpdate Update procedures shared across all patches
+--- @public mainUpdate Update procedures shared across all patches.
+--- patchControls() is expected to mutate self.resources in place (via
+--- p:set / g:set etc.) — any return value is ignored. The previous
+--- design reassigned self.resources from the return, which silently
+--- nil'd the resources for any demo that forgot to return them.
 function Patch:mainUpdate()
-	-- apply keyboard patch controls
-		-- only handle controls if patch is selected
-		if cfg_patches.selectedPatch == self.slot then
-			self.resources.parameters,
-			self.resources.graphics,
-			self.resources.globals = self.patchControls()
-		end
+	if cfg_patches.selectedPatch == self.slot then
+		self.patchControls()
+	end
 end
 
 return Patch

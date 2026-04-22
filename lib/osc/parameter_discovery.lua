@@ -123,7 +123,7 @@ function ParameterDiscovery.discoverParameters()
     -- Discover system parameters
     ParameterDiscovery.discoverSystemParameters()
     
-    logInfo("ParameterDiscovery: Discovered " .. table.getn(ParameterDiscovery.discoveredParameters) .. " parameters on request")
+    logInfo("ParameterDiscovery: Discovered " .. table.count(ParameterDiscovery.discoveredParameters) .. " parameters on request")
 end
 
 -- Discover global parameters
@@ -201,7 +201,7 @@ function ParameterDiscovery.discoverShaderParameters()
     
     -- Patch-specific shader parameters
     for slot = 1, 12 do
-        for layer = 0, 3 do -- Assuming max 4 shader layers
+        for layer = 0, 10 do
             local oscAddress = "/lovj/shader/" .. slot .. "/" .. layer .. "/select"
             ParameterDiscovery.registerParameter(oscAddress, {
                 category = ParameterDiscovery.categories.SHADER,
