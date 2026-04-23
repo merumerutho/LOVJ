@@ -91,8 +91,11 @@ local libs = ffi_OpenGL_libs or {
 	Other   = { x86 = "libGL.so",                x64 = "libGL.so" },
 }
 local gl = ffi.load(libs[ffi.os][ffi.arch])
-local proc = gl.wglGetProcAddress('glGetFramebufferAttachmentParameteriv')
-local glGetFramebufferAttachmentParameteriv = ffi.cast('type_glGetFramebufferAttachmentParameteriv', proc)
+
+local function getGLFBAttachParam()
+	local p = gl.wglGetProcAddress('glGetFramebufferAttachmentParameteriv')
+	return ffi.cast('type_glGetFramebufferAttachmentParameteriv', p)
+end
 
 local GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 0x8CD1
 local GL_COLOR_ATTACHMENT0 = 0x8CE0
@@ -204,10 +207,11 @@ function spout.SpoutSender:getTextureId()
 	local cur_canvas = love.graphics.getCanvas()
 	love.graphics.setCanvas(self.canvas)
 	local tempName = TYPEOF_GLINT_PTR()
-	glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
-										GL_COLOR_ATTACHMENT0,
-										GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-										tempName)
+	local glFunc = getGLFBAttachParam()
+	glFunc(GL_FRAMEBUFFER,
+		   GL_COLOR_ATTACHMENT0,
+		   GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
+		   tempName)
 	textureId = tempName[0]
 	love.graphics.setCanvas(cur_canvas)
 	return textureId
