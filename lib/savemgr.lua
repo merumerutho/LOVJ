@@ -14,7 +14,7 @@ saveMgr.savestatePath = "savestates/"
 saveMgr.morphs = {}
 saveMgr.morphEnabled = true
 saveMgr.defaultMorphTime = 500
-saveMgr.defaultMorphEasing = "sineInOut"
+saveMgr.defaultMorphEasing = "smoothstep"
 
 local function serializeResource(res)
     local out = {}

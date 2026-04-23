@@ -88,12 +88,15 @@ end
 
 
 local function handleHello(msg)
+    local cfg_bpm = require("cfg/cfg_bpm")
     send({
         type         = "welcome",
         id           = msg.id,
         version      = version or "unknown",
         slots        = patchSlots and #patchSlots or 0,
         selectedSlot = cfg_patches.selectedPatch,
+        defaultBpm   = cfg_bpm.default_bpm,
+        bpm          = clock and clock.bpm or cfg_bpm.default_bpm,
     })
 end
 
@@ -157,21 +160,25 @@ local Easing = lovjRequire("lib/signals/easing")
 
 local function broadcastModulatorList()
     send({
-        type         = "modulatorList",
-        modulators   = Modulator.getAll(),
-        shapes       = Modulator.LFO_SHAPES,
-        easingNames  = Easing.names,
+        type              = "modulatorList",
+        modulators        = Modulator.getAll(),
+        shapes            = Modulator.LFO_SHAPES,
+        easingNames       = Easing.names,
+        typeDefaults      = Modulator.typeDefaults,
+        typeConstraints   = Modulator.typeConstraints,
     })
 end
 
 
 local function handleListModulators(msg)
     send({
-        type         = "modulatorList",
-        id           = msg.id,
-        modulators   = Modulator.getAll(),
-        shapes       = Modulator.LFO_SHAPES,
-        easingNames  = Easing.names,
+        type              = "modulatorList",
+        id                = msg.id,
+        modulators        = Modulator.getAll(),
+        shapes            = Modulator.LFO_SHAPES,
+        easingNames       = Easing.names,
+        typeDefaults      = Modulator.typeDefaults,
+        typeConstraints   = Modulator.typeConstraints,
     })
 end
 
@@ -215,10 +222,13 @@ end
 
 -- ---- Sequencer messages ----
 
+local TempoDivisions = require("lib/tempo_divisions")
+
 local function seqSnapshot()
     if not globalSequencer then return {} end
     local state = globalSequencer:getState()
     state.bpm = clock and clock.bpm or 128
+    state.tempoDivisions = TempoDivisions.list
     return state
 end
 
@@ -281,6 +291,9 @@ local function handleSequencerUpdateChannel(msg)
     if msg.divider then
         globalSequencer:setChannelDivider(msg.name, tonumber(msg.divider))
     end
+    if msg.phase then
+        globalSequencer:setChannelPhase(msg.name, tonumber(msg.phase))
+    end
     broadcastSequencer()
 end
 
@@ -298,7 +311,7 @@ local function handleSequencerPlock(msg)
             opts = {
                 morphDuration = tonumber(msg.morphDuration),
                 morphMode     = msg.morphMode or "beats",
-                morphEasing   = msg.morphEasing or "linear",
+                morphEasing   = msg.morphEasing or "smoothstep",
             }
         end
         globalSequencer:plock(step, ch, tonumber(val), opts)
@@ -329,7 +342,6 @@ local function handleResetPhase(msg)
     if globalSceneSequencer then globalSceneSequencer:realign() end
 end
 
-
 -- ---- Scene sequencer messages ----
 
 local function sceneSeqSnapshot()
@@ -348,6 +360,13 @@ local function handleGetSceneSequencer(msg)
     snap.type = "sceneSequencerState"
     snap.id = msg.id
     send(snap)
+end
+
+local function handleResyncPhases(msg)
+    if globalSequencer then globalSequencer:resync() end
+    if globalSceneSequencer then globalSceneSequencer:resync() end
+    broadcastSequencer()
+    broadcastSceneSequencer()
 end
 
 local function handleSceneSeqPlay(msg)
@@ -410,6 +429,9 @@ local function handleSceneSeqUpdateChannel(msg)
     end
     if msg.divider then
         globalSceneSequencer:setChannelDivider(msg.name, tonumber(msg.divider))
+    end
+    if msg.phase then
+        globalSceneSequencer:setChannelPhase(msg.name, tonumber(msg.phase))
     end
     broadcastSceneSequencer()
 end
@@ -740,6 +762,7 @@ local handlers = {
     setBPM                 = handleSetBPM,
     tap                    = handleTap,
     resetPhase             = handleResetPhase,
+    resyncPhases           = handleResyncPhases,
     getSceneSequencer        = handleGetSceneSequencer,
     sceneSeqPlay             = handleSceneSeqPlay,
     sceneSeqStop             = handleSceneSeqStop,

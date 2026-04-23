@@ -90,6 +90,7 @@ function Sequencer:channel(name, target)
         currentStep = 0,
         lastValue   = nil,
         morph       = nil,
+        phase       = 0,
     }
     self.channels[name] = ch
     table.insert(self.channelOrder, name)
@@ -165,6 +166,23 @@ function Sequencer:setChannelDivider(channelName, div)
 end
 
 
+--- Set a channel's phase offset (0–1, fraction of the full pattern length).
+function Sequencer:setChannelPhase(channelName, phase)
+    local ch = self.channels[channelName]
+    if ch then ch.phase = (tonumber(phase) or 0) % 1 end
+    return self
+end
+
+
+--- Reset all channel phases to zero.
+function Sequencer:resync()
+    for _, ch in pairs(self.channels) do
+        ch.phase = 0
+    end
+    return self
+end
+
+
 function Sequencer:play()
     self.playing   = true
     self.startBeat = clock.beat
@@ -216,7 +234,7 @@ local function applyPlock(ch, stepData)
     local dur = stepData.morphDuration
     if dur and dur > 0 then
         local fromVal = ch.lastValue or pval
-        local easingFn = Easing.byName(stepData.morphEasing or "linear")
+        local easingFn = Easing.byName(stepData.morphEasing or "smoothstep")
         local mode = stepData.morphMode or "beats"
         local actualDur = (mode == "time") and (dur / 1000) or dur
         ch.morph = {
@@ -270,7 +288,7 @@ function Sequencer:tick()
 
     for _, chName in ipairs(self.channelOrder) do
         local ch = self.channels[chName]
-        local stepFloat = beatsSinceStart * ch.divider
+        local stepFloat = beatsSinceStart * ch.divider + ch.phase * ch.numSteps
         local newStep = math.floor(stepFloat) % ch.numSteps + 1
 
         if newStep ~= ch.currentStep then
@@ -295,7 +313,7 @@ function Sequencer:getState()
             if s.morphDuration then
                 entry.morphDuration = s.morphDuration
                 entry.morphMode = s.morphMode or "beats"
-                entry.morphEasing = s.morphEasing or "linear"
+                entry.morphEasing = s.morphEasing or "smoothstep"
             end
             steps[i] = entry
         end
@@ -306,6 +324,7 @@ function Sequencer:getState()
             default     = ch.default,
             numSteps    = ch.numSteps,
             divider     = ch.divider,
+            phase       = ch.phase,
             currentStep = ch.currentStep,
             steps       = steps,
             morphActive = ch.morph ~= nil,

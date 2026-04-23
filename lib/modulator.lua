@@ -347,4 +347,35 @@ Modulator.registerType("envelope", {
 Modulator.LFO_SHAPES = Lfo.shapeNames
 
 
+--- Default creation configs for each modulator type.
+--- The frontend uses these when spawning new modulators.
+Modulator.typeDefaults = {
+    lfo = {
+        shape = "Sine", frequency = 1.0, phase = 0.0,
+        beatSync = false, beatDivision = 4,
+        min = 0.0, max = 1.0, easing = "linear",
+    },
+    envelope = {
+        attack = 0.1, decay = 0.1, sustain = 0.7, release = 0.3,
+        triggerBeats = 1.0, gateRatio = 0.5,
+        min = 0.0, max = 1.0, easing = "linear",
+    },
+}
+
+--- Per-field range constraints for modulator UI sliders.
+Modulator.typeConstraints = {
+    lfo = {
+        phase = { min = 0, max = 1, step = 0.01 },
+    },
+    envelope = {
+        attack       = { min = 0.001, max = 2,    step = 0.005 },
+        decay        = { min = 0.001, max = 2,    step = 0.005 },
+        sustain      = { min = 0,     max = 1,    step = 0.01 },
+        release      = { min = 0.001, max = 2,    step = 0.005 },
+        triggerBeats = { min = 0.25,  max = 8,    step = 0.25 },
+        gateRatio    = { min = 0.05,  max = 0.95, step = 0.01 },
+    },
+}
+
+
 return Modulator

@@ -109,6 +109,7 @@ function SceneSequencer:channel(name, config)
         steps       = {},
         currentStep = 0,
         lastScene   = nil,
+        phase       = 0,
     }
     for i = 1, ch.numSteps do ch.steps[i] = {} end
 
@@ -166,6 +167,21 @@ function SceneSequencer:setChannelDivider(channelName, div)
 end
 
 
+function SceneSequencer:setChannelPhase(channelName, phase)
+    local ch = self.channels[channelName]
+    if ch then ch.phase = (tonumber(phase) or 0) % 1 end
+    return self
+end
+
+
+function SceneSequencer:resync()
+    for _, ch in pairs(self.channels) do
+        ch.phase = 0
+    end
+    return self
+end
+
+
 function SceneSequencer:play()
     self.playing   = true
     self.startBeat = clock.beat
@@ -207,7 +223,7 @@ function SceneSequencer:tick()
 
     for _, chName in ipairs(self.channelOrder) do
         local ch = self.channels[chName]
-        local stepFloat = beatsSinceStart * ch.divider
+        local stepFloat = beatsSinceStart * ch.divider + ch.phase * ch.numSteps
         local newStep   = math.floor(stepFloat) % ch.numSteps + 1
 
         if newStep ~= ch.currentStep then
@@ -240,6 +256,7 @@ function SceneSequencer:getState()
             slot        = ch.slot,
             numSteps    = ch.numSteps,
             divider     = ch.divider,
+            phase       = ch.phase,
             currentStep = ch.currentStep,
             steps       = steps,
         })

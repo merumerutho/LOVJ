@@ -111,15 +111,8 @@ end
 
 
 --- Musical-division lookup: how many beats each division spans.
-clock.divisions = {
-    ["4bar"]    = 16,
-    ["2bar"]    = 8,
-    ["1bar"]    = 4,
-    ["1/2bar"]  = 2,
-    ["1beat"]   = 1,
-    ["1/2beat"] = 0.5,
-    ["1/4beat"] = 0.25,
-}
+local TempoDivisions = require("lib/tempo_divisions")
+clock.divisions = TempoDivisions.byLabel
 
 --- Return the frequency in Hz for a named musical division at the current BPM.
 --- E.g. clock.syncRate("1bar") at 120 BPM → 0.5 Hz (one cycle every 2 seconds).
