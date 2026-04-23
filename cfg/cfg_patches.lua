@@ -9,7 +9,7 @@ local cfg_patches = {}
 cfg_patches.selectedPatch = 1
 
 --- @public DEFAULT_PATCH default patch loaded at startup
-cfg_patches.defaultPatch = {"demos/demo23/source/demo_23"}
+cfg_patches.defaultPatch = {"demos/demo29/source/demo_29"}
 
 --- @public patches list of patches
 cfg_patches.patches = {
@@ -41,6 +41,7 @@ cfg_patches.patches = {
     "demos/demo26/source/demo_26",
     "demos/demo27/source/demo_27",
     "demos/demo28/source/demo_28",
+    "demos/demo29/source/demo_29",
 }
 
 

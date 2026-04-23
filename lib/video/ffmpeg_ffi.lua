@@ -132,6 +132,9 @@ ffi.cdef[[
     void                av_frame_free(AVFrame **frame);
     void                av_frame_unref(AVFrame *frame);
     int64_t             av_rescale_q(int64_t a, AVRational bq, AVRational cq);
+    void                av_log_set_level(int level);
+    int                 av_opt_set(void *obj, const char *name, const char *val, int search_flags);
+    int                 av_opt_get_int(void *obj, const char *name, int search_flags, int64_t *out_val);
 
     // --- swscale functions ---
     SwsContext         *sws_getContext(int srcW, int srcH, int srcFormat,
@@ -153,5 +156,9 @@ M.AVERROR_EOF          = -541478725   -- FFERRTAG('E','O','F',' ')
 M.AVERROR_EAGAIN       = -11          -- AVERROR(EAGAIN)
 M.AV_TIME_BASE         = 1000000     -- microseconds
 M.AV_NOPTS_VALUE       = 0x8000000000000000LL
+M.AV_LOG_FATAL         = 8
+M.AV_LOG_ERROR         = 16
+M.AV_LOG_WARNING       = 24
+M.AV_LOG_QUIET         = -8
 
 return M
