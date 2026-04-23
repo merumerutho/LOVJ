@@ -41,8 +41,7 @@ cfgCommands = lovjRequire("cfg/cfg_commands")
 -- Initialize Spout support
 if (cfgSpout.enable and
 	love.system.getOS() == "Windows" and
-	love.filesystem.getInfo("dynlib/SpoutLibrary.dll") and
-	love.filesystem.getInfo("dynlib/SpoutWrapper.dll")) then
+	love.filesystem.getInfo("dynlib/SpoutLibrary.dll")) then
 	spout = lovjRequire("lib/spout")
 else
 	spout = lovjRequire("lib/stubs/spout-stub")
