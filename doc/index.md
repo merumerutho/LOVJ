@@ -43,6 +43,8 @@ LOVJ is a LOVE2D-based VJing framework for live music performances. It provides 
 - [Screen & Resolution](graphics/screen.md) — internal/external resolution, upscaling, fullscreen
 - [Feedback Buffers](graphics/feedback.md) — ping-pong echo effects
 - [Patch Rendering Pipeline](graphics/rendering.md) — canvas flow, shader layers, composition
+- [Video Sampler](graphics/video-sampler.md) — FFmpeg-based video playback with threaded decoding
+- [Databending & Glitch FX](graphics/databending.md) — packet-level datamoshing, glitch shaders, depth estimation
 
 ## State Management
 

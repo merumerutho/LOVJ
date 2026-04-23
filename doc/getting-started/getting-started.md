@@ -27,10 +27,20 @@ The LOVE2D console window opens alongside the graphics window, showing log outpu
 To enable video output streaming via Spout:
 
 ```bash
-installSpout.bat
+python installSpout.py
 ```
 
-This copies `SpoutLibrary.dll` and `SpoutWrapper.dll` into the project root. Spout senders/receivers are configured in [`cfg/cfg_spout.lua`](../architecture/configuration.md).
+This downloads `SpoutLibrary.dll` into `dynlib/`. LOVJ calls SpoutLibrary directly via C++ vtable from LuaJIT FFI — no wrapper DLL needed. Senders/receivers are configured in [`cfg/cfg_spout.lua`](../architecture/configuration.md).
+
+## FFmpeg Video Sampler
+
+To enable the video sampler (any-codec video playback, databending):
+
+```bash
+python installFFmpeg.py
+```
+
+This downloads FFmpeg shared libraries (avformat, avcodec, avutil, swscale, swresample) into `dynlib/`. See [Video Sampler](../graphics/video-sampler.md) and [Databending](../graphics/databending.md).
 
 ## Studio Web GUI
 

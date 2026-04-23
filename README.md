@@ -16,6 +16,8 @@ LOVJ is a framework based on LOVE2D, designed as a live-coding and interactive V
 - **Scene sequencer** — beat-quantized transitions between saved parameter states
 - **Modulator engine** — bind LFOs and envelopes to any parameter with min/max range and waveshaping
 - **Savestate system** — save/recall parameter snapshots with smooth easing transitions
+- **Video sampler** — FFmpeg-based video playback with varispeed, seeking, loop points, and any-codec support via threaded decoding
+- **Databending / datamoshing** — real-time packet-level video corruption: I-frame removal (melt), I-frame corruption (crush), block copy/shift (corrupt), P-frame repeat (smash)
 - **Feedback buffers** — ping-pong echo effects with rotation, zoom, and tint
 - **LOVJ Deck** — web-based control surface with parameter editing, sequencer faders, shader management, and beat visualization
 - **MIDI support** — CC, note, and program change mapping to any command
@@ -44,7 +46,13 @@ cd studio && npm install && npm run build
 For Spout support (Windows):
 
 ```sh
-installSpout.bat
+python installSpout.py
+```
+
+For FFmpeg video sampler support:
+
+```sh
+python installFFmpeg.py
 ```
 
 ## Documentation
