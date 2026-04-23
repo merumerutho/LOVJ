@@ -41,8 +41,8 @@ cfgCommands = lovjRequire("cfg/cfg_commands")
 -- Initialize Spout support
 if (cfgSpout.enable and
 	love.system.getOS() == "Windows" and
-	love.filesystem.getInfo("SpoutLibrary.dll") and
-	love.filesystem.getInfo("SpoutWrapper.dll")) then
+	love.filesystem.getInfo("dynlib/SpoutLibrary.dll") and
+	love.filesystem.getInfo("dynlib/SpoutWrapper.dll")) then
 	spout = lovjRequire("lib/spout")
 else
 	spout = lovjRequire("lib/stubs/spout-stub")
@@ -111,7 +111,7 @@ function bindPatchSlot(slot_idx)
 		get = function() return slot.patch end,
 		set = function(p) slot.patch = p end,
 		build = function(newModule)
-			newModule.init(slot_idx, globalSettings, slot.shaderext)
+			newModule:init(slot_idx, globalSettings, slot.shaderext)
 			wireParamNotifications(slot_idx, newModule)
 			return newModule
 		end,
@@ -206,9 +206,6 @@ function love.draw()
 	drawingUtils.clearCanvas(downMixCanvas)
 	drawingUtils.clearCanvas(nil)
 
-	-- Draw all patches stacked. On per-patch failure we keep the instance
-	-- in place (no fallback swap) — the error is visible via the banner,
-	-- and the next successful reload will clear it.
 	for i=1, #patchSlots do
 		local success, canvas = errorHandler.safePatchCall(i, "draw")
 		if success and canvas then
@@ -225,7 +222,6 @@ function love.draw()
 	main_spout_sender:SendCanvas(downMixCanvas, screen.Scaling.SpoutRatioX, screen.Scaling.SpoutRatioY)
 
 	love.graphics.setCanvas()
-	-- Banners are drawn by lick after love.draw returns.
 end
 
 
@@ -250,7 +246,7 @@ function love.update()
 	if globalSceneSequencer then globalSceneSequencer:tick() end
 	-- Copy baseValue → value for all params before modulators apply on top
 	for i = 1, #patchSlots do
-		if patchSlots[i].patch and patchSlots[i].patch.resources then
+		if patchSlots[i].patch and patchSlots[i].patch.resources and patchSlots[i].patch.resources.parameters then
 			patchSlots[i].patch.resources.parameters:resetModulation()
 		end
 		if patchSlots[i].shaderext then
