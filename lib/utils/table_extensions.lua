@@ -1,3 +1,11 @@
+-- Count entries in a table (works for hash tables, unlike #).
+function table.count(t)
+    local n = 0
+    for _ in pairs(t) do n = n + 1 end
+    return n
+end
+
+
 function table.getValueByName(name, list)
     for i=1,#list do
         if list[i] ~= nil then

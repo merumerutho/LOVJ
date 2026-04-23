@@ -74,7 +74,7 @@ function dispatcher.getStatus()
         midi = MIDIDispatcher.getStatus(),
         commands = {
             queueLength = #CommandSystem.commandQueue,
-            availableCommands = table.getn(CommandSystem.getCommands())
+            availableCommands = table.count(CommandSystem.getCommands())
         }
     }
 end

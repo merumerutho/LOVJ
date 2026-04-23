@@ -299,8 +299,8 @@ end
 -- Get feedback system status
 function OSCFeedback.getStatus()
     return {
-        connectedClients = table.getn(OSCFeedback.connectedClients),
-        parametersDiscovered = table.getn(ParameterDiscovery.getAllParameters()),
+        connectedClients = table.count(OSCFeedback.connectedClients),
+        parametersDiscovered = table.count(ParameterDiscovery.getAllParameters()),
         updateQueueLength = #OSCFeedback.parameterUpdateQueue
     }
 end

@@ -16,14 +16,39 @@ cfg_shaders.OtherShaders = {}
 --- @public enabled boolean to enable or disable shaders
 cfg_shaders.enabled = true
 
+-- Parse a @param default value into a number or a list of numbers.
+-- Accepts: "1.5", "-0.1", "{0.0, 1.0, 0.0, 1.0}", "{-0.1, 0.1}".
+-- Returns nil on anything that doesn't match, so bad input is silently
+-- ignored rather than executed.
+local function parseParamValue(raw)
+	raw = raw:match("^%s*(.-)%s*$")  -- trim
+	-- Brace list: {a, b, c, ...}
+	local inner = raw:match("^{%s*(.-)%s*}$")
+	if inner then
+		local values = {}
+		for num in inner:gmatch("[^,]+") do
+			local n = tonumber(num:match("^%s*(.-)%s*$"))
+			if not n then return nil end
+			table.insert(values, n)
+		end
+		return values
+	end
+	-- Scalar number
+	return tonumber(raw)
+end
+
 -- Parse parameters from shader content
 local function parseShaderParams(shaderContent)
 	local params = {}
 	for line in shaderContent:gmatch("[^\r\n]+") do
 		local param_type, param_name, param_value = string.match(line, "//%s+@param%s+([%a%d_]*)%s+([%a_]*)%s+([%-%d%.{},%s]*)%s*//")
 		if param_name and param_type and param_value then
-			params[param_name] = load("return " .. param_value)() -- Extremely dangerous move because I'm lazy
-                                                            -- pls no injecterino
+			local parsed = parseParamValue(param_value)
+			if parsed ~= nil then
+				params[param_name] = parsed
+			else
+				logError("cfg_shaders: could not parse @param value for '" .. param_name .. "': " .. tostring(param_value))
+			end
 		end
 	end
 	return params
@@ -66,7 +91,7 @@ function cfg_shaders.initShaderExt(slot)
 	local counter = 1
 	
 	-- Allocate shader slots
-	for i=1, 3 do
+	for i=1, 10 do
 		s:setName(counter, "shaderSlot" .. i)
 		s:set("shaderSlot" .. i, 1)
 		counter = counter + 1
@@ -83,6 +108,10 @@ function cfg_shaders.initShaderExt(slot)
 			s:set(full_param_name, param_value)
 			-- increase index counter
 			counter = counter + 1
+			if counter > #s then
+				logError("cfg_shaders: shaderext capacity exceeded at " .. (counter - 1) .. " entries (param: " .. full_param_name .. ")")
+				return
+			end
 		end
 	end
 end
@@ -103,31 +132,26 @@ end
 --- @public selectShader select the post processing shader to apply
 function cfg_shaders.selectPPShader(p_slot, s_slot, curShader)
 	local s = patchSlots[p_slot].shaderext
-	local shader
-
-    -- select shader
-	local newShader = cfg_shaders.PostProcessShaders[s:get("shaderSlot" .. s_slot)]
-	-- if shader changed, create new shader
-	if newShader.name ~= curShader.name then
-		shader = {name = newShader.name, object = love.graphics.newShader(newShader.value)}
+	local idx = s:get("shaderSlot" .. s_slot)
+	local newShader = idx and cfg_shaders.PostProcessShaders[idx] or cfg_shaders.PostProcessShaders[1]
+	if not newShader then return curShader end
+	if newShader.name == curShader.name then
+		if not curShader.object then return curShader end
+		-- same shader, just update params
 	else
-		shader = curShader
-	end
-	
-	-- Update all parameters
-	local paramGroups = cfg_shaders.OverallParams
-	for pg_name, pg_val in pairs(paramGroups) do
-		-- if the selected shader matches the name of the param group
-		if pg_name == shader.name then
-			-- update all parameters
-			for param_name, default_value in pairs(pg_val) do
-				local full_param_name = pg_name .. "_" .. param_name
-				-- send new value
-				shader.object:send(param_name, s:get(full_param_name))
-			end
+		if newShader.name == "00_default" then
+			return {name = "00_default", object = nil}
 		end
-	end	
-	return shader
+		curShader = {name = newShader.name, object = love.graphics.newShader(newShader.value)}
+	end
+
+	local pg = cfg_shaders.OverallParams[curShader.name]
+	if pg and curShader.object then
+		for param_name, _ in pairs(pg) do
+			curShader.object:send(param_name, s:get(curShader.name .. "_" .. param_name))
+		end
+	end
+	return curShader
 end
 
 return cfg_shaders

@@ -19,29 +19,31 @@ function logging.setLogLevel(levels)
 	end
 end
 
+local function callerFile(depth)
+	local info = debug.getinfo(depth + 1, "S")
+	if info and info.short_src then
+		return info.short_src:match("[^/\\]*.lua$") or info.short_src
+	end
+	return "?"
+end
+
 --- @public logInfo provide log info, printing also the component name
 function logInfo(msg)
-	if bit.band(logging.logLevel, logging.LOG_INFO) then
-		local filename = debug.getinfo(2)["short_src"]:match("[^/]*.lua")
-		-- filename = "" or filename
-		print("INFO ["..filename.."] "..tostring(msg))
+	if bit.band(logging.logLevel, logging.LOG_INFO) ~= 0 then
+		print("INFO [" .. callerFile(2) .. "] " .. tostring(msg))
 	end
 end
 
 --- @public logError provide log error, printing also the component name
 function logError(msg)
-	if bit.band(logging.logLevel, logging.LOG_ERROR) then
-		local filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
-		-- filename = "" or filename
-		print("ERROR ["..filename.."] "..msg)
+	if bit.band(logging.logLevel, logging.LOG_ERROR) ~= 0 then
+		print("ERROR [" .. callerFile(2) .. "] " .. tostring(msg))
 	end
 end
 
 --- @public logDebug provide log debug, printing also the component name
 function logDebug(msg)
-	if bit.band(logging.logLevel, logging.LOG_DEBUG) then
-		local filename = debug.getinfo(3)["short_src"]:match("[^/]*.lua")
-		-- filename = "" or filename
-		print("DEBUG ["..filename.."] "..msg)
+	if bit.band(logging.logLevel, logging.LOG_DEBUG) ~= 0 then
+		print("DEBUG [" .. callerFile(2) .. "] " .. tostring(msg))
 	end
 end

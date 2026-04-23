@@ -74,22 +74,22 @@ cfg_midi_mapping.ccMappings = {
 -- Key format: "deviceId_channel_noteNumber" or just "noteNumber" for global
 cfg_midi_mapping.noteMappings = {
     -- Global note mappings
-    [60] = { -- Middle C
-        command = "togglePatch",
+    [60] = { -- Middle C — select patch slot 1
+        command = "setSelectedPatch",
         args = {"1"},
-        type = "noteOn"  -- Only respond to Note On
+        type = "noteOn"
     },
-    [61] = { -- C#
-        command = "togglePatch", 
+    [61] = { -- C# — select patch slot 2
+        command = "setSelectedPatch",
         args = {"2"},
         type = "noteOn"
     },
-    [62] = { -- D
+    [62] = { -- D — reset currently-selected patch
         command = "resetPatch",
         args = {"1"},
         type = "noteOn"
     },
-    
+
     -- Velocity-sensitive mappings
     [64] = { -- E
         command = "setPatchParameter",
@@ -97,20 +97,13 @@ cfg_midi_mapping.noteMappings = {
         type = "noteOn",
         transform = {"midiNormalize"}
     },
-    
+
     -- Device-specific note mappings
-    ["controller1_1_36"] = { -- Kick drum pad
-        command = "triggerBeat",
-        args = {"kick", "$velocity"},
-        type = "noteOn",
-        transform = {"midiNormalize"}
-    },
-    ["controller1_1_38"] = { -- Snare drum pad
-        command = "triggerBeat",
-        args = {"snare", "$velocity"},
-        type = "noteOn",
-        transform = {"midiNormalize"}
-    }
+    -- NOTE: kick/snare pads are currently no-ops — there is no "triggerBeat"
+    -- command registered in cfg_commands.lua. Add one (e.g. to tap-feed
+    -- bpm_est) before re-enabling these entries.
+    -- ["controller1_1_36"] = { command = "triggerBeat", args = {"kick", "$velocity"}, type = "noteOn", transform = {"midiNormalize"} },
+    -- ["controller1_1_38"] = { command = "triggerBeat", args = {"snare", "$velocity"}, type = "noteOn", transform = {"midiNormalize"} },
 }
 
 -- Program Change mappings

@@ -32,10 +32,28 @@ function cfg_commands.init()
             {name = "bpm", type = "float", min = 0, max = 250, required = true}
         },
         execute = function(bpm)
-            if bpm_est then
-                bpm_est:setBPM(bpm)
-                logInfo("Set BPM to: " .. bpm)
-            end
+            clock.setBPM(bpm)
+            logInfo("Set BPM to: " .. bpm)
+        end
+    })
+
+    CommandSystem.registerCommand("tapBPM", {
+        description = "Tap-tempo beat",
+        category = "global",
+        parameters = {},
+        execute = function()
+            clock.tap()
+            logInfo("Tap BPM: " .. math.floor(clock.bpm + 0.5))
+        end
+    })
+
+    CommandSystem.registerCommand("resetPhase", {
+        description = "Reset clock phase to align with music downbeat",
+        category = "global",
+        parameters = {},
+        execute = function()
+            clock.resetPhase()
+            logInfo("Clock phase reset")
         end
     })
     
@@ -114,7 +132,7 @@ function cfg_commands.init()
         },
         execute = function(slot)
             if patchSlots and patchSlots[slot] and patchSlots[slot].patch then
-                local success, err = pcall(patchSlots[slot].patch.init, slot, globalSettings, patchSlots[slot].shaderext)
+                local success, err = pcall(function() patchSlots[slot].patch:init(slot, globalSettings, patchSlots[slot].shaderext) end)
                 if success then
                     logInfo("Reset patch in slot " .. slot)
                 else
@@ -143,7 +161,31 @@ function cfg_commands.init()
             end
         end
     })
-    
+
+    CommandSystem.registerCommand("setPatchParameterByName", {
+        description = "Set a parameter value for a patch by parameter name",
+        category = "patch",
+        parameters = {
+            {name = "slot", type = "int", min = 1, max = 12, required = true},
+            {name = "paramName", type = "string", required = true},
+            {name = "value", type = "float", required = true}
+        },
+        execute = function(slot, paramName, value)
+            if patchSlots and patchSlots[slot] and patchSlots[slot].patch then
+                local patch = patchSlots[slot].patch
+                if patch.resources and patch.resources.parameters then
+                    local idx = patch.resources.parameters:getIdxByName(paramName)
+                    if idx == -1 then
+                        logError("setPatchParameterByName: unknown param '" .. paramName .. "' in slot " .. slot)
+                        return
+                    end
+                    patch.resources.parameters:setByIdx(idx, value)
+                    logInfo("Set param '" .. paramName .. "' = " .. tostring(value) .. " in slot " .. slot)
+                end
+            end
+        end
+    })
+
     CommandSystem.registerCommand("loadSavestate", {
         description = "Load a savestate for a patch",
         category = "patch",
@@ -218,16 +260,13 @@ function cfg_commands.init()
         category = "shader",
         parameters = {
             {name = "slot", type = "int", min = 1, max = 12, required = true},
-            {name = "layer", type = "int", min = 1, max = 3, required = true},
+            {name = "layer", type = "int", min = 1, max = 10, required = true},
             {name = "shaderId", type = "int", min = 1, required = true}
         },
         execute = function(slot, layer, shaderId)
-            if patchSlots and patchSlots[slot] and patchSlots[slot].patch then
-                local patch = patchSlots[slot].patch
-                if patch.shaderext then
-                    patch.shaderext:set("shaderSlot" .. layer, shaderId)
-                    logInfo("Set shader slot " .. layer .. " to " .. shaderId .. " in patch " .. slot)
-                end
+            if patchSlots and patchSlots[slot] and patchSlots[slot].shaderext then
+                patchSlots[slot].shaderext:set("shaderSlot" .. layer, shaderId)
+                logInfo("Set shader slot " .. layer .. " to " .. shaderId .. " in patch " .. slot)
             end
         end
     })
@@ -237,18 +276,15 @@ function cfg_commands.init()
         category = "shader",
         parameters = {
             {name = "slot", type = "int", min = 1, max = 12, required = true},
-            {name = "layer", type = "int", min = 1, max = 3, required = true},
+            {name = "layer", type = "int", min = 1, max = 10, required = true},
             {name = "paramName", type = "string", required = true},
             {name = "value", type = "float", required = true}
         },
         execute = function(slot, layer, paramName, value)
-            if patchSlots and patchSlots[slot] and patchSlots[slot].patch then
-                local patch = patchSlots[slot].patch
-                if patch.shaderext then
-                    local fullParamName = "shader" .. layer .. "_" .. paramName
-                    patch.shaderext:set(fullParamName, value)
-                    logInfo("Set shader param " .. fullParamName .. " = " .. value .. " in patch " .. slot)
-                end
+            if patchSlots and patchSlots[slot] and patchSlots[slot].shaderext then
+                local fullParamName = "shader" .. layer .. "_" .. paramName
+                patchSlots[slot].shaderext:set(fullParamName, value)
+                logInfo("Set shader param " .. fullParamName .. " = " .. value .. " in patch " .. slot)
             end
         end
     })
@@ -258,7 +294,7 @@ function cfg_commands.init()
         category = "shader",
         parameters = {
             {name = "slot", type = "int", min = 1, max = 12, required = true},
-            {name = "layer", type = "int", min = 1, max = 3, required = true}
+            {name = "layer", type = "int", min = 1, max = 10, required = true}
         },
         execute = function(slot, layer)
             if patchSlots and patchSlots[slot] and patchSlots[slot].shaderext then
@@ -270,7 +306,7 @@ function cfg_commands.init()
         end
     })
     
-    logInfo("CommandSystem: Initialized with " .. table.getn(CommandSystem.getCommands()) .. " commands")
+    logInfo("CommandSystem: Initialized with " .. table.count(CommandSystem.getCommands()) .. " commands")
 end
 
 return cfg_commands

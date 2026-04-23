@@ -1,1 +1,6 @@
 .idea
+*.dll
+
+# Studio web app build artifacts
+studio/node_modules/
+studio/dist/
