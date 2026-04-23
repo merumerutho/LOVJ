@@ -1,4 +1,5 @@
 .idea
+*.dll
 dynlib/
 
 # Studio web app build artifacts

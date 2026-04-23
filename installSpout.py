@@ -12,9 +12,8 @@ if platform.system() != "Windows":
 SPOUT_URL = "https://github.com/leadedge/Spout2/releases/download/2.007.017/Spout-SDK-binaries_2-007-017_1.zip"
 SPOUT_ZIP = "spout-sdk.zip"
 SPOUT_BIN_DIR = "Spout-SDK-binaries/Libs_2-007-017/MD/bin"
-WRAPPER_URL = "https://github.com/merumerutho/SpoutWrapper/releases/download/1.1.0/SpoutWrapper.dll"
-
 DEST_DIR = "dynlib"
+
 os.makedirs(DEST_DIR, exist_ok=True)
 
 print("Downloading Spout SDK...")
@@ -32,9 +31,4 @@ with zipfile.ZipFile(SPOUT_ZIP) as zf:
 
 os.remove(SPOUT_ZIP)
 
-print("Downloading SpoutWrapper.dll...")
-dest = os.path.join(DEST_DIR, "SpoutWrapper.dll")
-urllib.request.urlretrieve(WRAPPER_URL, dest)
-print(f"  -> {dest}")
-
-print("Done. Spout DLLs installed in dynlib/.")
+print("Done. SpoutLibrary.dll installed in dynlib/.")
