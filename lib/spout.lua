@@ -117,7 +117,7 @@ end
 --- Initialize SpoutSender with associated Canvas / Texture
 function spout.SpoutSender:init()
 	local name = self.name
-	self.handle = ffi.load("SpoutWrapper.dll")
+	self.handle = ffi.load("dynlib/SpoutWrapper.dll")
 	-- Transcribe sender name to memory
 	local senderNamePtr = ffi.cast('char *', self.nameMem:getFFIPointer())
 	for i=1,(#name) do
@@ -135,7 +135,7 @@ end
 function spout.SpoutReceiver:init()
 	local ptr
 	local name = self.name
-	self.handle = ffi.load("SpoutWrapper.dll")
+	self.handle = ffi.load("dynlib/SpoutWrapper.dll")
 
 	-- Transcribe receiver name to memory
 	local receiverNamePtr = ffi.cast('char *', self.nameMem:getFFIPointer())

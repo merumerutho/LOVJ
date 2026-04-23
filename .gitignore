@@ -1,5 +1,5 @@
 .idea
-*.dll
+dynlib/
 
 # Studio web app build artifacts
 studio/node_modules/
