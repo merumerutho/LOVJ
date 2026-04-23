@@ -24,7 +24,11 @@ cfg_spout.receiverHandles = {}
 function cfg_spout.updateCanvases()
 	for i=1,#cfg_spout.senderHandles do
 		local s = cfg_spout.senderHandles[i]
-		s.canvas = love.graphics.newCanvas(s.width, s.height)
+		if s.reinit then
+			s:reinit()
+		else
+			s.canvas = love.graphics.newCanvas(s.width, s.height)
+		end
 	end
 end
 

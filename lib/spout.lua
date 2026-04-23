@@ -52,15 +52,19 @@ local vtable_types = {
 	GetSenderWidth    = ffi.typeof("unsigned int (__thiscall *)(SPOUTLIBRARY*)"),
 	GetSenderHeight   = ffi.typeof("unsigned int (__thiscall *)(SPOUTLIBRARY*)"),
 	GetSenderFrame    = ffi.typeof("long (__thiscall *)(SPOUTLIBRARY*)"),
+	ReleaseSender     = ffi.typeof("void (__thiscall *)(SPOUTLIBRARY*, unsigned int)"),
+	ReleaseReceiver   = ffi.typeof("void (__thiscall *)(SPOUTLIBRARY*)"),
 }
 
 -- Vtable slot indices (from SpoutLibrary.h declaration order)
 local vtable_slots = {
 	SetSenderName     = 0,
+	ReleaseSender     = 2,
 	SendFbo           = 3,
 	SendTexture       = 4,
 	SendImage         = 5,
 	SetReceiverName   = 16,
+	ReleaseReceiver   = 18,
 	ReceiveImage      = 20,
 	IsUpdated         = 21,
 	IsConnected       = 22,
@@ -132,7 +136,25 @@ function spout.SpoutSender:init()
 	self.spoutLib = ffi.load("dynlib/SpoutLibrary.dll")
 	self.handle = self.spoutLib.GetSpout()
 	vtable_call(self.handle, "SetSenderName")(self.handle, name)
+	self.canvas = love.graphics.newCanvas(self.width, self.height)
 	logInfo("SPOUT SENDER initialized: " .. name)
+end
+
+function spout.SpoutSender:reinit()
+	if not self.spoutLib then
+		self.canvas = love.graphics.newCanvas(self.width, self.height)
+		return
+	end
+	if self.handle then
+		pcall(function()
+			vtable_call(self.handle, "ReleaseSender")(self.handle, 0)
+		end)
+	end
+	self.handle = self.spoutLib.GetSpout()
+	vtable_call(self.handle, "SetSenderName")(self.handle, self.name)
+	self.canvas = love.graphics.newCanvas(self.width, self.height)
+	self.textureId = 0
+	logInfo("SPOUT SENDER reinitialized: " .. self.name)
 end
 
 function spout.SpoutReceiver:init()
