@@ -99,10 +99,6 @@ function saveMgr.loadPatch(patchName, slot)
 	-- Re-bind this slot to lick so subsequent edits to the new patch file
 	-- trigger a rebuild targeting this slot.
 	if bindPatchSlot then bindPatchSlot(slot) end
-	-- for debugging
-	--print("global settings: " .. tostring(globalSettings))
-	--print("shaderext: " .. tostring(patchSlots[slot].shaderext))
-	--print("parameters: " .. tostring(patchSlots[slot].patch.resources.parameters))
 end
 
 
