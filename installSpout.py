@@ -3,22 +3,38 @@ import os
 import platform
 import sys
 import urllib.request
+import zipfile
 
 if platform.system() != "Windows":
     print("Spout is Windows-only (DirectX texture sharing). Skipping.")
     sys.exit(0)
 
-DLLS = {
-    "SpoutLibrary.dll": "https://github.com/leadedge/Spout2/raw/refs/heads/master/SPOUTSDK/SpoutLibrary/SpoutLibraryExample/bin/SpoutLibrary.dll",
-    "SpoutWrapper.dll": "https://github.com/merumerutho/SpoutWrapper/releases/download/1.1.0/SpoutWrapper.dll",
-}
+SPOUT_URL = "https://github.com/leadedge/Spout2/releases/download/2.007.017/Spout-SDK-binaries_2-007-017_1.zip"
+SPOUT_ZIP = "spout-sdk.zip"
+SPOUT_BIN_DIR = "Spout-SDK-binaries/Libs_2-007-017/MD/bin"
+WRAPPER_URL = "https://github.com/merumerutho/SpoutWrapper/releases/download/1.1.0/SpoutWrapper.dll"
 
-os.makedirs("dynlib", exist_ok=True)
+DEST_DIR = "dynlib"
+os.makedirs(DEST_DIR, exist_ok=True)
 
-for name, url in DLLS.items():
-    dest = os.path.join("dynlib", name)
-    print(f"Downloading {name}...")
-    urllib.request.urlretrieve(url, dest)
-    print(f"  -> {dest}")
+print("Downloading Spout SDK...")
+urllib.request.urlretrieve(SPOUT_URL, SPOUT_ZIP)
+
+print("Extracting SpoutLibrary.dll...")
+with zipfile.ZipFile(SPOUT_ZIP) as zf:
+    for entry in zf.namelist():
+        basename = os.path.basename(entry)
+        if entry.startswith(SPOUT_BIN_DIR) and basename == "SpoutLibrary.dll":
+            dest = os.path.join(DEST_DIR, basename)
+            with zf.open(entry) as src, open(dest, "wb") as dst:
+                dst.write(src.read())
+            print(f"  -> {dest}")
+
+os.remove(SPOUT_ZIP)
+
+print("Downloading SpoutWrapper.dll...")
+dest = os.path.join(DEST_DIR, "SpoutWrapper.dll")
+urllib.request.urlretrieve(WRAPPER_URL, dest)
+print(f"  -> {dest}")
 
 print("Done. Spout DLLs installed in dynlib/.")
