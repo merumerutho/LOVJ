@@ -7,6 +7,9 @@ DepthFX.estimate = love.graphics.newShader([[
 	extern float _blueShiftWeight;
 	extern float _sharpnessWeight;
 	extern float _verticalWeight;
+	extern float _edgeWeight;
+	extern float _textureWeight;
+	extern float _coherenceWeight;
 	extern vec2 _texelSize;
 
 	float luminance(vec3 c) {
@@ -20,7 +23,6 @@ DepthFX.estimate = love.graphics.newShader([[
 		float totalWeight = 0.001;
 
 		// Dark channel prior: min(R,G,B) over a local patch
-		// Low values = hazy/distant
 		if (_darkChannelWeight > 0.0) {
 			float darkMin = 1.0;
 			for (int dx = -1; dx <= 1; dx++) {
@@ -29,17 +31,15 @@ DepthFX.estimate = love.graphics.newShader([[
 					darkMin = min(darkMin, min(s.r, min(s.g, s.b)));
 				}
 			}
-			// High dark channel = close, low = far
 			depth += (1.0 - darkMin) * _darkChannelWeight;
 			totalWeight += _darkChannelWeight;
 		}
 
-		// Saturation: low saturation = distant (atmospheric desaturation)
+		// Saturation: low saturation = distant
 		if (_saturationWeight > 0.0) {
 			float maxC = max(rgb.r, max(rgb.g, rgb.b));
 			float minC = min(rgb.r, min(rgb.g, rgb.b));
 			float sat = (maxC > 0.001) ? (maxC - minC) / maxC : 0.0;
-			// High saturation = close
 			depth += sat * _saturationWeight;
 			totalWeight += _saturationWeight;
 		}
@@ -68,6 +68,57 @@ DepthFX.estimate = love.graphics.newShader([[
 		if (_verticalWeight > 0.0) {
 			depth += (1.0 - tc.y) * _verticalWeight;
 			totalWeight += _verticalWeight;
+		}
+
+		// Sobel edge detection: strong edges = object boundaries = foreground
+		if (_edgeWeight > 0.0) {
+			float tl = luminance(Texel(tex, tc + vec2(-_texelSize.x, -_texelSize.y)).rgb);
+			float tm = luminance(Texel(tex, tc + vec2(0.0, -_texelSize.y)).rgb);
+			float tr = luminance(Texel(tex, tc + vec2( _texelSize.x, -_texelSize.y)).rgb);
+			float ml = luminance(Texel(tex, tc + vec2(-_texelSize.x, 0.0)).rgb);
+			float mr = luminance(Texel(tex, tc + vec2( _texelSize.x, 0.0)).rgb);
+			float bl = luminance(Texel(tex, tc + vec2(-_texelSize.x,  _texelSize.y)).rgb);
+			float bm = luminance(Texel(tex, tc + vec2(0.0,  _texelSize.y)).rgb);
+			float br = luminance(Texel(tex, tc + vec2( _texelSize.x,  _texelSize.y)).rgb);
+			float gx = -tl - 2.0*ml - bl + tr + 2.0*mr + br;
+			float gy = -tl - 2.0*tm - tr + bl + 2.0*bm + br;
+			float edge = sqrt(gx*gx + gy*gy);
+			depth += clamp(edge * 3.0, 0.0, 1.0) * _edgeWeight;
+			totalWeight += _edgeWeight;
+		}
+
+		// Texture variance: high local variance = detail = closer
+		if (_textureWeight > 0.0) {
+			float mean = 0.0;
+			float meanSq = 0.0;
+			for (int dx = -2; dx <= 2; dx++) {
+				for (int dy = -2; dy <= 2; dy++) {
+					float l = luminance(Texel(tex, tc + vec2(float(dx), float(dy)) * _texelSize * 2.0).rgb);
+					mean += l;
+					meanSq += l * l;
+				}
+			}
+			mean /= 25.0;
+			meanSq /= 25.0;
+			float variance = meanSq - mean * mean;
+			depth += clamp(sqrt(variance) * 6.0, 0.0, 1.0) * _textureWeight;
+			totalWeight += _textureWeight;
+		}
+
+		// Color coherence: pixels surrounded by similar colors form solid objects = foreground
+		if (_coherenceWeight > 0.0) {
+			float coherence = 0.0;
+			for (int dx = -1; dx <= 1; dx++) {
+				for (int dy = -1; dy <= 1; dy++) {
+					if (dx == 0 && dy == 0) continue;
+					vec3 neighbor = Texel(tex, tc + vec2(float(dx), float(dy)) * _texelSize * 4.0).rgb;
+					float diff = length(rgb - neighbor);
+					coherence += 1.0 - clamp(diff * 3.0, 0.0, 1.0);
+				}
+			}
+			coherence /= 8.0;
+			depth += coherence * _coherenceWeight;
+			totalWeight += _coherenceWeight;
 		}
 
 		depth /= totalWeight;
@@ -112,6 +163,18 @@ DepthFX.blurV = love.graphics.newShader([[
 	}
 ]])
 
+-- Pass 2b: Depth contrast curve (sigmoid remapping)
+DepthFX.contrast = love.graphics.newShader([[
+	extern float _steepness;
+
+	vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc) {
+		float d = Texel(tex, tc).r;
+		float k = _steepness * 40.0 + 1.0;
+		d = 1.0 / (1.0 + exp(-k * (d - 0.5)));
+		return vec4(d, d, d, 1.0);
+	}
+]])
+
 -- Pass 3: Parallax displacement using depth map
 DepthFX.displace = love.graphics.newShader([[
 	extern Image _depthMap;
@@ -149,6 +212,63 @@ DepthFX.displace = love.graphics.newShader([[
 		}
 
 		return pixel;
+	}
+]])
+
+-- Pass 4: Depth-based color effects (luminance mask, hue shift, desaturation, tint)
+DepthFX.colorFX = love.graphics.newShader([[
+	extern Image _depthMap;
+	extern float _intensity;
+	extern float _mode;
+	extern float _target;
+
+	vec3 rgb2hsv(vec3 c) {
+		vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+		vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+		vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+		float d = q.x - min(q.w, q.y);
+		float e = 1.0e-10;
+		return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+	}
+
+	vec3 hsv2rgb(vec3 c) {
+		vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+		vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+		return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+	}
+
+	vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc) {
+		vec4 pixel = Texel(tex, tc);
+		float depth = Texel(_depthMap, tc).r;
+
+		// _target: 0 = affect foreground (depth~1), 1 = affect background (depth~0)
+		float mask = (_target < 0.5) ? depth : (1.0 - depth);
+		float amount = mask * _intensity;
+		int mode = int(_mode + 0.5);
+
+		vec3 result = pixel.rgb;
+
+		if (mode == 1) {
+			// Luminance mask: darken affected layer
+			result *= 1.0 - amount * 0.8;
+		} else if (mode == 2) {
+			// Hue shift: rotate hue proportional to depth
+			vec3 hsv = rgb2hsv(result);
+			hsv.x = fract(hsv.x + amount * 0.5);
+			result = hsv2rgb(hsv);
+		} else if (mode == 3) {
+			// Desaturation: pull toward grayscale
+			float lum = dot(result, vec3(0.299, 0.587, 0.114));
+			result = mix(result, vec3(lum), amount);
+		} else if (mode == 4) {
+			// Warm/cool tint: warm foreground, cool background (or inverted)
+			vec3 warm = vec3(1.1, 0.95, 0.8);
+			vec3 cool = vec3(0.8, 0.9, 1.2);
+			vec3 tint = (_target < 0.5) ? warm : cool;
+			result *= mix(vec3(1.0), tint, amount);
+		}
+
+		return vec4(result, pixel.a);
 	}
 ]])
 
