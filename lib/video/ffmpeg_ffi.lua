@@ -55,7 +55,7 @@ ffi.cdef[[
         int          height;
     } AVCodecParameters;
 
-    // --- AVStream (fields up to time_base) ---
+    // --- AVStream (fields up to nb_frames) ---
     typedef struct AVStream {
         const void          *av_class;
         int                  index;
@@ -63,6 +63,9 @@ ffi.cdef[[
         AVCodecParameters   *codecpar;
         void                *priv_data;
         AVRational           time_base;
+        int64_t              start_time;
+        int64_t              duration;
+        int64_t              nb_frames;
     } AVStream;
 
     // --- AVFormatContext (fields up to duration) ---

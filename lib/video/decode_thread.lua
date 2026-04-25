@@ -21,6 +21,9 @@ local speed = 1.0
 local targetPts = 0
 local lastDecodedPts = -1
 local eof = false
+local consecutiveErrors = 0
+local MAX_CONSECUTIVE_ERRORS = 15
+local DECODE_TIMEOUT = 0.5
 
 local function cleanup()
     if swsCtx ~= nil then
@@ -83,18 +86,17 @@ local function openVideo(path)
     timeBase = stream.time_base
     width = codecpar.width
     height = codecpar.height
-    -- Get duration: read raw bytes at the known offset for AVFormatContext.duration
-    -- Our struct definition has wrong offsets, so read it manually via pointer arithmetic
+    -- Get duration from stream (more reliable than container-level duration)
     duration = 0
     local ok, dur = pcall(function()
-        local p = ffi.cast("char*", fmtCtx)
-        -- Try reading int64 at several likely offsets for duration
-        for _, offset in ipairs({72, 80, 88, 96, 104}) do
-            local val = tonumber(ffi.cast("int64_t*", p + offset)[0])
-            local secs = val / ff.AV_TIME_BASE
-            if secs > 1 and secs < 100000 then
-                return secs
-            end
+        local stDur = tonumber(stream.duration)
+        if stDur and stDur > 0 then
+            return stDur * timeBase.num / timeBase.den
+        end
+        -- Fallback: container-level duration (AVFormatContext.duration in AV_TIME_BASE)
+        local ctDur = tonumber(fmtCtx.duration)
+        if ctDur and ctDur > 0 then
+            return ctDur / ff.AV_TIME_BASE
         end
         return 0
     end)
@@ -153,13 +155,31 @@ local function secondsToPts(seconds)
     return math.floor(seconds * timeBase.den / timeBase.num)
 end
 
+local function flushDecoder()
+    if codecCtx ~= nil then
+        ff.avcodec.avcodec_flush_buffers(codecCtx)
+        lastDecodedPts = -1
+    end
+end
+
 local function decodeOneFrame(buf)
     local dstPtr = ffi.cast("uint8_t*", buf:getFFIPointer())
     local dstSlice = ffi.new("uint8_t*[4]", { dstPtr, nil, nil, nil })
     local dstStride = ffi.new("int[4]", { width * 4, 0, 0, 0 })
 
     local maxAttempts = (bender.mode ~= "off") and 5 or 200
+    local deadline = love.timer.getTime() + DECODE_TIMEOUT
     for attempt = 1, maxAttempts do
+        if love.timer.getTime() > deadline then
+            consecutiveErrors = consecutiveErrors + 1
+            if consecutiveErrors >= MAX_CONSECUTIVE_ERRORS then
+                print("[decode_thread] timeout: flushing decoder after " .. consecutiveErrors .. " errors")
+                flushDecoder()
+                consecutiveErrors = 0
+            end
+            return nil
+        end
+
         local ret = ff.avformat.av_read_frame(fmtCtx, packet)
         if ret < 0 then
             ff.avcodec.av_packet_unref(packet)
@@ -176,8 +196,15 @@ local function decodeOneFrame(buf)
             else
                 ret = ff.avcodec.avcodec_send_packet(codecCtx, packet)
                 ff.avcodec.av_packet_unref(packet)
-                -- On send error: skip this packet, keep trying
-                if ret < 0 then goto continue end
+                if ret < 0 then
+                    consecutiveErrors = consecutiveErrors + 1
+                    if consecutiveErrors >= MAX_CONSECUTIVE_ERRORS then
+                        print("[decode_thread] send errors: flushing decoder after " .. consecutiveErrors .. " errors")
+                        flushDecoder()
+                        consecutiveErrors = 0
+                    end
+                    goto continue
+                end
 
                 ret = ff.avcodec.avcodec_receive_frame(codecCtx, frame)
                 if ret == 0 then
@@ -192,12 +219,18 @@ local function decodeOneFrame(buf)
                         print("[decode_thread] frameDuration=" .. tostring(frameDuration) .. "s")
                     end
                     lastDecodedPts = pts
+                    consecutiveErrors = 0
                     return pts
                 end
-                -- EAGAIN or other: need more packets, keep reading
             end
         end
         ::continue::
+    end
+    consecutiveErrors = consecutiveErrors + 1
+    if consecutiveErrors >= MAX_CONSECUTIVE_ERRORS then
+        print("[decode_thread] max attempts: flushing decoder after " .. consecutiveErrors .. " errors")
+        flushDecoder()
+        consecutiveErrors = 0
     end
     return nil
 end
@@ -210,22 +243,24 @@ local function seekTo(seconds)
     if bender.mode == "off" then
         ff.avcodec.avcodec_flush_buffers(codecCtx)
     end
+    bender:onSeek()
     eof = false
     lastDecodedPts = -1
 end
 
 -- Main loop
 while true do
-    -- Process all pending commands
+    -- Process all pending commands, coalescing seeks
+    local pendingSeek = nil
     local cmd = cmdChannel:pop()
     while cmd do
         if cmd == "open" then
             local path = cmdChannel:demand()
             openVideo(path)
+            pendingSeek = nil
         elseif cmd == "seek" then
             local seconds = cmdChannel:demand()
-            seekTo(seconds)
-            frameChannel:push("flush")
+            pendingSeek = seconds
         elseif cmd == "speed" then
             speed = cmdChannel:demand()
         elseif cmd == "play" then
@@ -236,10 +271,8 @@ while true do
             local prevMode = bender.mode
             local newMode = cmdChannel:demand()
             bender:setMode(newMode)
-            -- Flush decoder when returning to normal mode to clear stale references
             if prevMode ~= "off" and newMode == "off" and codecCtx ~= nil then
-                ff.avcodec.avcodec_flush_buffers(codecCtx)
-                lastDecodedPts = -1
+                flushDecoder()
                 frameChannel:push("flush")
             end
         elseif cmd == "bend_intensity" then
@@ -249,6 +282,11 @@ while true do
             return
         end
         cmd = cmdChannel:pop()
+    end
+    if pendingSeek then
+        seekTo(pendingSeek)
+        frameChannel:push("flush")
+        consecutiveErrors = 0
     end
 
     -- Decode ahead if playing and not at EOF

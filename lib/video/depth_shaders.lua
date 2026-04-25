@@ -180,6 +180,7 @@ DepthFX.displace = love.graphics.newShader([[
 	extern Image _depthMap;
 	extern vec2 _cameraOffset;
 	extern float _displaceStrength;
+	extern float _zoomStrength;
 	extern float _dofAmount;
 	extern vec2 _texelSize;
 
@@ -189,6 +190,12 @@ DepthFX.displace = love.graphics.newShader([[
 		// Parallax: displace based on depth and camera offset
 		// Close objects (depth~1) move more, far objects (depth~0) move less
 		vec2 offset = _cameraOffset * depth * _displaceStrength;
+
+		// Z-axis zoom: displace radially from center based on depth
+		// Close objects push outward from center, distant objects stay
+		vec2 fromCenter = tc - vec2(0.5);
+		offset += fromCenter * depth * _zoomStrength;
+
 		vec2 displaced_tc = clamp(tc + offset, vec2(0.0), vec2(1.0));
 		vec4 pixel = Texel(tex, displaced_tc);
 

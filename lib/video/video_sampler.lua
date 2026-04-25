@@ -116,11 +116,14 @@ function VideoSampler:_consumeFrames()
     while self.frameChannel:getCount() > 0 do
         local msg = self.frameChannel:pop()
         if msg == "frame" then
-            local pts = self.frameChannel:demand()
-            local buf = self.frameChannel:demand()
+            local pts = self.frameChannel:demand(0.1)
+            local buf = pts and self.frameChannel:demand(0.1)
+            if not pts or not buf then
+                if buf then self.recycleChannel:push(buf) end
+                break
+            end
 
             if bending then
-                -- Bend mode: always take the latest frame, no PTS gating
                 if bestBuf then self.recycleChannel:push(bestBuf) end
                 bestPts = pts
                 bestBuf = buf
@@ -219,8 +222,21 @@ function VideoSampler:setBendIntensity(intensity)
     self.cmdChannel:push(intensity)
 end
 
+function VideoSampler:isThreadAlive()
+    return self.thread and self.thread:isRunning()
+end
+
 function VideoSampler:update(dt)
     if self.state ~= "open" then return end
+
+    if self.thread and not self.thread:isRunning() then
+        local err = self.thread:getError()
+        if err then
+            logError("VideoSampler: decode thread crashed: " .. tostring(err))
+        end
+        self.playing = false
+        return
+    end
 
     if self.playing then
         self.position = self.position + dt * self.speed
