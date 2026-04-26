@@ -1,25 +1,16 @@
--- midi_dispatcher.lua
---
--- MIDI-specific message dispatcher
--- Maps MIDI messages to generic commands and handles MIDI protocol details
--- Does not know about LOVJ application logic - only MIDI → Command translation
---
-
 local MIDIDispatcher = {}
 
 local MIDI_THREAD_FILE = "lib/midi/midi_thread.lua"
 
--- Dependencies
 local CommandSystem = lovjRequire("lib/command_system")
-local midiMapping = lovjRequire("cfg/cfg_midi_mapping")
+local MappingStore = lovjRequire("lib/midi/midi_mappings_store")
+local MidiLearn -- lazy-loaded to avoid circular init
 
--- Active MIDI channels from MIDIThread instances
 local activeMIDIChannels = {}
-
--- Active MIDI threads for cleanup during resets
 local activeMIDIThreads = {}
 
--- Register a new MIDI channel from a MIDIThread
+local midiActivityCallback = nil
+
 function MIDIDispatcher.registerMIDIChannel(channelName)
     if not activeMIDIChannels[channelName] then
         activeMIDIChannels[channelName] = love.thread.getChannel(channelName)
@@ -27,47 +18,36 @@ function MIDIDispatcher.registerMIDIChannel(channelName)
     end
 end
 
--- Unregister a MIDI channel when MIDIThread disconnects
 function MIDIDispatcher.unregisterMIDIChannel(channelName)
     activeMIDIChannels[channelName] = nil
     logInfo("MIDIDispatcher: Unregistered MIDI channel " .. channelName)
 end
 
--- Parse MIDI message format: "type channel data1 [data2]"
+function MIDIDispatcher.setActivityCallback(fn)
+    midiActivityCallback = fn
+end
+
 local function parseMIDIMessage(rawMsg)
     local parts = {}
     for part in rawMsg:gmatch("%S+") do
         table.insert(parts, part)
     end
-    
     if #parts < 3 then return nil end
-    
-    local msgType = parts[1]
-    local channel = tonumber(parts[2])
-    local data1 = tonumber(parts[3])
-    local data2 = tonumber(parts[4]) or 0
-    
-    return msgType, channel, data1, data2
+    return parts[1], tonumber(parts[2]), tonumber(parts[3]), tonumber(parts[4]) or 0
 end
 
--- Apply value transformations
 local function applyTransformations(value, transformNames)
     if not transformNames then return value end
-    
-    for _, transformName in ipairs(transformNames) do
-        local transform = midiMapping.transformations[transformName]
-        if transform then
-            value = transform(value)
-        end
+    local transforms = MappingStore.getTransformations()
+    for _, name in ipairs(transformNames) do
+        local fn = transforms[name]
+        if fn then value = fn(value) end
     end
-    
     return value
 end
 
--- Substitute argument placeholders with actual values
 local function substituteArguments(argTemplate, msgType, channel, data1, data2, deviceId)
     local result = {}
-    
     for _, template in ipairs(argTemplate) do
         if type(template) == "string" then
             if template == "$device" then
@@ -81,17 +61,15 @@ local function substituteArguments(argTemplate, msgType, channel, data1, data2, 
             elseif template == "$data2" then
                 table.insert(result, data2)
             elseif template == "$value" then
-                -- Use data2 for note velocity, data1 for CC value
-                local value = (msgType == "noteOn" or msgType == "noteOff") and data2 or data1
-                table.insert(result, value)
+                table.insert(result, data2)
             elseif template == "$note" then
-                table.insert(result, data1) -- Note number
+                table.insert(result, data1)
             elseif template == "$velocity" then
-                table.insert(result, data2) -- Note velocity
+                table.insert(result, data2)
             elseif template == "$cc" then
-                table.insert(result, data1) -- CC number
+                table.insert(result, data1)
             elseif template == "$program" then
-                table.insert(result, data1) -- Program number
+                table.insert(result, data1)
             else
                 table.insert(result, template)
             end
@@ -99,72 +77,44 @@ local function substituteArguments(argTemplate, msgType, channel, data1, data2, 
             table.insert(result, template)
         end
     end
-    
     return result
 end
 
--- Try to match MIDI message against CC mappings
+local function executeMapping(mapping, msgType, channel, data1, data2, deviceId)
+    if mapping.type and mapping.type ~= msgType then return false end
+
+    local transformedValue = data2
+    if mapping.transform then
+        for _, name in ipairs(mapping.transform) do
+            transformedValue = applyTransformations(transformedValue, {name})
+        end
+    end
+
+    local args = substituteArguments(mapping.args, msgType, channel, data1, transformedValue, deviceId)
+    return CommandSystem.queueCommand(mapping.command, args)
+end
+
 local function tryCCMapping(channel, ccNumber, value, deviceId)
     local ccKey = deviceId .. "_" .. channel .. "_" .. ccNumber
-    local mapping = midiMapping.ccMappings[ccKey] or midiMapping.ccMappings[ccNumber]
-    
+    local mapping = MappingStore.lookupCC(ccKey) or MappingStore.lookupCC(ccNumber)
     if not mapping then return false end
-    
-    -- Apply transformations
-    local transformedValue = value
-    if mapping.transform then
-        for _, transformName in ipairs(mapping.transform) do
-            transformedValue = applyTransformations(transformedValue, {transformName})
-        end
-    end
-    
-    -- Build command arguments
-    local args = substituteArguments(mapping.args, "cc", channel, ccNumber, transformedValue, deviceId)
-    
-    -- Queue the command
-    return CommandSystem.queueCommand(mapping.command, args)
+    return executeMapping(mapping, "cc", channel, ccNumber, value, deviceId)
 end
 
--- Try to match MIDI message against note mappings
 local function tryNoteMapping(msgType, channel, note, velocity, deviceId)
     local noteKey = deviceId .. "_" .. channel .. "_" .. note
-    local mapping = midiMapping.noteMappings[noteKey] or midiMapping.noteMappings[note]
-    
+    local mapping = MappingStore.lookupNote(noteKey) or MappingStore.lookupNote(note)
     if not mapping then return false end
-    
-    -- Check if this mapping applies to this message type
-    if mapping.type and mapping.type ~= msgType then return false end
-    
-    -- Apply transformations
-    local transformedVelocity = velocity
-    if mapping.transform then
-        for _, transformName in ipairs(mapping.transform) do
-            transformedVelocity = applyTransformations(transformedVelocity, {transformName})
-        end
-    end
-    
-    -- Build command arguments
-    local args = substituteArguments(mapping.args, msgType, channel, note, transformedVelocity, deviceId)
-    
-    -- Queue the command
-    return CommandSystem.queueCommand(mapping.command, args)
+    return executeMapping(mapping, msgType, channel, note, velocity, deviceId)
 end
 
--- Try to match MIDI message against program change mappings
 local function tryProgramMapping(channel, program, deviceId)
     local progKey = deviceId .. "_" .. channel .. "_" .. program
-    local mapping = midiMapping.programMappings[progKey] or midiMapping.programMappings[program]
-    
+    local mapping = MappingStore.lookupProgram(progKey) or MappingStore.lookupProgram(program)
     if not mapping then return false end
-    
-    -- Build command arguments
-    local args = substituteArguments(mapping.args, "program", channel, program, 0, deviceId)
-    
-    -- Queue the command
-    return CommandSystem.queueCommand(mapping.command, args)
+    return executeMapping(mapping, "program", channel, program, 0, deviceId)
 end
 
--- Route MIDI message to appropriate command
 local function routeMIDIMessage(msgType, channel, data1, data2, deviceId)
     if msgType == "cc" then
         return tryCCMapping(channel, data1, data2, deviceId)
@@ -173,26 +123,33 @@ local function routeMIDIMessage(msgType, channel, data1, data2, deviceId)
     elseif msgType == "program" then
         return tryProgramMapping(channel, data1, deviceId)
     end
-    
     return false
 end
 
--- Main update function to process MIDI messages
 function MIDIDispatcher.update()
-    -- Process incoming MIDI messages from all active channels
+    if not MidiLearn then
+        MidiLearn = require("lib/midi/midi_learn")
+    end
+
     for channelName, channel in pairs(activeMIDIChannels) do
         while true do
             local rawMIDIMsg = channel:pop()
             if not rawMIDIMsg then break end
-            
-            -- Extract device ID from channel name (format: midiChannel_deviceId)
+
             local deviceId = channelName:match("midiChannel_(.+)")
-            
             local msgType, midiChannel, data1, data2 = parseMIDIMessage(rawMIDIMsg)
             if msgType then
-                local routed = routeMIDIMessage(msgType, midiChannel, data1, data2, deviceId)
-                if not routed then
-                    logInfo("MIDIDispatcher: No mapping for " .. msgType .. " ch:" .. midiChannel .. " d1:" .. data1 .. " d2:" .. data2)
+                if midiActivityCallback then
+                    midiActivityCallback(deviceId, msgType, midiChannel, data1, data2)
+                end
+
+                if MidiLearn.isListening() then
+                    MidiLearn.onCapture(msgType, midiChannel, data1, deviceId)
+                else
+                    local routed = routeMIDIMessage(msgType, midiChannel, data1, data2, deviceId)
+                    if not routed then
+                        logInfo("MIDIDispatcher: No mapping for " .. msgType .. " ch:" .. midiChannel .. " d1:" .. data1 .. " d2:" .. data2)
+                    end
                 end
             else
                 logInfo("MIDIDispatcher: Invalid MIDI message format: " .. rawMIDIMsg)
@@ -201,30 +158,25 @@ function MIDIDispatcher.update()
     end
 end
 
--- Initialize MIDI dispatcher and start threads
 function MIDIDispatcher.init()
+    MappingStore.init()
     logInfo("MIDIDispatcher: Initialized")
-    
-    -- Start MIDI threads for enabled connections
-    for _, conn in ipairs(midiMapping.connections) do
+
+    local connections = MappingStore.getConnections()
+    for _, conn in ipairs(connections) do
         if conn.enabled then
             MIDIDispatcher.startMIDIThread(conn)
         end
     end
 end
 
--- Start MIDI thread for a connection
 function MIDIDispatcher.startMIDIThread(connectionConfig)
     local midiThread = love.thread.newThread(MIDI_THREAD_FILE)
     midiThread:start(connectionConfig.id, connectionConfig)
-    
-    -- Track the thread for cleanup
     activeMIDIThreads[connectionConfig.id] = midiThread
-    
     logInfo("MIDIDispatcher: Started MIDI thread for " .. connectionConfig.id .. " device: " .. (connectionConfig.device or "default"))
 end
 
--- Stop MIDI thread by connection ID
 function MIDIDispatcher.stopMIDIThread(connectionId)
     local thread = activeMIDIThreads[connectionId]
     if thread then
@@ -234,7 +186,6 @@ function MIDIDispatcher.stopMIDIThread(connectionId)
     end
 end
 
--- Stop all MIDI threads (for cleanup during resets)
 function MIDIDispatcher.stopAllMIDIThreads()
     for connectionId, thread in pairs(activeMIDIThreads) do
         thread:release()
@@ -244,7 +195,6 @@ function MIDIDispatcher.stopAllMIDIThreads()
     activeMIDIChannels = {}
 end
 
--- Get dispatcher status
 function MIDIDispatcher.getStatus()
     return {
         activeChannels = table.count(activeMIDIChannels),

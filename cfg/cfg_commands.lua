@@ -306,6 +306,27 @@ function cfg_commands.init()
         end
     })
     
+    -- Modulator commands
+    local Modulator = require("lib/modulator")
+
+    CommandSystem.registerCommand("setModulatorParam", {
+        description = "Set a modulator parameter by ID and field name",
+        category = "modulator",
+        parameters = {
+            {name = "modulatorId", type = "int", min = 1, required = true},
+            {name = "field", type = "string", required = true},
+            {name = "value", type = "float", required = true}
+        },
+        execute = function(modulatorId, field, value)
+            local ok, err = Modulator.update(modulatorId, { [field] = value })
+            if ok then
+                logInfo("Set modulator " .. modulatorId .. " " .. field .. " = " .. tostring(value))
+            else
+                logError("setModulatorParam failed: " .. tostring(err))
+            end
+        end
+    })
+
     logInfo("CommandSystem: Initialized with " .. table.count(CommandSystem.getCommands()) .. " commands")
 end
 

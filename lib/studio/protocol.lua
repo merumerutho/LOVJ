@@ -30,6 +30,9 @@ local CommandSystem = lovjRequire("lib/command_system")
 local cfg_patches = lovjRequire("cfg/cfg_patches")
 local cfgShaders = lovjRequire("cfg/cfg_shaders")
 local saveMgr = lovjRequire("lib/savemgr")
+local MappingStore = lovjRequire("lib/midi/midi_mappings_store")
+local MidiLearn = lovjRequire("lib/midi/midi_learn")
+local MIDIDispatcher = lovjRequire("lib/midi/midi_dispatcher")
 
 local protocol = {}
 
@@ -742,6 +745,123 @@ local function handleSetMorphSettings(msg)
     })
 end
 
+-- ---- MIDI messages ----
+
+local function handleGetMidiDevices(msg)
+    local status = MIDIDispatcher.getStatus()
+    local connections = MappingStore.getConnections()
+    local devices = {}
+    for _, conn in ipairs(connections) do
+        table.insert(devices, {
+            id = conn.id,
+            name = conn.device,
+            enabled = conn.enabled,
+        })
+    end
+    send({
+        type = "midiDevices",
+        id = msg.id,
+        devices = devices,
+        activeChannels = status.activeChannels,
+        activeThreads = status.activeThreads,
+    })
+end
+
+local function serializeMapping(m)
+    return {
+        id = m.id,
+        midiType = m.midiType,
+        midiKey = m.midiKey,
+        command = m.command,
+        args = m.args,
+        transform = m.transform,
+        source = m.source,
+        label = m.label,
+        type = m.type,
+        targetType = m.targetType,
+        modulatorId = m.modulatorId,
+        modulatorField = m.modulatorField,
+    }
+end
+
+local function broadcastMidiMappings()
+    local all = MappingStore.getAll()
+    local list = {}
+    for _, m in ipairs(all) do
+        table.insert(list, serializeMapping(m))
+    end
+    send({ type = "midiMappings", mappings = list })
+end
+
+local function handleGetMidiMappings(msg)
+    local all = MappingStore.getAll()
+    local list = {}
+    for _, m in ipairs(all) do
+        table.insert(list, serializeMapping(m))
+    end
+    send({ type = "midiMappings", id = msg.id, mappings = list })
+end
+
+local function handleStartMidiLearn(msg)
+    local slot = tonumber(msg.slot)
+    local paramName = msg.paramName
+    if not (slot and paramName) then
+        send({ type = "error", id = msg.id, message = "startMidiLearn needs slot + paramName" })
+        return
+    end
+    MidiLearn.startLearn({
+        slot = slot,
+        paramName = paramName,
+    }, function(mapping)
+        send({ type = "midiLearnCaptured", mapping = serializeMapping(mapping) })
+        broadcastMidiMappings()
+    end)
+    send({ type = "midiLearnStarted", id = msg.id })
+end
+
+local function handleStartMidiLearnModulator(msg)
+    local modulatorId = tonumber(msg.modulatorId)
+    local field = msg.field
+    if not (modulatorId and field) then
+        send({ type = "error", id = msg.id, message = "startMidiLearnModulator needs modulatorId + field" })
+        return
+    end
+    MidiLearn.startLearn({
+        targetType = "modulator",
+        modulatorId = modulatorId,
+        modulatorField = field,
+    }, function(mapping)
+        send({ type = "midiLearnCaptured", mapping = serializeMapping(mapping) })
+        broadcastMidiMappings()
+    end)
+    send({ type = "midiLearnStarted", id = msg.id })
+end
+
+local function handleCancelMidiLearn(msg)
+    MidiLearn.cancelLearn()
+    send({ type = "midiLearnCancelled", id = msg.id })
+end
+
+local function handleDeleteMidiMapping(msg)
+    local mappingId = msg.mappingId
+    if not mappingId then
+        send({ type = "error", id = msg.id, message = "deleteMidiMapping needs mappingId" })
+        return
+    end
+    MappingStore.remove(mappingId)
+    broadcastMidiMappings()
+end
+
+local function handleSaveMidiMappings(msg)
+    MappingStore.save()
+    send({ type = "midiMappingsSaved", id = msg.id })
+end
+
+local function handleGetMidiLearnState(msg)
+    send({ type = "midiLearnState", id = msg.id, learn = MidiLearn.getState() })
+end
+
+
 local handlers = {
     hello            = handleHello,
     listSlots        = handleListSlots,
@@ -782,6 +902,14 @@ local handlers = {
     loadSavestate          = handleLoadSavestate,
     getMorphSettings       = handleGetMorphSettings,
     setMorphSettings       = handleSetMorphSettings,
+    getMidiDevices         = handleGetMidiDevices,
+    getMidiMappings        = handleGetMidiMappings,
+    startMidiLearn         = handleStartMidiLearn,
+    startMidiLearnModulator = handleStartMidiLearnModulator,
+    cancelMidiLearn        = handleCancelMidiLearn,
+    deleteMidiMapping      = handleDeleteMidiMapping,
+    saveMidiMappings       = handleSaveMidiMappings,
+    getMidiLearnState      = handleGetMidiLearnState,
 }
 
 
@@ -847,8 +975,26 @@ function protocol.flush()
 end
 
 
+local lastMidiActivity = 0
+local MIDI_ACTIVITY_INTERVAL = 1 / 15
+
 function protocol.init()
     studioBridge.setMessageHandler(protocol.handle)
+
+    MIDIDispatcher.setActivityCallback(function(deviceId, msgType, channel, data1, data2)
+        local now = love.timer.getTime()
+        if (now - lastMidiActivity) < MIDI_ACTIVITY_INTERVAL then return end
+        lastMidiActivity = now
+        send({
+            type = "midiActivity",
+            deviceId = deviceId,
+            msgType = msgType,
+            channel = channel,
+            data1 = data1,
+            data2 = data2,
+        })
+    end)
+
     logInfo("studio.protocol registered")
 end
 
