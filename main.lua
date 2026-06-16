@@ -118,11 +118,7 @@ function bindPatchSlot(slot_idx)
 end
 
 
--- Mouse: left button feeds the BPM tap-tempo.
 function love.mousepressed(x, y, button)
-	if button == 1 then
-		clock.tap()
-	end
 end
 
 
