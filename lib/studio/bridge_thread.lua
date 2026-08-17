@@ -61,15 +61,41 @@ log("INFO", "studio.ws  listening on " .. BIND_ADDRESS .. ":" .. WS_PORT)
 
 
 -- Client state
--- For HTTP:  { kind="http", sock=.., buf="", deadline=number }
--- For WS:    { kind="ws",   sock=.., buf="", state="handshake"|"open" }
+-- For HTTP:  { kind="http", sock=.., buf="", out="", closing=bool }
+-- For WS:    { kind="ws",   sock=.., buf="", out="", state="handshake"|"open" }
 local clients = {}
+
+-- Never let a stalled client hold unbounded memory.
+local MAX_OUT_BUFFER = 4 * 1024 * 1024
 
 
 local function closeClient(c, reason)
     pcall(function() c.sock:close() end)
     clients[c] = nil
     if reason then log("DEBUG", "client closed: " .. reason) end
+end
+
+
+-- Queue outgoing bytes. Sockets are non-blocking, so writes MUST go through
+-- this buffer — a raw sock:send() silently drops whatever didn't fit in the
+-- kernel buffer (truncated HTTP bodies, corrupted WS frame streams).
+local function queueOut(c, data)
+    c.out = c.out .. data
+    if #c.out > MAX_OUT_BUFFER then
+        closeClient(c, "outgoing buffer overflow")
+    end
+end
+
+
+-- Push as much of the pending outgoing buffer as the socket accepts.
+-- Returns false when the connection is dead.
+local function flushOut(c)
+    if #c.out == 0 then return true end
+    local ok, err, lastSent = c.sock:send(c.out)
+    local sent = ok or lastSent or 0
+    if sent > 0 then c.out = c.out:sub(sent + 1) end
+    if not ok and err ~= "timeout" then return false end
+    return true
 end
 
 
@@ -104,8 +130,8 @@ local function handleHttp(c)
         return
     end
     local resp = http.handle(c.buf, STATIC_ROOT)
-    c.sock:send(resp)
-    closeClient(c)
+    queueOut(c, resp)
+    c.closing = true  -- closed by tick() once the response has fully drained
 end
 
 
@@ -119,12 +145,13 @@ local function handleWsHandshake(c)
 
     local method, path, headers = ws.parseRequest(c.buf)
     if not method or not headers or not headers["sec-websocket-key"] then
-        c.sock:send("HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n")
-        closeClient(c, "ws bad handshake")
+        queueOut(c, "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n")
+        c.closing = true
+        log("DEBUG", "ws bad handshake")
         return
     end
 
-    c.sock:send(ws.handshakeResponse(headers["sec-websocket-key"]))
+    queueOut(c, ws.handshakeResponse(headers["sec-websocket-key"]))
     c.state = "open"
     c.buf = c.buf:sub((c.buf:find("\r\n\r\n", 1, true) or 0) + 4)
     log("INFO", "studio.ws client connected")
@@ -140,8 +167,9 @@ local function handleWsFrames(c)
         if not opcode then
             if payload == "need-more" then return end
             -- protocol error
-            c.sock:send(ws.encodeClose(1002, payload or "proto"))
-            closeClient(c, "ws proto error: " .. tostring(payload))
+            queueOut(c, ws.encodeClose(1002, payload or "proto"))
+            c.closing = true
+            log("DEBUG", "ws proto error: " .. tostring(payload))
             return
         end
 
@@ -153,12 +181,13 @@ local function handleWsFrames(c)
             -- broadcast channel.
             inbox:push(payload)
         elseif opcode == ws.OP_PING then
-            c.sock:send(ws.encodePong(payload))
+            queueOut(c, ws.encodePong(payload))
         elseif opcode == ws.OP_PONG then
             -- Ignore.
         elseif opcode == ws.OP_CLOSE then
-            c.sock:send(ws.encodeClose(1000))
-            closeClient(c, "ws close")
+            queueOut(c, ws.encodeClose(1000))
+            c.closing = true
+            log("DEBUG", "ws close")
             return
         end
     end
@@ -170,7 +199,10 @@ local function acceptIncoming(server, kind)
         local client, aerr = server:accept()
         if not client then break end
         client:settimeout(0)
-        clients[{sock = client, kind = kind, buf = "", state = (kind == "ws") and "handshake" or "http"}] = true
+        -- Nagle + delayed ACK adds up to ~200ms per small frame on Windows
+        -- loopback; a control surface wants its frames out immediately.
+        pcall(function() client:setoption("tcp-nodelay", true) end)
+        clients[{sock = client, kind = kind, buf = "", out = "", state = (kind == "ws") and "handshake" or "http"}] = true
         -- clients table indexed by the client-state table itself; iterate below.
     end
 end
@@ -181,7 +213,9 @@ local function tick()
     acceptIncoming(wsServer, "ws")
 
     for c, _ in pairs(clients) do
-        if c.kind == "http" then
+        if c.closing then
+            -- response queued; just draining — stop reading
+        elseif c.kind == "http" then
             handleHttp(c)
         else
             if c.state == "handshake" then
@@ -204,9 +238,18 @@ local function tick()
         end
         local frame = ws.encodeText(msg)
         for c, _ in pairs(clients) do
-            if c.kind == "ws" and c.state == "open" then
-                pcall(function() c.sock:send(frame) end)
+            if c.kind == "ws" and c.state == "open" and not c.closing then
+                queueOut(c, frame)
             end
+        end
+    end
+
+    -- Push pending outgoing data; drop dead peers, close drained closers.
+    for c, _ in pairs(clients) do
+        if not flushOut(c) then
+            closeClient(c, "send failed")
+        elseif c.closing and #c.out == 0 then
+            closeClient(c)
         end
     end
 
