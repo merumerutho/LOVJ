@@ -45,6 +45,19 @@ lick.PATCH_RESET = lick.REBUILD
 -- path -> { mtime = number, strategy = string }
 lick.files = {}
 
+-- Watch sweep budget: how many files get an mtime stat per tick. Every
+-- lovjRequire'd module is registered, and love.filesystem.getInfo is a real
+-- OS stat — statting the whole watch list every frame costs milliseconds.
+-- The sweep is round-robin instead: with N registered files a save is caught
+-- within N / filesPerTick frames (worst case), at a flat per-frame cost.
+lick.filesPerTick = 8
+
+-- Round-robin sweep state (see detectChanges): a stable array view of
+-- lick.files plus a cursor. Rebuilt lazily whenever registrations change.
+local watchList = {}
+local watchDirty = true
+local watchCursor = 1
+
 -- Per-file instance bindings (REBUILD only).
 -- path -> array of bindings.
 -- Each binding: { get = fn()->instance,
@@ -61,6 +74,11 @@ lick.errors = {}
 -- Set by the user via Ctrl+Esc to hide banners until a new error appears.
 lick.dismissed = false
 
+-- Master switch for the hot-reload machinery (main.lua sets it from cfg_app.liveCoding).
+-- When false, the per-frame file watching is skipped entirely; error banners and the
+-- safe update/draw wrappers keep working.
+lick.enabled = true
+
 lick.MAIN_FILE = "main"
 
 
@@ -72,6 +90,7 @@ function lick.register(path, strategy)
         mtime = info and info.modtime or 0,
         strategy = strategy or lick.HARD,
     }
+    watchDirty = true
 end
 
 
@@ -79,6 +98,7 @@ end
 function lick.unregister(path)
     lick.files[path] = nil
     lick.instances[path] = nil
+    watchDirty = true
 end
 
 
@@ -132,13 +152,33 @@ local function checkSyntax(path)
 end
 
 
---- @private detect all changed files since the last check.
+--- @private detect changed files, statting at most lick.filesPerTick of them
+--- per call (round-robin over the whole watch list). A file whose reload is
+--- pending (syntax error keeps mtime behind) is simply re-detected on the
+--- next sweep pass, same as before — only the detection latency is amortized.
 local function detectChanges()
+    if watchDirty then
+        watchList = {}
+        for path in pairs(lick.files) do
+            table.insert(watchList, path)
+        end
+        watchDirty = false
+        watchCursor = 1
+    end
+    local n = #watchList
+    if n == 0 then return {} end
+
     local changed = {}
-    for path, info in pairs(lick.files) do
-        local stat = love.filesystem.getInfo(path .. ".lua")
-        if stat and stat.modtime ~= info.mtime then
-            table.insert(changed, path)
+    for _ = 1, math.min(lick.filesPerTick, n) do
+        if watchCursor > n then watchCursor = 1 end
+        local path = watchList[watchCursor]
+        watchCursor = watchCursor + 1
+        local info = lick.files[path]  -- may be gone if unregistered mid-sweep
+        if info then
+            local stat = love.filesystem.getInfo(path .. ".lua")
+            if stat and stat.modtime ~= info.mtime then
+                table.insert(changed, path)
+            end
         end
     end
     return changed
@@ -361,7 +401,11 @@ end
 
 --- @private per-frame update wrapper.
 local function liveUpdate(dt)
-    processChanges()
+    if lick.enabled then
+        local t0 = love.timer.getTime()
+        processChanges()
+        lick.watchTime = love.timer.getTime() - t0   -- surfaced by frame_profiler
+    end
     local ok, err = xpcall(function() love.update(dt) end, debug.traceback)
     if not ok then
         -- Only record if this isn't already captured by a patch-level handler.

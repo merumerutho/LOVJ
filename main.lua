@@ -38,6 +38,11 @@ cfgScreen = lovjRequire("cfg/cfg_screen")
 cfgGlobals = lovjRequire("cfg/cfg_globals")
 cfgCommands = lovjRequire("cfg/cfg_commands")
 
+-- Livecoding gate: on sealed/embedded machines the profile turns this off, which
+-- disables lick's per-frame file watching entirely (banners keep working).
+lick.enabled = (cfgApp.liveCoding ~= false)
+lick.filesPerTick = cfgApp.lickFilesPerTick or lick.filesPerTick
+
 -- Initialize Spout support
 if (cfgSpout.enable and
 	love.system.getOS() == "Windows" and
@@ -48,6 +53,9 @@ else
 end
 
 drawingUtils = lovjRequire("lib/utils/drawing")
+
+frameProfiler = lovjRequire("lib/utils/frame_profiler")
+frameProfiler.enabled = (cfgApp.frameDiagnostics == true)
 
 -- Set title with LOVJ version
 love.window.setTitle(cfgApp.title .. " v" ..  version)
@@ -208,6 +216,7 @@ function love.draw()
 			canvas = drawingUtils.clearCanvas(canvas)
 		end
 	end
+	frameProfiler.mark("patchDraw")
 
 	-- Draw downmix to the main screen.
 	drawingUtils.drawCanvasToCanvas(downMixCanvas, nil, 0, 0, 0, screen.Scaling.WindowRatioX, screen.Scaling.WindowRatioY)
@@ -217,28 +226,39 @@ function love.draw()
 	main_spout_sender:SendCanvas(downMixCanvas, screen.Scaling.SpoutRatioX, screen.Scaling.SpoutRatioY)
 
 	love.graphics.setCanvas()
+	frameProfiler.mark("downmix+spout")
+	frameProfiler.frameEnd(love.timer.getDelta())
 end
 
 
 --- @public love.update
 function love.update()
+	frameProfiler.frameBegin()
+	frameProfiler.add("lickWatch", lick.watchTime)
 	cfgTimers.update()
 	clock.update()
+	frameProfiler.mark("timers+clock")
 
-	local fps = love.timer.getFPS()
 	if cfgTimers.consoleTimer:activated() then
-		logInfo("FPS: " .. fps)
+		if (cfgApp.fpsLogHz or 1) > 0 then
+			logInfo("FPS: " .. love.timer.getFPS())
+		end
 		for i=1, #receivers_obj do
 			receivers_obj[i]:update()
 		end
+		frameProfiler.mark("spoutRecv")
 	end
 
 	controls.update()
+	frameProfiler.mark("controls")
 	dispatcher.update()
+	frameProfiler.mark("dispatcher")
 	studioBridge.update()
+	frameProfiler.mark("bridge")
 	saveMgr.tick()
 	if globalSequencer then globalSequencer:tick() end
 	if globalSceneSequencer then globalSceneSequencer:tick() end
+	frameProfiler.mark("save+seq")
 	-- Copy baseValue → value for all params before modulators apply on top
 	for i = 1, #patchSlots do
 		if patchSlots[i].patch and patchSlots[i].patch.resources and patchSlots[i].patch.resources.parameters then
@@ -249,10 +269,13 @@ function love.update()
 		end
 	end
 	modulator.tick()
+	frameProfiler.mark("resetMod+vision+mod")
 	studioProtocol.flush()
+	frameProfiler.mark("protocolFlush")
 
 	-- Update all patches. Failures surface in the banner; instance stays live.
 	for i=1, #patchSlots do
 		errorHandler.safePatchCall(i, "update")
 	end
+	frameProfiler.mark("patchUpdate")
 end
