@@ -243,10 +243,14 @@ end
 function OSCDispatcher.startOSCThread(connectionConfig)
     local oscThread = love.thread.newThread(OSC_THREAD_FILE)
     oscThread:start(connectionConfig.id, connectionConfig)
-    
+
     -- Track the thread for cleanup
     activeOSCThreads[connectionConfig.id] = oscThread
-    
+
+    -- Register the thread's message channel (name convention set in osc_thread.lua)
+    -- so update() actually drains it — without this the messages queue up unread.
+    OSCDispatcher.registerOSCChannel("oscChannel_" .. connectionConfig.id)
+
     logInfo("OSCDispatcher: Started OSC thread for " .. connectionConfig.id .. " on " .. connectionConfig.address .. ":" .. connectionConfig.port)
 end
 
@@ -256,6 +260,7 @@ function OSCDispatcher.stopOSCThread(connectionId)
     if thread then
         thread:release()
         activeOSCThreads[connectionId] = nil
+        OSCDispatcher.unregisterOSCChannel("oscChannel_" .. connectionId)
         logInfo("OSCDispatcher: Stopped OSC thread for " .. connectionId)
     end
 end
