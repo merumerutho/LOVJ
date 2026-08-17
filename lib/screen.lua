@@ -27,11 +27,13 @@ end
 
 --- @public updateScreenOptions Update screen options to defaults
 function screen.updateScreenOptions()
+	-- Release Spout's GL/DX interop BEFORE the mode switch; the senders rebuild
+	-- lazily on the first SendCanvas after it (see spout.SpoutSender:invalidate).
+	cfgSpout.invalidateSenders()
 	love.window.setMode(screen.ExternalRes.W, screen.ExternalRes.H)
 	love.graphics.setDefaultFilter("linear", "nearest")
 	love.window.setVSync(cfgScreen.VSYNC and 1 or 0)
 	love.window.setFullscreen(screen.isFullscreen, "desktop")
-	cfgSpout.updateCanvases()
 end
 
 --- @private calculateScaling calculate scaling proportions based on internal and external resolution

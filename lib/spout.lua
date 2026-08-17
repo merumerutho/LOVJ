@@ -137,7 +137,24 @@ function spout.SpoutSender:init()
 	self.handle = self.spoutLib.GetSpout()
 	vtable_call(self.handle, "SetSenderName")(self.handle, name)
 	self.canvas = love.graphics.newCanvas(self.width, self.height)
+	self.needsReinit = false
 	logInfo("SPOUT SENDER initialized: " .. name)
+end
+
+--- @public invalidate release the Spout handle ahead of a window mode switch.
+--- Spout's GL/DX interop objects don't survive the context churn of
+--- love.window.setMode / setFullscreen; sending through a stale handle (or a
+--- canvas created mid-transition) yields driver FBO errors or crashes. Release
+--- everything BEFORE the switch and let SendCanvas reinit lazily on the first
+--- frame after it, when the context has settled.
+function spout.SpoutSender:invalidate()
+	if self.handle then
+		pcall(function()
+			vtable_call(self.handle, "ReleaseSender")(self.handle, 0)
+		end)
+		self.handle = nil
+	end
+	self.needsReinit = true
 end
 
 function spout.SpoutSender:reinit()
@@ -159,9 +176,17 @@ end
 
 function spout.SpoutReceiver:init()
 	local name = self.name
-	self.spoutLib = ffi.load("dynlib/SpoutLibrary.dll")
-	self.handle = self.spoutLib.GetSpout()
-	vtable_call(self.handle, "SetReceiverName")(self.handle, name)
+	-- Cache the library and the Spout instance across retries. update() re-calls
+	-- init() once a second while no sender is present; GetSpout() builds a whole
+	-- GL/DX interop context (~30 ms frame stall) and old instances are never
+	-- released, so re-creating per retry also leaks native memory for the
+	-- lifetime of the app. With the cached handle a retry is just the cheap
+	-- ReceiveImage probe below.
+	self.spoutLib = self.spoutLib or ffi.load("dynlib/SpoutLibrary.dll")
+	if not self.handle then
+		self.handle = self.spoutLib.GetSpout()
+		vtable_call(self.handle, "SetReceiverName")(self.handle, name)
+	end
 
 	vtable_call(self.handle, "ReceiveImage")(self.handle, nil, GL_RGBA, false, 0)
 	if vtable_call(self.handle, "IsUpdated")(self.handle) then
@@ -178,17 +203,38 @@ function spout.SpoutReceiver:init()
 end
 
 function spout.SpoutSender:SendCanvas(input_canvas, wf, hf)
+	if self.needsReinit then
+		self:reinit()
+		self.needsReinit = false
+	end
+	if not self.handle then return end
+
 	wf = wf or 1
 	hf = hf or 1
-	self.textureId = self:getTextureId()
-	drawingUtils.clearCanvas(self.canvas)
-	drawingUtils.drawCanvasToCanvas(input_canvas, self.canvas, 0, 0, 0, wf, hf)
-	local cur_canvas = love.graphics.getCanvas()
-	love.graphics.setCanvas(self.canvas)
-	if self.textureId then
-		vtable_call(self.handle, "SendTexture")(self.handle, self.textureId, GL_TEXTURE_2D, self.width, self.height, false, 0)
+	local ok, err = pcall(function()
+		self.textureId = self:getTextureId()
+		drawingUtils.clearCanvas(self.canvas)
+		drawingUtils.drawCanvasToCanvas(input_canvas, self.canvas, 0, 0, 0, wf, hf)
+		local cur_canvas = love.graphics.getCanvas()
+		love.graphics.setCanvas(self.canvas)
+		if self.textureId then
+			vtable_call(self.handle, "SendTexture")(self.handle, self.textureId, GL_TEXTURE_2D, self.width, self.height, false, 0)
+		end
+		love.graphics.setCanvas(cur_canvas)
+	end)
+	if not ok then
+		-- Driver hiccup (typically right after a mode switch): log once, rebuild the
+		-- sender + canvas on the next frame instead of erroring every frame.
+		if not self._sendFailed then
+			logError("SPOUT send failed, reinitializing sender: " .. tostring(err))
+			self._sendFailed = true
+		end
+		love.graphics.setCanvas()
+		self.needsReinit = true
+	elseif self._sendFailed then
+		logInfo("SPOUT sender recovered: " .. self.name)
+		self._sendFailed = false
 	end
-	love.graphics.setCanvas(cur_canvas)
 end
 
 function spout.SpoutReceiver:ReceiveImage()

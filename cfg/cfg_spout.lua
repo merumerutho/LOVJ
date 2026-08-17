@@ -3,10 +3,13 @@
 -- Configure spout sender and receivers
 --
 
+local machine = require("lib/machine")
+
 local cfg_spout = {}
 local cfg_screen = lovjRequire("cfg/cfg_screen")
 
 cfg_spout.enable = true
+machine.apply("cfg_spout", cfg_spout)  -- before senders/receivers so a profile can redefine them
 
 cfg_spout.senders = 
 {
@@ -21,13 +24,14 @@ cfg_spout.receivers =
 cfg_spout.senderHandles = {}
 cfg_spout.receiverHandles = {}
 
-function cfg_spout.updateCanvases()
+--- @public invalidateSenders release all Spout senders ahead of a window mode
+--- switch; they rebuild lazily on their next SendCanvas (real senders only —
+--- the stub has no invalidate and needs none).
+function cfg_spout.invalidateSenders()
 	for i=1,#cfg_spout.senderHandles do
 		local s = cfg_spout.senderHandles[i]
-		if s.reinit then
-			s:reinit()
-		else
-			s.canvas = love.graphics.newCanvas(s.width, s.height)
+		if s.invalidate then
+			s:invalidate()
 		end
 	end
 end
