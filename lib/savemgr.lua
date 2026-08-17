@@ -89,6 +89,21 @@ function saveMgr.loadPatch(patchName, slot)
 			unrequire = false
 		end
 	end
+	-- Deterministic teardown of the outgoing patch (unless another slot shares its
+	-- module/instance): stop its workers via the optional cleanup() hook (video decode
+	-- threads etc.) and free its GPU canvases instead of waiting for GC.
+	local oldName = patchSlots[slot].name
+	local oldShared = false
+	for i = 1, #patchSlots do
+		if (i ~= slot) and (oldName == patchSlots[i].name) then
+			oldShared = true
+		end
+	end
+	local old = patchSlots[slot].patch
+	if old and not oldShared then
+		if old.cleanup then pcall(old.cleanup, old) end
+		if old.releaseCanvases then pcall(old.releaseCanvases, old) end
+	end
 	-- If that is the case, don't unrequire the patch
 	if (unrequire) then
 		lovjUnrequire(patchSlots[slot].name)
@@ -99,6 +114,9 @@ function saveMgr.loadPatch(patchName, slot)
 	-- Re-bind this slot to lick so subsequent edits to the new patch file
 	-- trigger a rebuild targeting this slot.
 	if bindPatchSlot then bindPatchSlot(slot) end
+	-- Bound the transient double-allocation of the swap (old canvases/buffers are
+	-- unreferenced by now — collect them before the new patch starts rendering).
+	collectgarbage("collect")
 end
 
 

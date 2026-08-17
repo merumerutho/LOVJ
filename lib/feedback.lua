@@ -97,6 +97,8 @@ function Feedback:resize(w, h)
     self.padX = math.floor((diag - w) / 2)
     self.padY = math.floor((diag - h) / 2)
 
+    if self.front then self.front:release() end
+    if self.back then self.back:release() end
     self.front = love.graphics.newCanvas(diag, diag)
     self.back = love.graphics.newCanvas(diag, diag)
 end

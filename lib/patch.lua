@@ -30,10 +30,35 @@ function Patch:setShaders()
 end
 
 
+--- @public releaseCanvases explicitly free this patch's GPU canvases (base, patch-specific
+--- and the lazy shader chain) instead of waiting for an incidental GC cycle. Called on
+--- every setCanvases reallocation and on patch switch; canvases must not be referenced
+--- after this (the next setCanvases rebuilds them).
+local function releaseCanvasTree(v)
+	if type(v) == "userdata" and v.typeOf and v:typeOf("Canvas") then
+		v:release()
+	elseif type(v) == "table" then
+		for _, c in pairs(v) do
+			releaseCanvasTree(c)
+		end
+	end
+end
+
+function Patch:releaseCanvases()
+	if not self.canvases then return end
+	for _, v in pairs(self.canvases) do
+		releaseCanvasTree(v)
+	end
+	self.canvases = nil
+end
+
+
 --- @public setCanvases (re)set canvases for patch
 function Patch:setCanvases()
+	self:releaseCanvases()
 	self.canvases = {}
 	self.canvases.ShaderCanvases = {}
+	self.canvases.FeedbackCanvases = {}  -- ping-pong pairs for stateful PP layers
 	self.canvases.main = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
 end
 
@@ -82,14 +107,39 @@ function Patch:drawExec(hang)
 	if cfgShaders.enabled then
 		local lastCanvas = self.canvases.main
 		local sc = self.canvases.ShaderCanvases
+		local fbl = self.canvases.FeedbackCanvases
 		for i = 1, #self.CurrentShaders do
-			if self.CurrentShaders[i].name ~= "00_default" and self.CurrentShaders[i].object then
-				if not sc[i] then
-					sc[i] = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+			local cur = self.CurrentShaders[i]
+			if cur.name ~= "00_default" and cur.object then
+				local dstCanvas
+				if cur.object:hasUniform("_prev") then
+					-- Stateful pass: a shader declaring `extern Image _prev` gets its
+					-- own previous OUTPUT as a texture (trails, freeze, persistence).
+					-- Ping-pong pair: read the front canvas, write the back, flip.
+					-- History resets when the layer's shader selection changes.
+					local fb = fbl[i]
+					if not fb or fb.name ~= cur.name then
+						if fb then releaseCanvasTree(fb) end
+						fb = { love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H),
+						       love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H),
+						       front = 1, name = cur.name }
+						for k = 1, 2 do  -- first frame must read silence, not garbage
+							love.graphics.setCanvas(fb[k])
+							love.graphics.clear(0, 0, 0, 1)
+						end
+						fbl[i] = fb
+					end
+					cur.object:send("_prev", fb[fb.front])
+					dstCanvas = fb[3 - fb.front]
+					fb.front = 3 - fb.front
+				else
+					if not sc[i] then
+						sc[i] = love.graphics.newCanvas(screen.InternalRes.W, screen.InternalRes.H)
+					end
+					dstCanvas = sc[i]
 				end
-				local dstCanvas = sc[i]
 				love.graphics.setCanvas(dstCanvas)
-				love.graphics.setShader(self.CurrentShaders[i].object)
+				love.graphics.setShader(cur.object)
 				love.graphics.draw(lastCanvas)
 				love.graphics.setShader()
 				if not hang then
