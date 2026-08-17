@@ -4,13 +4,16 @@
 -- Maps OSC addresses to generic commands
 --
 
+local machine = require("lib/machine")
+
 local cfg_osc_mapping = {}
 
--- OSC connection settings
+-- OSC connection settings. 0.0.0.0 binds on all interfaces (control from the LAN);
+-- restrict per machine via a profile if needed.
 cfg_osc_mapping.connections = {
     {
         id = "touchosc",
-        address = "127.0.0.1",
+        address = "0.0.0.0",
         port = 8000,
         enabled = true
     },
@@ -142,4 +145,4 @@ cfg_osc_mapping.directMappings["/lovj/global/selectedPatch"].transform = {"integ
 cfg_osc_mapping.directMappings["/lovj/system/fullscreen"].transform = {"booleanValue"}
 cfg_osc_mapping.directMappings["/lovj/system/shaders"].transform = {"booleanValue"}
 
-return cfg_osc_mapping
+return machine.apply("cfg_osc_mapping", cfg_osc_mapping)

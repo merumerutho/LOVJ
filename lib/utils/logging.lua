@@ -5,6 +5,16 @@
 
 logging = {}
 
+-- Line-buffered stdout: with the default full buffering, redirected output (systemd
+-- journal, log files) lags by kilobytes and drops the tail on crash. On Windows the
+-- C runtime has no line buffering — _IOLBF silently means FULL buffering, which turns
+-- a live console into multi-KB bursts — so disable buffering there instead.
+if package.config:sub(1, 1) == "\\" then
+	io.stdout:setvbuf("no")
+else
+	io.stdout:setvbuf("line")
+end
+
 logging.LOG_ERROR = bit.lshift(1, 1)
 logging.LOG_INFO = 	bit.lshift(1, 2)
 logging.LOG_DEBUG = bit.lshift(1, 3)

@@ -1,3 +1,5 @@
+local machine = require("lib/machine")
+
 local cfg_midi_mapping = {}
 
 cfg_midi_mapping.connections = {}
@@ -44,4 +46,4 @@ cfg_midi_mapping.autoDetect = {
     }
 }
 
-return cfg_midi_mapping
+return machine.apply("cfg_midi_mapping", cfg_midi_mapping)

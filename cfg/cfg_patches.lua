@@ -3,6 +3,8 @@
 -- Configure and handle patches configuration
 --
 
+local machine = require("lib/machine")
+
 local cfg_patches = {}
 
 -- Current state
@@ -45,4 +47,4 @@ cfg_patches.patches = {
 }
 
 
-return cfg_patches
+return machine.apply("cfg_patches", cfg_patches)

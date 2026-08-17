@@ -1,0 +1,32 @@
+-- cfg/machines/default.lua
+--
+-- The default machine profile: no overrides — LOVJ behaves exactly as the cfg/
+-- modules define. Select a different profile by setting the LOVJ_MACHINE
+-- environment variable to a file name under cfg/machines/ (without ".lua"),
+-- e.g. LOVJ_MACHINE=jetson-nano.
+--
+-- A profile holds DELTAS over cfg modules, keyed by module name. Array-valued
+-- overrides (like cfg_osc_mapping.connections) replace the whole array; nested
+-- map tables merge key-by-key. Supported everywhere machine.apply() is wired:
+--
+--   cfg_screen             INTERNAL_RES_WIDTH/HEIGHT, WINDOW_WIDTH/HEIGHT,
+--                          UPSCALE_MODE, UPSCALE_LOCKED, RENDER_SCALE,
+--                          VSYNC, FULLSCREEN_AT_BOOT
+--   cfg_app                title, icon, liveCoding, fpsLogHz
+--   cfg_studio             enabled, bindAddress, httpPort, wsPort, staticRoot
+--   cfg_osc_mapping        connections (array, replaced wholesale)
+--   cfg_midi_mapping       connections (array), autoDetect
+--   cfg_parameter_feedback enabled, discovery.*
+--   cfg_spout              enable, senders, receivers
+--   cfg_vision             enable, maxHot, hz, prewarm, dllDir, ROOT, PY,
+--                          preferred (per-family model choice), backends
+--   cfg_patches            defaultPatch, patches
+--   cfg_bpm                default_bpm
+--
+-- Example:
+--   return {
+--       cfg_screen = { WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720 },
+--       cfg_app    = { liveCoding = false },
+--   }
+
+return {}

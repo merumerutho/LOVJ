@@ -3,6 +3,8 @@
 -- Configuration for OSC parameter feedback and discovery system
 --
 
+local machine = require("lib/machine")
+
 local cfg_parameter_feedback = {}
 
 -- Parameter feedback settings
@@ -193,4 +195,4 @@ cfg_parameter_feedback.logging = {
     logClientConnections = true
 }
 
-return cfg_parameter_feedback
+return machine.apply("cfg_parameter_feedback", cfg_parameter_feedback)
